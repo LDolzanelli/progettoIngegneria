@@ -13,7 +13,7 @@ import java.util.Objects;
 @Getter
 @Setter
 @Embeddable
-public class LocationAddressId implements java.io.Serializable {
+public class LocationAddressIdEntity implements java.io.Serializable {
     private static final long serialVersionUID = 963444185785180780L;
     @Size(max = 100)
     @NotNull
@@ -34,7 +34,7 @@ public class LocationAddressId implements java.io.Serializable {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
-        LocationAddressId entity = (LocationAddressId) o;
+        LocationAddressIdEntity entity = (LocationAddressIdEntity) o;
         return Objects.equals(this.number, entity.number) &&
                 Objects.equals(this.town, entity.town) &&
                 Objects.equals(this.street, entity.street);

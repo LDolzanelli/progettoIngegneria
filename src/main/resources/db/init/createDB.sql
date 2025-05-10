@@ -6,11 +6,12 @@ CREATE TABLE area_of_interest (
 );
 
 CREATE TABLE users (
-  nickname VARCHAR(50) NOT NULL,
+  id INT NOT NULL AUTO_INCREMENT,
+  nickname VARCHAR(50) NOT NULL UNIQUE,
   password VARCHAR(255) NOT NULL,
   role VARCHAR(20) NOT NULL,
-  first_login BOOLEAN DEFAULT FALSE,
-  PRIMARY KEY (nickname),
+  first_login BOOLEAN DEFAULT TRUE,
+  PRIMARY KEY (id),
   CHECK (role IN ('configurator', 'volunteer', 'finalUser'))
 );
 
@@ -38,20 +39,20 @@ CREATE TABLE visit_types (
   id INT NOT NULL AUTO_INCREMENT,
   title VARCHAR(100) NOT NULL,
   description TEXT NOT NULL,
-  meetingPoint VARCHAR(100) NOT NULL,
-  startDate DATE NOT NULL,
-  endDate DATE NOT NULL,
-  startTime TIME NOT NULL,
+  meeting_point VARCHAR(100) NOT NULL,
+  start_date DATE NOT NULL,
+  end_date DATE NOT NULL,
+  start_time TIME NOT NULL,
   duration INT NOT NULL,
-  isFree BOOLEAN NOT NULL,
-  minNumParticp INT NOT NULL,
-  maxNumPartec INT NOT NULL,
+  is_free BOOLEAN NOT NULL,
+  min_num_participants INT NOT NULL,
+  max_num_participants INT NOT NULL,
   location_id INT NOT NULL,
   PRIMARY KEY (id),
   FOREIGN KEY (location_id) REFERENCES locations(id)
     ON DELETE CASCADE ON UPDATE CASCADE,
-  CHECK (minNumParticp >= 0),
-  CHECK (maxNumPartec >= minNumParticp)
+  CHECK (min_num_participants >= 0),
+  CHECK (max_num_participants >= min_num_participants)
 );
 
 CREATE TABLE visits (

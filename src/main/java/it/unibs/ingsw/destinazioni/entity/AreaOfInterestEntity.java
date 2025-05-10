@@ -12,13 +12,13 @@ import java.util.Set;
 @Setter
 @Entity
 @Table(name = "area_of_interest", schema = "destinazioni")
-public class AreaOfInterest {
+public class AreaOfInterestEntity {
     @Id
     @Size(max = 100)
     @Column(name = "town", nullable = false, length = 100)
     private String town;
 
     @OneToMany(mappedBy = "town")
-    private Set<it.unibs.ingsw.destinazioni.entity.LocationAddress> locationAddresses = new LinkedHashSet<>();
+    private Set<LocationAddressEntity> locationAddressEntities = new LinkedHashSet<>();
 
 }

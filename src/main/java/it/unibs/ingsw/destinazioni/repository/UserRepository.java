@@ -1,10 +1,10 @@
 package it.unibs.ingsw.destinazioni.repository;
 
-import it.unibs.ingsw.destinazioni.entity.User;
+import it.unibs.ingsw.destinazioni.entity.UserEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface UserRepository extends JpaRepository<User, String> {
-    User findByNickname(String nickname);
+public interface UserRepository extends JpaRepository<UserEntity, String> {
+    UserEntity findByNickname(String nickname);
 }

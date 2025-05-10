@@ -13,7 +13,7 @@ import java.util.Set;
 @Setter
 @Entity
 @Table(name = "locations", schema = "destinazioni")
-public class Location {
+public class LocationEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
@@ -29,9 +29,9 @@ public class Location {
     private String description;
 
     @OneToMany(mappedBy = "location")
-    private Set<LocationAddress> locationAddresses = new LinkedHashSet<>();
+    private Set<LocationAddressEntity> locationAddressEntities = new LinkedHashSet<>();
 
     @OneToMany(mappedBy = "location")
-    private Set<it.unibs.ingsw.destinazioni.entity.VisitType> visitTypes = new LinkedHashSet<>();
+    private Set<VisitTypeEntity> visitTypeEntities = new LinkedHashSet<>();
 
 }

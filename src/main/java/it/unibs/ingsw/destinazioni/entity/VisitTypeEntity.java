@@ -17,7 +17,7 @@ import java.util.Set;
 @Setter
 @Entity
 @Table(name = "visit_types", schema = "destinazioni")
-public class VisitType {
+public class VisitTypeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
@@ -35,19 +35,19 @@ public class VisitType {
 
     @Size(max = 100)
     @NotNull
-    @Column(name = "meetingPoint", nullable = false, length = 100)
+    @Column(name = "meeting_point", nullable = false, length = 100)
     private String meetingPoint;
 
     @NotNull
-    @Column(name = "startDate", nullable = false)
+    @Column(name = "start_date", nullable = false)
     private LocalDate startDate;
 
     @NotNull
-    @Column(name = "endDate", nullable = false)
+    @Column(name = "end_date", nullable = false)
     private LocalDate endDate;
 
     @NotNull
-    @Column(name = "startTime", nullable = false)
+    @Column(name = "start_time", nullable = false)
     private LocalTime startTime;
 
     @NotNull
@@ -55,27 +55,27 @@ public class VisitType {
     private Integer duration;
 
     @NotNull
-    @Column(name = "isFree", nullable = false)
+    @Column(name = "is_free", nullable = false)
     private Boolean isFree = false;
 
     @NotNull
-    @Column(name = "minNumParticp", nullable = false)
-    private Integer minNumParticp;
+    @Column(name = "min_num_participants", nullable = false)
+    private Integer minNumParticipants;
 
     @NotNull
-    @Column(name = "maxNumPartec", nullable = false)
-    private Integer maxNumPartec;
+    @Column(name = "max_num_participants", nullable = false)
+    private Integer maxNumParticipants;
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "location_id", nullable = false)
-    private Location location;
+    private LocationEntity location;
 
-    @OneToMany(mappedBy = "visitType")
-    private Set<VisitDay> visitDays = new LinkedHashSet<>();
+    @OneToMany(mappedBy = "visitTypeEntity")
+    private Set<VisitDayEntity> visitDayEntities = new LinkedHashSet<>();
 
-    @OneToMany(mappedBy = "visitType")
-    private Set<it.unibs.ingsw.destinazioni.entity.Visit> visits = new LinkedHashSet<>();
+    @OneToMany(mappedBy = "visitTypeEntity")
+    private Set<VisitEntity> visitEntities = new LinkedHashSet<>();
 
 }

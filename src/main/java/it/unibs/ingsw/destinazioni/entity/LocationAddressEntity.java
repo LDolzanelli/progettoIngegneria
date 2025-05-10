@@ -12,14 +12,14 @@ import org.hibernate.annotations.OnDeleteAction;
 @Setter
 @Entity
 @Table(name = "location_addresses", schema = "destinazioni")
-public class LocationAddress {
+public class LocationAddressEntity {
     @EmbeddedId
-    private LocationAddressId id;
+    private LocationAddressIdEntity id;
 
     @MapsId("town")
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "town", nullable = false)
-    private AreaOfInterest town;
+    private AreaOfInterestEntity town;
 
     @Size(max = 50)
     @NotNull
@@ -30,6 +30,6 @@ public class LocationAddress {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "location_id", nullable = false)
-    private it.unibs.ingsw.destinazioni.entity.Location location;
+    private LocationEntity location;
 
 }

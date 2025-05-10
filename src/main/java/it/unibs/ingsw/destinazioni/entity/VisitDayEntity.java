@@ -10,14 +10,14 @@ import org.hibernate.annotations.OnDeleteAction;
 @Setter
 @Entity
 @Table(name = "visit_days", schema = "destinazioni")
-public class VisitDay {
+public class VisitDayEntity {
     @EmbeddedId
-    private VisitDayId id;
+    private VisitDayIdEntity id;
 
     @MapsId("visitTypeId")
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "visit_type_id", nullable = false)
-    private it.unibs.ingsw.destinazioni.entity.VisitType visitType;
+    private VisitTypeEntity visitTypeEntity;
 
 }

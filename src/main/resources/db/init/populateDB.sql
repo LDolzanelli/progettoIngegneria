@@ -2,29 +2,29 @@ USE destinazioni;
 
 -- 1. Insert two configurators
 INSERT INTO users (nickname, password, role, first_login) VALUES
-('admin1', '$2a$10$xD7J5v6JZz5U5Z5U5Z5U5e', 'configurator', FALSE),
-('admin2', '$2a$10$xD7J5v6JZz5U5Z5U5Z5U5e', 'configurator', FALSE);
+('admin1', '$2a$10$xD7J5v6JZz5U5Z5U5Z5U5e', 'configurator', TRUE),
+('admin2', '$2a$10$xD7J5v6JZz5U5Z5U5Z5U5e', 'configurator', TRUE);
 
 -- 2. Insert five volunteers
 INSERT INTO users (nickname, password, role, first_login) VALUES
-('volunteer1', '$2a$10$xD7J5v6JZz5U5Z5U5Z5U5e', 'volunteer', FALSE),
-('volunteer2', '$2a$10$xD7J5v6JZz5U5Z5U5Z5U5e', 'volunteer', FALSE),
-('volunteer3', '$2a$10$xD7J5v6JZz5U5Z5U5Z5U5e', 'volunteer', FALSE),
-('volunteer4', '$2a$10$xD7J5v6JZz5U5Z5U5Z5U5e', 'volunteer', FALSE),
-('volunteer5', '$2a$10$xD7J5v6JZz5U5Z5U5Z5U5e', 'volunteer', FALSE);
+('volunteer1', '$2a$10$xD7J5v6JZz5U5Z5U5Z5U5e', 'volunteer', TRUE),
+('volunteer2', '$2a$10$xD7J5v6JZz5U5Z5U5Z5U5e', 'volunteer', TRUE),
+('volunteer3', '$2a$10$xD7J5v6JZz5U5Z5U5Z5U5e', 'volunteer', TRUE),
+('volunteer4', '$2a$10$xD7J5v6JZz5U5Z5U5Z5U5e', 'volunteer', TRUE),
+('volunteer5', '$2a$10$xD7J5v6JZz5U5Z5U5Z5U5e', 'volunteer', TRUE);
 
 -- 3. Insert ten final users
 INSERT INTO users (nickname, password, role, first_login) VALUES
-('user1', '$2a$10$xD7J5v6JZz5U5Z5U5Z5U5e', 'finalUser', FALSE),
-('user2', '$2a$10$xD7J5v6JZz5U5Z5U5Z5U5e', 'finalUser', FALSE),
-('user3', '$2a$10$xD7J5v6JZz5U5Z5U5Z5U5e', 'finalUser', FALSE),
-('user4', '$2a$10$xD7J5v6JZz5U5Z5U5Z5U5e', 'finalUser', FALSE),
-('user5', '$2a$10$xD7J5v6JZz5U5Z5U5Z5U5e', 'finalUser', FALSE),
-('user6', '$2a$10$xD7J5v6JZz5U5Z5U5Z5U5e', 'finalUser', FALSE),
-('user7', '$2a$10$xD7J5v6JZz5U5Z5U5Z5U5e', 'finalUser', FALSE),
-('user8', '$2a$10$xD7J5v6JZz5U5Z5U5Z5U5e', 'finalUser', FALSE),
-('user9', '$2a$10$xD7J5v6JZz5U5Z5U5Z5U5e', 'finalUser', FALSE),
-('user10', '$2a$10$xD7J5v6JZz5U5Z5U5Z5U5e', 'finalUser', FALSE);
+('user1', '$2a$10$xD7J5v6JZz5U5Z5U5Z5U5e', 'finalUser', TRUE),
+('user2', '$2a$10$xD7J5v6JZz5U5Z5U5Z5U5e', 'finalUser', TRUE),
+('user3', '$2a$10$xD7J5v6JZz5U5Z5U5Z5U5e', 'finalUser', TRUE),
+('user4', '$2a$10$xD7J5v6JZz5U5Z5U5Z5U5e', 'finalUser', TRUE),
+('user5', '$2a$10$xD7J5v6JZz5U5Z5U5Z5U5e', 'finalUser', TRUE),
+('user6', '$2a$10$xD7J5v6JZz5U5Z5U5Z5U5e', 'finalUser', TRUE),
+('user7', '$2a$10$xD7J5v6JZz5U5Z5U5Z5U5e', 'finalUser', TRUE),
+('user8', '$2a$10$xD7J5v6JZz5U5Z5U5Z5U5e', 'finalUser', TRUE),
+('user9', '$2a$10$xD7J5v6JZz5U5Z5U5Z5U5e', 'finalUser', TRUE),
+('user10', '$2a$10$xD7J5v6JZz5U5Z5U5Z5U5e', 'finalUser', TRUE);
 
 -- 4. Insert two towns in area_of_interest
 INSERT INTO area_of_interest (town) VALUES
@@ -44,7 +44,7 @@ INSERT INTO location_addresses (street, number, town, province, location_id) VAL
 ('Viale Brianza', '1', 'Monza', 'MB', 3);
 
 -- 6. Insert five visit types (with different start times)
-INSERT INTO visit_types (title, description, meetingPoint, startDate, endDate, startTime, duration, isFree, minNumParticp, maxNumPartec, location_id) VALUES
+INSERT INTO visit_types (title, description, meeting_point, start_date, end_date, start_time, duration, is_free, min_num_participants, max_num_participants, location_id) VALUES
 ('Duomo Guided Tour', 'Complete tour of the cathedral and terraces', 'Main entrance', '2024-03-01', '2024-12-31', '09:00:00', 120, FALSE, 5, 20, 1),
 ('Duomo Roof Access', 'Access to the cathedral terraces with panoramic views', 'Ticket office', '2024-03-01', '2024-12-31', '11:00:00', 90, FALSE, 2, 15, 1),
 ('Castle Museums Tour', 'Guided tour of the castle museums', 'Courtyard fountain', '2024-04-01', '2024-11-30', '10:30:00', 90, TRUE, 3, 15, 2),

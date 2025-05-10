@@ -16,7 +16,7 @@ import java.util.Set;
 @Setter
 @Entity
 @Table(name = "visits", schema = "destinazioni")
-public class Visit {
+public class VisitEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
@@ -29,7 +29,7 @@ public class Visit {
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "volunteer_nickname", nullable = false)
-    private User volunteerNickname;
+    private UserEntity volunteerNickname;
 
     @Size(max = 50)
     @NotNull
@@ -40,9 +40,9 @@ public class Visit {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "visit_type_id", nullable = false)
-    private VisitType visitType;
+    private VisitTypeEntity visitTypeEntity;
 
     @ManyToMany
-    private Set<User> users = new LinkedHashSet<>();
+    private Set<UserEntity> users = new LinkedHashSet<>();
 
 }

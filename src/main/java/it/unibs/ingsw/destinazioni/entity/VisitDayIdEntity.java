@@ -13,29 +13,29 @@ import java.util.Objects;
 @Getter
 @Setter
 @Embeddable
-public class VisitorId implements java.io.Serializable {
-    private static final long serialVersionUID = -3185293558365843399L;
+public class VisitDayIdEntity implements java.io.Serializable {
+    private static final long serialVersionUID = -3284533581211054117L;
     @NotNull
-    @Column(name = "visit_id", nullable = false)
-    private Integer visitId;
+    @Column(name = "visit_type_id", nullable = false)
+    private Integer visitTypeId;
 
-    @Size(max = 50)
+    @Size(max = 9)
     @NotNull
-    @Column(name = "visitor_nickname", nullable = false, length = 50)
-    private String visitorNickname;
+    @Column(name = "day_of_week", nullable = false, length = 9)
+    private String dayOfWeek;
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
-        VisitorId entity = (VisitorId) o;
-        return Objects.equals(this.visitId, entity.visitId) &&
-                Objects.equals(this.visitorNickname, entity.visitorNickname);
+        VisitDayIdEntity entity = (VisitDayIdEntity) o;
+        return Objects.equals(this.dayOfWeek, entity.dayOfWeek) &&
+                Objects.equals(this.visitTypeId, entity.visitTypeId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(visitId, visitorNickname);
+        return Objects.hash(dayOfWeek, visitTypeId);
     }
 
 }

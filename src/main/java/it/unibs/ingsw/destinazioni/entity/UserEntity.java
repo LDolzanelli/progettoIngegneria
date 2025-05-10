@@ -1,9 +1,6 @@
 package it.unibs.ingsw.destinazioni.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
@@ -14,10 +11,13 @@ import org.hibernate.annotations.ColumnDefault;
 @Setter
 @Entity
 @Table(name = "users", schema = "destinazioni")
-public class User {
+public class UserEntity {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
+
+    @NotNull
     @Size(max = 50)
-    @Column(name = "nickname", nullable = false, length = 50)
     private String nickname;
 
     @Size(max = 255)
