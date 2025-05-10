@@ -11,14 +11,15 @@ public class UserService {
 
     private final UserRepository userRepository;
 
-    public UserEntity findUser(String nickname) {
+    public UserEntity findByNickname(String nickname) {
         return userRepository.findByNickname(nickname);
     }
 
-    public UserEntity updateUser(String nickname, UserEntity user) {
-        UserEntity existingUser = findUser(nickname);
-//        existingUser.setNickname(nickname);
-//
-//        return userRepository.save(existingUser);
+    public UserEntity updateNickname(int userId, String newNickname) {
+        UserEntity existingUser = userRepository.findById(userId)
+                .orElseThrow();
+        existingUser.setNickname(newNickname);
+
+        return userRepository.save(existingUser);
     }
 }

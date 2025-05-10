@@ -14,12 +14,12 @@ public class UserController {
 
     @GetMapping("{nickname}")
     public UserEntity findUser(@PathVariable("nickname") String nickname) {
-        return service.findUser(nickname);
+        return service.findByNickname(nickname);
     }
 
-    @PostMapping("{nickname}")
-    public UserEntity updateUser(@PathVariable("nickname") String nickname, @RequestBody UserEntity user) {
-        return service.updateUser(nickname, user);
+    @PostMapping("/{userId}/updateNickname")
+    public UserEntity updateNickname(@PathVariable("userId") int userId, @RequestBody String newNickname) {
+        return service.updateNickname(userId, newNickname);
     }
 
 
