@@ -1,0 +1,28 @@
+package it.unibs.ingsw.destinazioni.entity;
+
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
+@Getter
+@Setter
+@Entity
+@Table(name = "visitors", schema = "destinazioni")
+public class Visitor {
+    @EmbeddedId
+    private VisitorId id;
+
+    @MapsId("visitId")
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @JoinColumn(name = "visit_id", nullable = false)
+    private it.unibs.ingsw.destinazioni.entity.Visit visit;
+
+    @MapsId("visitorNickname")
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "visitor_nickname", nullable = false)
+    private User visitorNickname;
+
+}
