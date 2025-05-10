@@ -12,8 +12,8 @@ public class UserController {
 
     private final UserService service;
 
-    @PostMapping
-    public User addUser(@RequestBody User user) {
-        return service.createUser(user);
+    @GetMapping
+    public User findUser(String nickname) {
+        return service.findUser(nickname);
     }
 }

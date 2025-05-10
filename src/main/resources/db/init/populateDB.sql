@@ -1,12 +1,12 @@
 USE destinazioni;
 
 -- 1. Insert two configurators
-INSERT INTO users (nickname, password, role, firstLogin) VALUES
+INSERT INTO users (nickname, password, role, first_login) VALUES
 ('admin1', '$2a$10$xD7J5v6JZz5U5Z5U5Z5U5e', 'configurator', FALSE),
 ('admin2', '$2a$10$xD7J5v6JZz5U5Z5U5Z5U5e', 'configurator', FALSE);
 
 -- 2. Insert five volunteers
-INSERT INTO users (nickname, password, role, firstLogin) VALUES
+INSERT INTO users (nickname, password, role, first_login) VALUES
 ('volunteer1', '$2a$10$xD7J5v6JZz5U5Z5U5Z5U5e', 'volunteer', FALSE),
 ('volunteer2', '$2a$10$xD7J5v6JZz5U5Z5U5Z5U5e', 'volunteer', FALSE),
 ('volunteer3', '$2a$10$xD7J5v6JZz5U5Z5U5Z5U5e', 'volunteer', FALSE),
@@ -14,7 +14,7 @@ INSERT INTO users (nickname, password, role, firstLogin) VALUES
 ('volunteer5', '$2a$10$xD7J5v6JZz5U5Z5U5Z5U5e', 'volunteer', FALSE);
 
 -- 3. Insert ten final users
-INSERT INTO users (nickname, password, role, firstLogin) VALUES
+INSERT INTO users (nickname, password, role, first_login) VALUES
 ('user1', '$2a$10$xD7J5v6JZz5U5Z5U5Z5U5e', 'finalUser', FALSE),
 ('user2', '$2a$10$xD7J5v6JZz5U5Z5U5Z5U5e', 'finalUser', FALSE),
 ('user3', '$2a$10$xD7J5v6JZz5U5Z5U5Z5U5e', 'finalUser', FALSE),

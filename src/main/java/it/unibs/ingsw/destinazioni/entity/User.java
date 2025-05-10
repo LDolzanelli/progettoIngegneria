@@ -31,7 +31,7 @@ public class User {
     private String role;
 
     @ColumnDefault("0")
-    @Column(name = "firstLogin")
+    @Column(name = "first_login")
     private Boolean firstLogin;
 
 }

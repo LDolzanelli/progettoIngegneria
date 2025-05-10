@@ -9,7 +9,7 @@ CREATE TABLE users (
   nickname VARCHAR(50) NOT NULL,
   password VARCHAR(255) NOT NULL,
   role VARCHAR(20) NOT NULL,
-  firstLogin BOOLEAN DEFAULT FALSE,
+  first_login BOOLEAN DEFAULT FALSE,
   PRIMARY KEY (nickname),
   CHECK (role IN ('configurator', 'volunteer', 'finalUser'))
 );
