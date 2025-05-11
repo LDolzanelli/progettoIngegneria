@@ -1,11 +1,16 @@
 package it.unibs.ingsw.destinazioni.views;
 
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 import it.unibs.ingsw.destinazioni.service.SecurityUtils;
 import jakarta.annotation.security.PermitAll;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 
 @Route("")
 @PermitAll
@@ -17,6 +22,6 @@ public class HomeView extends VerticalLayout {
         add(new Paragraph("This is the home view"));
         add(new Paragraph(SecurityUtils.getCurrentUsername()));
         add(new Paragraph("You can edit this view in src\\main\\java\\it\\unibs\\ingsw\\destinazioni\\views\\HomeView.java"));
-
     }
+
 }

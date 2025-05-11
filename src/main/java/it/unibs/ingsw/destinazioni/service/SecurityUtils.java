@@ -12,7 +12,7 @@ public class SecurityUtils {
             Object principal = authentication.getPrincipal();
 
             if (principal instanceof UserDetails) {
-                return ((UserDetails) principal).getUsername(); // returns "user" in your example
+                return ((UserDetails) principal).getUsername();
             } else if (principal instanceof String) {
                 return (String) principal;
             }

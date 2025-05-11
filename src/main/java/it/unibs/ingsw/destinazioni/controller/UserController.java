@@ -5,6 +5,8 @@ import it.unibs.ingsw.destinazioni.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Optional;
+
 @RestController
 @RequestMapping(value = "/api/users")
 @RequiredArgsConstructor
@@ -13,7 +15,7 @@ public class UserController {
     private final UserService service;
 
     @GetMapping("{nickname}")
-    public UserEntity findUser(@PathVariable("nickname") String nickname) {
+    public Optional<UserEntity> findUser(@PathVariable("nickname") String nickname) {
         return service.findByNickname(nickname);
     }
 
@@ -22,5 +24,9 @@ public class UserController {
         return service.updateNickname(userId, newNickname);
     }
 
+    @PostMapping("/{userId}/updatePassword")
+    public UserEntity updatePassword(@PathVariable("userId") int userId, @RequestBody String newPassword) {
+        return service.updatePassword(userId, newPassword);
+    }
 
 }

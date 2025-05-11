@@ -5,13 +5,15 @@ import it.unibs.ingsw.destinazioni.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class UserService {
 
     private final UserRepository userRepository;
 
-    public UserEntity findByNickname(String nickname) {
+    public Optional<UserEntity> findByNickname(String nickname) {
         return userRepository.findByNickname(nickname);
     }
 
@@ -19,6 +21,14 @@ public class UserService {
         UserEntity existingUser = userRepository.findById(userId)
                 .orElseThrow();
         existingUser.setNickname(newNickname);
+
+        return userRepository.save(existingUser);
+    }
+
+    public UserEntity updatePassword(int userId, String newPassword) {
+        UserEntity existingUser = userRepository.findById(userId)
+                .orElseThrow();
+        existingUser.setPassword(newPassword);
 
         return userRepository.save(existingUser);
     }
