@@ -1,4 +1,4 @@
-package it.unibs.ingsw.destinazioni.service;
+package it.unibs.ingsw.destinazioni.security;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
