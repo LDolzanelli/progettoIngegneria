@@ -33,7 +33,8 @@ build/
 target/
 src/main/frontend/
 
-
+mvnw.cmd
+mvnw
 
 mvnw
 mvnw.cmd
