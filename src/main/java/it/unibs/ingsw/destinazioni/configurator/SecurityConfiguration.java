@@ -22,13 +22,13 @@ public class SecurityConfiguration extends VaadinWebSecurity {
         http
                 .logout(logout -> logout
                         .logoutUrl("/logout")
-                        .logoutSuccessUrl("/login") // or wherever you want to redirect
+                        .logoutSuccessUrl("/login")
                         .permitAll()
                 );
     }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return NoOpPasswordEncoder.getInstance(); // Disable password encoding
+        return new BCryptPasswordEncoder(); // Disable password encoding
     }
 }

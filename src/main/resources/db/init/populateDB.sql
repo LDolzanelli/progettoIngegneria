@@ -2,29 +2,29 @@ USE destinazioni;
 
 -- 1. Insert two configurators
 INSERT INTO users (nickname, password, role, first_login) VALUES
-('admin1', '$2a$10$xD7J5v6JZz5U5Z5U5Z5U5e', 'configurator', TRUE),
-('admin2', '$2a$10$xD7J5v6JZz5U5Z5U5Z5U5e', 'configurator', TRUE);
+('admin1', '$2a$10$IZi.HLr26eZ8BrcDAgtoQu2gm5OPjkPMeZjWFivZAVmwXGmm6B4uC', 'configurator', TRUE),
+('admin2', '$2a$10$IZi.HLr26eZ8BrcDAgtoQu2gm5OPjkPMeZjWFivZAVmwXGmm6B4uC', 'configurator', TRUE);
 
 -- 2. Insert five volunteers
 INSERT INTO users (nickname, password, role, first_login) VALUES
-('volunteer1', '$2a$10$xD7J5v6JZz5U5Z5U5Z5U5e', 'volunteer', TRUE),
-('volunteer2', '$2a$10$xD7J5v6JZz5U5Z5U5Z5U5e', 'volunteer', TRUE),
-('volunteer3', '$2a$10$xD7J5v6JZz5U5Z5U5Z5U5e', 'volunteer', TRUE),
-('volunteer4', '$2a$10$xD7J5v6JZz5U5Z5U5Z5U5e', 'volunteer', TRUE),
-('volunteer5', '$2a$10$xD7J5v6JZz5U5Z5U5Z5U5e', 'volunteer', TRUE);
+('volunteer1', '$2a$10$IZi.HLr26eZ8BrcDAgtoQu2gm5OPjkPMeZjWFivZAVmwXGmm6B4uC', 'volunteer', TRUE),
+('volunteer2', '$2a$10$IZi.HLr26eZ8BrcDAgtoQu2gm5OPjkPMeZjWFivZAVmwXGmm6B4uC', 'volunteer', TRUE),
+('volunteer3', '$2a$10$IZi.HLr26eZ8BrcDAgtoQu2gm5OPjkPMeZjWFivZAVmwXGmm6B4uC', 'volunteer', TRUE),
+('volunteer4', '$2a$10$IZi.HLr26eZ8BrcDAgtoQu2gm5OPjkPMeZjWFivZAVmwXGmm6B4uC', 'volunteer', TRUE),
+('volunteer5', '$2a$10$IZi.HLr26eZ8BrcDAgtoQu2gm5OPjkPMeZjWFivZAVmwXGmm6B4uC', 'volunteer', TRUE);
 
 -- 3. Insert ten final users
 INSERT INTO users (nickname, password, role, first_login) VALUES
-('user1', '$2a$10$xD7J5v6JZz5U5Z5U5Z5U5e', 'finalUser', TRUE),
-('user2', '$2a$10$xD7J5v6JZz5U5Z5U5Z5U5e', 'finalUser', TRUE),
-('user3', '$2a$10$xD7J5v6JZz5U5Z5U5Z5U5e', 'finalUser', TRUE),
-('user4', '$2a$10$xD7J5v6JZz5U5Z5U5Z5U5e', 'finalUser', TRUE),
-('user5', '$2a$10$xD7J5v6JZz5U5Z5U5Z5U5e', 'finalUser', TRUE),
-('user6', '$2a$10$xD7J5v6JZz5U5Z5U5Z5U5e', 'finalUser', TRUE),
-('user7', '$2a$10$xD7J5v6JZz5U5Z5U5Z5U5e', 'finalUser', TRUE),
-('user8', '$2a$10$xD7J5v6JZz5U5Z5U5Z5U5e', 'finalUser', TRUE),
-('user9', '$2a$10$xD7J5v6JZz5U5Z5U5Z5U5e', 'finalUser', TRUE),
-('user10', '$2a$10$xD7J5v6JZz5U5Z5U5Z5U5e', 'finalUser', TRUE);
+('user1', '$2a$10$IZi.HLr26eZ8BrcDAgtoQu2gm5OPjkPMeZjWFivZAVmwXGmm6B4uC', 'finalUser', TRUE),
+('user2', '$2a$10$IZi.HLr26eZ8BrcDAgtoQu2gm5OPjkPMeZjWFivZAVmwXGmm6B4uC', 'finalUser', TRUE),
+('user3', '$2a$10$IZi.HLr26eZ8BrcDAgtoQu2gm5OPjkPMeZjWFivZAVmwXGmm6B4uC', 'finalUser', TRUE),
+('user4', '$2a$10$IZi.HLr26eZ8BrcDAgtoQu2gm5OPjkPMeZjWFivZAVmwXGmm6B4uC', 'finalUser', TRUE),
+('user5', '$2a$10$IZi.HLr26eZ8BrcDAgtoQu2gm5OPjkPMeZjWFivZAVmwXGmm6B4uC', 'finalUser', TRUE),
+('user6', '$2a$10$IZi.HLr26eZ8BrcDAgtoQu2gm5OPjkPMeZjWFivZAVmwXGmm6B4uC', 'finalUser', TRUE),
+('user7', '$2a$10$IZi.HLr26eZ8BrcDAgtoQu2gm5OPjkPMeZjWFivZAVmwXGmm6B4uC', 'finalUser', TRUE),
+('user8', '$2a$10$IZi.HLr26eZ8BrcDAgtoQu2gm5OPjkPMeZjWFivZAVmwXGmm6B4uC', 'finalUser', TRUE),
+('user9', '$2a$10$IZi.HLr26eZ8BrcDAgtoQu2gm5OPjkPMeZjWFivZAVmwXGmm6B4uC', 'finalUser', TRUE),
+('user10', '$2a$10$IZi.HLr26eZ8BrcDAgtoQu2gm5OPjkPMeZjWFivZAVmwXGmm6B4uC', 'finalUser', TRUE);
 
 -- 4. Insert two towns in area_of_interest
 INSERT INTO area_of_interest (town) VALUES
@@ -74,3 +74,5 @@ INSERT INTO visitors (visit_id, visitor_nickname) VALUES
 (3, 'user9'), (3, 'user10'), (3, 'user1'), (3, 'user2'),
 (4, 'user3'), (4, 'user4'), (4, 'user5'),
 (5, 'user6'), (5, 'user7'), (5, 'user8'), (5, 'user9');
+
+INSERT INTO config (name, value) VALUES ('max_tickets_per_user_per_event', '10');

@@ -30,5 +30,12 @@ build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 
+target/
+src/main/frontend/
+
+mvnw
+mvnw.cmd
+.gitattributes
+
 ### VS Code ###
 .vscode/

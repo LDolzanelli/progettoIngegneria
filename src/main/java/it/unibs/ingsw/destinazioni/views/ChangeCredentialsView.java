@@ -56,8 +56,6 @@ public class ChangeCredentialsView extends VerticalLayout {
 
             userRepository.findByNickname(currentUsername).ifPresentOrElse(user -> {
                 user.setNickname(username);
-                //for now it's not actually encoding.
-                //TODO: encode passwords in DB
                 user.setPassword(passwordEncoder.encode(password));
                 user.setFirstLogin(false);
                 userRepository.save(user);

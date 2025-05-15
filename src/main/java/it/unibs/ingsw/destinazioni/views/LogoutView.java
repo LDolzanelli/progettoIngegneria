@@ -17,7 +17,6 @@ public class LogoutView extends Main implements AfterNavigationObserver {
 
     public LogoutView(AuthenticationContext authenticationContext) {
         this.authenticationContext = authenticationContext;
-        add(new Paragraph("Logging out..."));
     }
 
     @Override

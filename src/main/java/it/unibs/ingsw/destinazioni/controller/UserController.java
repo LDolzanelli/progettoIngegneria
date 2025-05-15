@@ -2,11 +2,13 @@ package it.unibs.ingsw.destinazioni.controller;
 
 import it.unibs.ingsw.destinazioni.entity.UserEntity;
 import it.unibs.ingsw.destinazioni.service.UserService;
+import jakarta.annotation.security.PermitAll;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
 
+@PermitAll
 @RestController
 @RequestMapping(value = "/api/users")
 @RequiredArgsConstructor
