@@ -31,7 +31,7 @@ build/
 !**/src/test/**/build/
 
 target/
-src/main/frontend/
+
 
 mvnw
 mvnw.cmd
