@@ -1,11 +1,11 @@
-package it.unibs.ingsw.destinazioni.controller;
+package it.unibs.ingsw.destinazioni.controllers;
 
-import it.unibs.ingsw.destinazioni.entity.UserEntity;
-import it.unibs.ingsw.destinazioni.service.UserService;
+
 import jakarta.annotation.security.PermitAll;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-
+import it.unibs.ingsw.destinazioni.domain.model.User;
+import it.unibs.ingsw.destinazioni.services.UserService;
 import java.util.Optional;
 
 @PermitAll
@@ -17,17 +17,17 @@ public class UserController {
     private final UserService service;
 
     @GetMapping("{nickname}")
-    public Optional<UserEntity> findUser(@PathVariable("nickname") String nickname) {
+    public Optional<User> findUser(@PathVariable("nickname") String nickname) {
         return service.findByNickname(nickname);
     }
 
     @PostMapping("/{userId}/updateNickname")
-    public UserEntity updateNickname(@PathVariable("userId") int userId, @RequestBody String newNickname) {
+    public User updateNickname(@PathVariable("userId") int userId, @RequestBody String newNickname) {
         return service.updateNickname(userId, newNickname);
     }
 
     @PostMapping("/{userId}/updatePassword")
-    public UserEntity updatePassword(@PathVariable("userId") int userId, @RequestBody String newPassword) {
+    public User updatePassword(@PathVariable("userId") int userId, @RequestBody String newPassword) {
         return service.updatePassword(userId, newPassword);
     }
 

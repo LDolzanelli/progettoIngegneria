@@ -1,8 +1,8 @@
 package it.unibs.ingsw.destinazioni.repository;
 
-import it.unibs.ingsw.destinazioni.entity.VisitTypeEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+import it.unibs.ingsw.destinazioni.adapters.jpa.entity.VisitTypeEntity;
 
 @Repository
 public interface VisitTypeRepository extends JpaRepository<VisitTypeEntity, Integer> {

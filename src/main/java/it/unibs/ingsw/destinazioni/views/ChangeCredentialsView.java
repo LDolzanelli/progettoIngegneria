@@ -9,8 +9,7 @@ import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.PageTitle;
-import it.unibs.ingsw.destinazioni.entity.UserEntity;
-import it.unibs.ingsw.destinazioni.repository.UserRepository;
+import it.unibs.ingsw.destinazioni.domain.port.UserRepositoryPort;
 import it.unibs.ingsw.destinazioni.security.SecurityUtils;
 import jakarta.annotation.security.PermitAll;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -20,7 +19,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @PermitAll
 public class ChangeCredentialsView extends VerticalLayout {
 
-    public ChangeCredentialsView(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public ChangeCredentialsView(UserRepositoryPort userRepository, PasswordEncoder passwordEncoder) {
         setSpacing(true);
         setAlignItems(Alignment.CENTER);
 

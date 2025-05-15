@@ -1,4 +1,4 @@
-package it.unibs.ingsw.destinazioni.entity;
+package it.unibs.ingsw.destinazioni.adapters.jpa.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

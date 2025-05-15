@@ -1,4 +1,4 @@
-package it.unibs.ingsw.destinazioni.entity;
+package it.unibs.ingsw.destinazioni.adapters.jpa.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;

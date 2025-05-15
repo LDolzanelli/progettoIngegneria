@@ -5,16 +5,16 @@ import com.vaadin.flow.component.login.LoginForm;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
-import it.unibs.ingsw.destinazioni.repository.UserRepository;
+import it.unibs.ingsw.destinazioni.domain.port.UserRepositoryPort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Route("login")
 @AnonymousAllowed
 public class LoginView extends VerticalLayout {
 
-    private final UserRepository userRepository;
+    private final UserRepositoryPort userRepository;
 
-    public LoginView(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public LoginView(UserRepositoryPort userRepository, PasswordEncoder passwordEncoder) {
         setSizeFull();
         setAlignItems(Alignment.CENTER);
         setJustifyContentMode(JustifyContentMode.CENTER);
