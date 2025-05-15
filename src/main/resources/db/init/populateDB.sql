@@ -67,12 +67,4 @@ INSERT INTO visits (date, volunteer_nickname, status, visit_type_id) VALUES
 ('2024-05-03', 'volunteer4', 'completed', 4),  -- Friday
 ('2024-06-01', 'volunteer5', 'completed', 5);  -- Saturday
 
--- Insert visitors for each visit
-INSERT INTO visitors (visit_id, visitor_nickname) VALUES
-(1, 'user1'), (1, 'user2'), (1, 'user3'), (1, 'user4'), (1, 'user5'),
-(2, 'user6'), (2, 'user7'), (2, 'user8'),
-(3, 'user9'), (3, 'user10'), (3, 'user1'), (3, 'user2'),
-(4, 'user3'), (4, 'user4'), (4, 'user5'),
-(5, 'user6'), (5, 'user7'), (5, 'user8'), (5, 'user9');
-
 INSERT INTO config (name, value) VALUES ('max_tickets_per_user_per_event', '10');

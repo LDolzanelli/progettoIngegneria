@@ -21,8 +21,8 @@ public class VisitorIdEntity implements java.io.Serializable {
 
     @Size(max = 50)
     @NotNull
-    @Column(name = "visitor_nickname", nullable = false, length = 50)
-    private String visitorNickname;
+    @Column(name = "visitor_id", nullable = false, length = 50)
+    private String visitorId;
 
     @Override
     public boolean equals(Object o) {
@@ -30,12 +30,12 @@ public class VisitorIdEntity implements java.io.Serializable {
         if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
         VisitorIdEntity entity = (VisitorIdEntity) o;
         return Objects.equals(this.visitId, entity.visitId) &&
-                Objects.equals(this.visitorNickname, entity.visitorNickname);
+                Objects.equals(this.visitorId, entity.visitorId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(visitId, visitorNickname);
+        return Objects.hash(visitId, visitorId);
     }
 
 }

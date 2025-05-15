@@ -20,9 +20,9 @@ public class VisitorEntity {
     @JoinColumn(name = "visit_id", nullable = false)
     private VisitEntity visitEntity;
 
-    @MapsId("visitorNickname")
+    @MapsId("visitorId")
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "visitor_nickname", nullable = false)
-    private UserEntity visitorNickname;
+    @JoinColumn(name = "visitor_id", nullable = false)
+    private UserEntity visitorId;
 
 }

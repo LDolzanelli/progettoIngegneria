@@ -71,11 +71,11 @@ CREATE TABLE visits (
 
 CREATE TABLE visitors (
   visit_id INT NOT NULL,
-  visitor_nickname VARCHAR(50) NOT NULL,
-  PRIMARY KEY (visit_id, visitor_nickname),
+  visitor_id INT NOT NULL,
+  PRIMARY KEY (visit_id, visitor_id),
   FOREIGN KEY (visit_id) REFERENCES visits(id)
     ON DELETE CASCADE ON UPDATE CASCADE,
-  FOREIGN KEY (visitor_nickname) REFERENCES users(nickname)
+  FOREIGN KEY (visitor_id) REFERENCES users(id)
     ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
@@ -88,7 +88,16 @@ CREATE TABLE visit_days (
 );
 
 CREATE TABLE config (
-    name VARCHAR(100) PRIMARY KEY,
-    value VARCHAR(100) NOT NULL
+  name VARCHAR(100) PRIMARY KEY,
+  value VARCHAR(100) NOT NULL
 );
 
+CREATE TABLE volunteers_visit_types (
+  visit_type_id INT NOT NULL,
+  volunteer_id INT NOT NULL,
+  PRIMARY KEY (visit_type_id, volunteer_id),
+  FOREIGN KEY (visit_type_id) REFERENCES visit_types(id)
+      ON DELETE CASCADE ON UPDATE CASCADE,
+  FOREIGN KEY (volunteer_id) REFERENCES users(id)
+      ON DELETE RESTRICT ON UPDATE CASCADE
+);
