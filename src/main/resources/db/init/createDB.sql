@@ -65,7 +65,8 @@ CREATE TABLE visits (
   FOREIGN KEY (volunteer_nickname) REFERENCES users(nickname)
     ON DELETE RESTRICT ON UPDATE CASCADE,
   FOREIGN KEY (visit_type_id) REFERENCES visit_types(id)
-    ON DELETE CASCADE ON UPDATE CASCADE
+    ON DELETE CASCADE ON UPDATE CASCADE,
+  CHECK (status IN ('proposed', 'completed', 'cancelled', 'full', 'confirmed'))
 );
 
 CREATE TABLE visitors (
@@ -84,5 +85,10 @@ CREATE TABLE visit_days (
   PRIMARY KEY (visit_type_id, day_of_week),
   FOREIGN KEY (visit_type_id) REFERENCES visit_types(id) ON DELETE CASCADE,
   CHECK (day_of_week IN ('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'))
+);
+
+CREATE TABLE config (
+    name VARCHAR(100) PRIMARY KEY,
+    value VARCHAR(100) NOT NULL
 );
 
