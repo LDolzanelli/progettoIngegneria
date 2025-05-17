@@ -28,10 +28,10 @@ public class LocationEntity {
     @Column(name = "description")
     private String description;
 
-    @OneToMany(mappedBy = "location")
-    private Set<LocationAddressEntity> locationAddressEntities = new LinkedHashSet<>();
+    @OneToOne(mappedBy = "location", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private LocationAddressEntity locationAddress;
 
-    @OneToMany(mappedBy = "location")
+    @OneToMany(mappedBy = "location", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<VisitTypeEntity> visitTypeEntities = new LinkedHashSet<>();
 
 }

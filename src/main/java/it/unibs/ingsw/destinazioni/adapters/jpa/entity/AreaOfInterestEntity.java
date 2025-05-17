@@ -5,8 +5,6 @@ import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.LinkedHashSet;
-import java.util.Set;
 
 @Getter
 @Setter
@@ -17,8 +15,5 @@ public class AreaOfInterestEntity {
     @Size(max = 100)
     @Column(name = "town", nullable = false, length = 100)
     private String town;
-
-    @OneToMany(mappedBy = "town")
-    private Set<LocationAddressEntity> locationAddressEntities = new LinkedHashSet<>();
 
 }

@@ -72,10 +72,12 @@ public class VisitTypeEntity {
     @JoinColumn(name = "location_id", nullable = false)
     private LocationEntity location;
 
-    @OneToMany(mappedBy = "visitTypeEntity")
+
+    @OneToMany(mappedBy = "visitTypeEntity", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<VisitDayEntity> visitDayEntities = new LinkedHashSet<>();
 
-    @OneToMany(mappedBy = "visitTypeEntity")
+
+    @OneToMany(mappedBy = "visitType")
     private Set<VisitEntity> visitEntities = new LinkedHashSet<>();
 
 }

@@ -1,3 +1,23 @@
-application:
-  destinazioni:
-    current-test-date: 2025-05-05
+spring:
+  application:
+    destinazioni:
+      current-test-date: 2025-05-05
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/destinazioni_test
+    username: destinazioni
+    password: destinazioni
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: none 
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+  test:
+    database:
+      replace: none
+    

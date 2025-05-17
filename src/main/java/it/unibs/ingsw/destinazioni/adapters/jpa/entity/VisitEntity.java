@@ -28,8 +28,8 @@ public class VisitEntity {
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "volunteer_nickname", nullable = false)
-    private UserEntity volunteerNickname;
+    @JoinColumn(name = "volunteer_id", referencedColumnName = "id", nullable = false)
+    private UserEntity volunteer;
 
     @Size(max = 50)
     @NotNull
@@ -40,7 +40,7 @@ public class VisitEntity {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "visit_type_id", nullable = false)
-    private VisitTypeEntity visitTypeEntity;
+    private VisitTypeEntity visitType;
 
     @ManyToMany
     private Set<UserEntity> users = new LinkedHashSet<>();

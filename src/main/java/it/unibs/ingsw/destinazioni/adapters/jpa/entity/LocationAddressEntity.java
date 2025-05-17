@@ -16,10 +16,6 @@ public class LocationAddressEntity {
     @EmbeddedId
     private LocationAddressIdEntity id;
 
-    @MapsId("town")
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "town", nullable = false)
-    private AreaOfInterestEntity town;
 
     @Size(max = 50)
     @NotNull
@@ -27,9 +23,9 @@ public class LocationAddressEntity {
     private String province;
 
     @NotNull
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    @JoinColumn(name = "location_id", nullable = false)
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "location_id", nullable = false, unique = true)
     private LocationEntity location;
 
 }
