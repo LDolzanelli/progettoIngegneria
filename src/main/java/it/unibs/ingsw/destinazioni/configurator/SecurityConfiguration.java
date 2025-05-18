@@ -1,45 +1,61 @@
 package it.unibs.ingsw.destinazioni.configurator;
 
-import com.vaadin.flow.spring.security.VaadinWebSecurity;
-import it.unibs.ingsw.destinazioni.views.LoginView;
+import it.unibs.ingsw.destinazioni.services.CustomUserDetailsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
-@EnableWebSecurity
 @Configuration
-public class SecurityConfiguration extends VaadinWebSecurity {
+public class SecurityConfiguration {
 
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
+    private final CustomUserDetailsService userDetailsService;
+    private final CustomAuthenticationSuccessHandler successHandler;
 
-        // ❌ Disattiva CSRF solo per le API
-        http.csrf(csrf -> csrf
-                .ignoringRequestMatchers(new AntPathRequestMatcher("/api/**"))
-        );
+    public SecurityConfiguration(CustomUserDetailsService userDetailsService,
+                                 CustomAuthenticationSuccessHandler successHandler) {
+        this.userDetailsService = userDetailsService;
+        this.successHandler = successHandler;
+    }
 
-        // ✅ Consenti accesso libero alle API
-        http.authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/**").permitAll()
-        );
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http
+                .csrf(csrf -> csrf
+                        .ignoringRequestMatchers(new AntPathRequestMatcher("/api/**"))
+                )
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/login", "/api/**", "/css/**", "/js/**").permitAll()
+                        .requestMatchers("/change-credentials").authenticated()
+                        .anyRequest().authenticated()
+                )
+                .formLogin(form -> form
+                        .loginPage("/login")
+                        .successHandler(successHandler)      // <-- usa il nostro handler
+                        .failureUrl("/login?error=true")
+                        .permitAll()
+                )
+                .logout(logout -> logout
+                        .logoutUrl("/logout")
+                        .logoutSuccessUrl("/login?logout=true")
+                        .permitAll()
+                );
 
-        // ⚙️ Configurazione Vaadin
-        super.configure(http);
-        setLoginView(http, LoginView.class);
-
-        http.logout(logout -> logout
-                .logoutUrl("/logout")
-                .logoutSuccessUrl("/login")
-                .permitAll()
-        );
+        return http.build();
     }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
+        return new BCryptPasswordEncoder(); // Assicurati che le password siano codificate nel DB
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+        return config.getAuthenticationManager();
     }
 }

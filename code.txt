@@ -1036,7 +1036,6 @@ public interface VisitTypeRepository extends JpaRepository<VisitTypeEntity, Inte
 package it.unibs.ingsw.destinazioni.configurator;
 
 import com.vaadin.flow.spring.security.VaadinWebSecurity;
-import it.unibs.ingsw.destinazioni.views.LoginView;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -1635,7 +1634,6 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.PageTitle;
 import it.unibs.ingsw.destinazioni.domain.port.UserRepositoryPort;
-import it.unibs.ingsw.destinazioni.security.SecurityUtils;
 import jakarta.annotation.security.PermitAll;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -1710,7 +1708,6 @@ import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.Route;
 import it.unibs.ingsw.destinazioni.domain.port.UserRepositoryPort;
-import it.unibs.ingsw.destinazioni.security.SecurityUtils;
 import jakarta.annotation.security.PermitAll;
 
 

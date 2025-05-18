@@ -1,7 +1,6 @@
 package it.unibs.ingsw.destinazioni.adapters.jpa.adapter;
 
 import static org.junit.jupiter.api.Assertions.*;
-import org.checkerframework.checker.units.qual.A;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
