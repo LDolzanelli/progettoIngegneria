@@ -8,6 +8,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.router.PageTitle;
 import it.unibs.ingsw.destinazioni.domain.port.UserRepositoryPort;
 import it.unibs.ingsw.destinazioni.security.SecurityUtils;
@@ -45,7 +46,7 @@ public class ChangeCredentialsView extends VerticalLayout {
                 return;
             }
 
-            String currentUsername = SecurityUtils.getCurrentUsername();
+            String currentUsername = (String) VaadinSession.getCurrent().getAttribute("nickname");
 
             // Prevent using a username that's already taken
             if (!currentUsername.equals(username) && userRepository.findByNickname(username).isPresent()) {
@@ -59,16 +60,18 @@ public class ChangeCredentialsView extends VerticalLayout {
                 user.setFirstLogin(false);
                 userRepository.save(user);
 
-                Notification notification = Notification.show("Credenziali aggiornate con successo. Rieffettuare il login.");
+                Notification notification =
+                        Notification.show("Credenziali aggiornate con successo. Rieffettuare il login.");
                 notification.setDuration(3000);
                 notification.setPosition(Notification.Position.MIDDLE);
 
-                //wait 2 seconds before redirecting to the logout page
-                getUI().ifPresent(ui ->
-                        ui.getPage().executeJs(
-                                "setTimeout(() => window.location.replace('/logout'), 2000);"
-                        )
-                );// Force re-login with new credentials
+                // wait 2 seconds before redirecting to the logout page
+                getUI().ifPresent(
+                        ui -> ui.getPage().executeJs("setTimeout(() => window.location.replace('/logout'), 2000);"));// Force
+                                                                                                                     // re-login
+                                                                                                                     // with
+                                                                                                                     // new
+                                                                                                                     // credentials
             }, () -> Notification.show("Utente non trovato"));
         });
 
