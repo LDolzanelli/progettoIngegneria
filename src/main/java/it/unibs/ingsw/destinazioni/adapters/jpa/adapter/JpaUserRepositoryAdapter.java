@@ -2,8 +2,8 @@ package it.unibs.ingsw.destinazioni.adapters.jpa.adapter;
 
 import it.unibs.ingsw.destinazioni.adapters.jpa.entity.UserEntity;
 import it.unibs.ingsw.destinazioni.adapters.jpa.repository.UserRepository;
+import it.unibs.ingsw.destinazioni.application.port.out.UserRepositoryPort;
 import it.unibs.ingsw.destinazioni.domain.model.User;
-import it.unibs.ingsw.destinazioni.domain.port.UserRepositoryPort;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;

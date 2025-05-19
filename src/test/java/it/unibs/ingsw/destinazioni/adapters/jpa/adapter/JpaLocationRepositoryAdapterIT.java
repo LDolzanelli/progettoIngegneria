@@ -6,12 +6,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
+import it.unibs.ingsw.destinazioni.application.port.out.AreaOfInterestRepositoryPort;
 import it.unibs.ingsw.destinazioni.domain.model.AreaOfInterest;
 import it.unibs.ingsw.destinazioni.domain.model.DaysOfWeek;
 import it.unibs.ingsw.destinazioni.domain.model.Location;
 import it.unibs.ingsw.destinazioni.domain.model.LocationAddress;
 import it.unibs.ingsw.destinazioni.domain.model.VisitType;
-import it.unibs.ingsw.destinazioni.domain.port.AreaOfInterestRepositoryPort;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
@@ -47,6 +47,7 @@ class JpaLocationRepositoryAdapterIT {
             5, 
             true, 
             List.of(DaysOfWeek.MONDAY, DaysOfWeek.WEDNESDAY)
+            , List.of()
         );
         
         Location location = new Location("Museo", "Museo della città", address, List.of(visitType));

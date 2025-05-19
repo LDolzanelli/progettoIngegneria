@@ -6,8 +6,8 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Repository;
 import it.unibs.ingsw.destinazioni.adapters.jpa.entity.AreaOfInterestEntity;
 import it.unibs.ingsw.destinazioni.adapters.jpa.repository.AreaOfInterestRepository;
+import it.unibs.ingsw.destinazioni.application.port.out.AreaOfInterestRepositoryPort;
 import it.unibs.ingsw.destinazioni.domain.model.AreaOfInterest;
-import it.unibs.ingsw.destinazioni.domain.port.AreaOfInterestRepositoryPort;
 
 
 /**

@@ -10,12 +10,14 @@ import it.unibs.ingsw.destinazioni.adapters.jpa.entity.LocationAddressIdEntity;
 import it.unibs.ingsw.destinazioni.adapters.jpa.entity.LocationEntity;
 import it.unibs.ingsw.destinazioni.adapters.jpa.entity.VisitDayEntity;
 import it.unibs.ingsw.destinazioni.adapters.jpa.entity.VisitTypeEntity;
+import it.unibs.ingsw.destinazioni.adapters.jpa.entity.VolunteersVisitTypeEntity;
 import it.unibs.ingsw.destinazioni.adapters.jpa.repository.LocationRepository;
+import it.unibs.ingsw.destinazioni.application.port.out.LocationRepositoryPort;
 import it.unibs.ingsw.destinazioni.domain.model.DaysOfWeek;
 import it.unibs.ingsw.destinazioni.domain.model.Location;
 import it.unibs.ingsw.destinazioni.domain.model.LocationAddress;
+import it.unibs.ingsw.destinazioni.domain.model.User;
 import it.unibs.ingsw.destinazioni.domain.model.VisitType;
-import it.unibs.ingsw.destinazioni.domain.port.LocationRepositoryPort;
 
 
 /**
@@ -118,11 +120,14 @@ public class JpaLocationRepositoryAdapter implements LocationRepositoryPort {
             List<DaysOfWeek> days = visitTypeEntity.getVisitDayEntities().stream().map(VisitDayEntity::getId)
                     .map(id -> DaysOfWeek.fromEnglishString(id.getDayOfWeek())).toList();
 
+            List<User> volunteers = visitTypeEntity.getVolunteersVisitTypeEntities().stream()
+                    .map(VolunteersVisitTypeEntity::getVolunteer).map(JpaUserRepositoryAdapter::toDomain).toList();
+
             return new VisitType(visitTypeEntity.getId(), visitTypeEntity.getTitle(), visitTypeEntity.getDescription(),
                     visitTypeEntity.getMeetingPoint(), visitTypeEntity.getStartDate(), visitTypeEntity.getEndDate(),
                     visitTypeEntity.getStartTime(), visitTypeEntity.getDuration(),
                     visitTypeEntity.getMaxNumParticipants(), visitTypeEntity.getMinNumParticipants(),
-                    visitTypeEntity.getIsFree(), days);
+                    visitTypeEntity.getIsFree(), days, volunteers);
         }).toList();
 
 

@@ -1,3 +1,5 @@
 package it.unibs.ingsw.destinazioni.domain.dto;
 
-public record ChangePasswordDTO(String nickname, String oldPassword, String newPassword) {}
+public record ChangePasswordDTO(String username, String oldPassword, String newPassword) {
+
+}

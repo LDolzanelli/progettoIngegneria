@@ -22,11 +22,12 @@ public class VisitType {
     private int minParticipants;
     private boolean isFree;
     private List<DaysOfWeek> daysAvailable;
+    private List<User> volunteers;
     
 
     public VisitType(Integer id, String title, String description, String meetingPoint, LocalDate startDate,
             LocalDate endDate, LocalTime startTime, int duration, int maxParticipants, int minParticipants,
-            boolean isFree, List<DaysOfWeek> daysAvailable) {
+            boolean isFree, List<DaysOfWeek> daysAvailable, List<User> volunteers2) {
         this.id = id;
         this.title = title;
         this.description = description;
@@ -39,6 +40,7 @@ public class VisitType {
         this.minParticipants = minParticipants;
         this.isFree = isFree;
         this.daysAvailable = daysAvailable;
+        this.volunteers = volunteers2;
     }
 
 
@@ -47,9 +49,9 @@ public class VisitType {
      * database.
      */
     public VisitType(String title, String description, String meetingPoint, LocalDate startDate, LocalDate endDate,
-            LocalTime startTime, int duration, int maxParticipants, int minParticipants, boolean isFree, List<DaysOfWeek> daysAvailable) {
+            LocalTime startTime, int duration, int maxParticipants, int minParticipants, boolean isFree, List<DaysOfWeek> daysAvailable, List<User> volunteers) {
         this(null, title, description, meetingPoint, startDate, endDate, startTime, duration, maxParticipants,
-                minParticipants, isFree, daysAvailable);
+                minParticipants, isFree, daysAvailable, volunteers);
     }
 
 }

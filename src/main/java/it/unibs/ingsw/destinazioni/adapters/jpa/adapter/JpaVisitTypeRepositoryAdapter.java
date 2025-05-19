@@ -4,14 +4,18 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Repository;
 import it.unibs.ingsw.destinazioni.adapters.jpa.entity.LocationEntity;
+import it.unibs.ingsw.destinazioni.adapters.jpa.entity.UserEntity;
 import it.unibs.ingsw.destinazioni.adapters.jpa.entity.VisitDayEntity;
 import it.unibs.ingsw.destinazioni.adapters.jpa.entity.VisitDayIdEntity;
 import it.unibs.ingsw.destinazioni.adapters.jpa.entity.VisitTypeEntity;
+import it.unibs.ingsw.destinazioni.adapters.jpa.entity.VolunteersVisitTypeEntity;
+import it.unibs.ingsw.destinazioni.adapters.jpa.entity.VolunteersVisitTypeEntityId;
 import it.unibs.ingsw.destinazioni.adapters.jpa.repository.LocationRepository;
 import it.unibs.ingsw.destinazioni.adapters.jpa.repository.VisitTypeRepository;
+import it.unibs.ingsw.destinazioni.application.port.out.VisitTypeRepositoryPort;
 import it.unibs.ingsw.destinazioni.domain.model.DaysOfWeek;
+import it.unibs.ingsw.destinazioni.domain.model.User;
 import it.unibs.ingsw.destinazioni.domain.model.VisitType;
-import it.unibs.ingsw.destinazioni.domain.port.VisitTypeRepositoryPort;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,8 +33,7 @@ public class JpaVisitTypeRepositoryAdapter implements VisitTypeRepositoryPort {
     private final VisitTypeRepository visitTypeRepository;
     private final LocationRepository locationRepository;
 
-    public JpaVisitTypeRepositoryAdapter(VisitTypeRepository visitTypeRepository,
-            LocationRepository locationRepository) {
+    public JpaVisitTypeRepositoryAdapter(VisitTypeRepository visitTypeRepository, LocationRepository locationRepository) {
         this.locationRepository = locationRepository;
         this.visitTypeRepository = visitTypeRepository;
     }
@@ -42,7 +45,7 @@ public class JpaVisitTypeRepositoryAdapter implements VisitTypeRepositoryPort {
                 .orElseThrow(() -> new IllegalArgumentException("Location not found"));
 
         VisitTypeEntity entity = toEntity(visitType, location);
-        visitTypeRepository.save(entity); 
+        visitTypeRepository.save(entity);
     }
 
 
@@ -54,7 +57,8 @@ public class JpaVisitTypeRepositoryAdapter implements VisitTypeRepositoryPort {
 
     @Override
     public Set<VisitType> findAll() {
-        return visitTypeRepository.findAll().stream().map(JpaVisitTypeRepositoryAdapter::toDomain).collect(Collectors.toSet());
+        return visitTypeRepository.findAll().stream().map(JpaVisitTypeRepositoryAdapter::toDomain)
+                .collect(Collectors.toSet());
     }
 
 
@@ -76,9 +80,12 @@ public class JpaVisitTypeRepositoryAdapter implements VisitTypeRepositoryPort {
         List<DaysOfWeek> days = entity.getVisitDayEntities().stream().map(VisitDayEntity::getId)
                 .map(id -> DaysOfWeek.fromEnglishString(id.getDayOfWeek())).toList();
 
+        List<User> volunteers = entity.getVolunteersVisitTypeEntities().stream()
+                .map(VolunteersVisitTypeEntity::getVolunteer).map(JpaUserRepositoryAdapter::toDomain).toList();
+
         return new VisitType(entity.getId(), entity.getTitle(), entity.getDescription(), entity.getMeetingPoint(),
                 entity.getStartDate(), entity.getEndDate(), entity.getStartTime(), entity.getDuration(),
-                entity.getMaxNumParticipants(), entity.getMinNumParticipants(), entity.getIsFree(), days);
+                entity.getMaxNumParticipants(), entity.getMinNumParticipants(), entity.getIsFree(), days, volunteers);
     }
 
 
@@ -105,8 +112,24 @@ public class JpaVisitTypeRepositoryAdapter implements VisitTypeRepositoryPort {
             dayEntity.setVisitTypeEntity(entity);
             return dayEntity;
         }).collect(Collectors.toSet());
-
         entity.setVisitDayEntities(days);
+
+        Set<VolunteersVisitTypeEntity> volunteerLinks = visitType.getVolunteers().stream().map(user -> {
+            VolunteersVisitTypeEntity link = new VolunteersVisitTypeEntity();
+            VolunteersVisitTypeEntityId id = new VolunteersVisitTypeEntityId();
+            id.setVolunteerId(user.getId());
+            id.setVisitTypeId(entity.getId()); // Potrebbe essere null per nuovi record
+            link.setId(id);
+
+            UserEntity volunteerEntity = new UserEntity();
+            volunteerEntity.setId(user.getId());
+            link.setVolunteer(volunteerEntity);
+
+            link.setVisitType(entity);
+            return link;
+        }).collect(Collectors.toSet());
+
+        entity.setVolunteersVisitTypeEntities(volunteerLinks);
 
         return entity;
     }

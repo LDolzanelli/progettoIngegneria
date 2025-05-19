@@ -165,6 +165,6 @@ class JpaVisitRepositoryAdapterIT {
     private VisitType toDomain(VisitTypeEntity e) {
         return new VisitType(e.getId(), e.getTitle(), e.getDescription(), e.getMeetingPoint(), e.getStartDate(),
                 e.getEndDate(), e.getStartTime(), e.getDuration(), e.getMaxNumParticipants(), e.getMinNumParticipants(),
-                e.getIsFree(), List.of());
+                e.getIsFree(), List.of(), List.of());
     }
 }

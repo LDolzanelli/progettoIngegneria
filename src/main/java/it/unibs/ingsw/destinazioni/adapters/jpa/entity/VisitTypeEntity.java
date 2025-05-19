@@ -80,4 +80,8 @@ public class VisitTypeEntity {
     @OneToMany(mappedBy = "visitType")
     private Set<VisitEntity> visitEntities = new LinkedHashSet<>();
 
+    @OneToMany(mappedBy = "visitType", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<VolunteersVisitTypeEntity> volunteersVisitTypeEntities = new LinkedHashSet<>();
+
+
 }

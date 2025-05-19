@@ -6,12 +6,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
+import it.unibs.ingsw.destinazioni.application.port.out.AreaOfInterestRepositoryPort;
 import it.unibs.ingsw.destinazioni.domain.model.AreaOfInterest;
 import it.unibs.ingsw.destinazioni.domain.model.DaysOfWeek;
 import it.unibs.ingsw.destinazioni.domain.model.Location;
 import it.unibs.ingsw.destinazioni.domain.model.LocationAddress;
 import it.unibs.ingsw.destinazioni.domain.model.VisitType;
-import it.unibs.ingsw.destinazioni.domain.port.AreaOfInterestRepositoryPort;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
@@ -52,7 +52,8 @@ class JpaVisitTypeRepositoryAdapterIT {
             20, 
             5, 
             true, 
-            List.of(DaysOfWeek.MONDAY, DaysOfWeek.FRIDAY)
+            List.of(DaysOfWeek.MONDAY, DaysOfWeek.FRIDAY),
+            List.of()
         );
 
         // Act
@@ -79,7 +80,9 @@ class JpaVisitTypeRepositoryAdapterIT {
             "Tour", "Desc", "Point", 
             LocalDate.now(), LocalDate.now().plusDays(1),
             LocalTime.of(10, 0), 60, 20, 5, true, 
-            List.of(DaysOfWeek.MONDAY)
+            List.of(DaysOfWeek.MONDAY),
+            List.of()
+            
         );
         visitTypeAdapter.save(visitType, locationId);
         int visitTypeId = visitTypeAdapter.findAll().iterator().next().getId();
@@ -105,7 +108,8 @@ class JpaVisitTypeRepositoryAdapterIT {
             "ToDelete", "Desc", "Point", 
             LocalDate.now(), LocalDate.now().plusDays(1),
             LocalTime.of(10, 0), 60, 20, 5, true, 
-            List.of(DaysOfWeek.MONDAY)
+            List.of(DaysOfWeek.MONDAY),
+            List.of()
         );
         visitTypeAdapter.save(visitType, locationId);
         int visitTypeId = visitTypeAdapter.findAll().iterator().next().getId();
