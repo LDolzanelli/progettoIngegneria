@@ -1,4 +1,4 @@
-package it.unibs.ingsw.destinazioni.UI.REST.controller;
+package it.unibs.ingsw.destinazioni.UI.REST.controller.test;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Profile;
@@ -10,7 +10,4 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping(value = "/api/test")
 @RequiredArgsConstructor
 public class TestController {
-
-
-
 }

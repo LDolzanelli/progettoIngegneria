@@ -6,6 +6,13 @@ import it.unibs.ingsw.destinazioni.application.port.out.AreaOfInterestRepository
 import it.unibs.ingsw.destinazioni.domain.model.AreaOfInterest;
 import org.springframework.stereotype.Service;
 
+import java.awt.geom.Area;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
 @Service
 public class AreaOfInterestService implements ManageAreaOfInterestUseCase, QueryAreaOfInterestUseCase {
 
@@ -37,5 +44,12 @@ public class AreaOfInterestService implements ManageAreaOfInterestUseCase, Query
     @Override
     public boolean isEmpty() {
         return repository.load().orElse(new AreaOfInterest()).getTowns().isEmpty();
+    }
+
+    @Override
+    public ArrayList<String> townList() {
+        return repository.load()
+                .map(aoi -> new ArrayList<>(aoi.getTowns()))
+                .orElseGet(ArrayList::new);
     }
 }
