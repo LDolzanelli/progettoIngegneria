@@ -93,6 +93,11 @@ CREATE TABLE config (
   value VARCHAR(100) NOT NULL
 );
 
+CREATE TABLE blocked_dates (
+  date DATE NOT NULL,
+  PRIMARY KEY (date)
+);
+
 CREATE TABLE volunteers_visit_types (
   visit_type_id INT NOT NULL,
   volunteer_id INT NOT NULL,

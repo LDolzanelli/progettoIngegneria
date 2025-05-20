@@ -1,4 +1,4 @@
-package it.unibs.ingsw.destinazioni.web.REST.controller;
+package it.unibs.ingsw.destinazioni.UI.REST.controller;
 
 import it.unibs.ingsw.destinazioni.application.port.in.ChangeCredentialsUseCase;
 import it.unibs.ingsw.destinazioni.application.port.in.GetUserInfoUseCase;
@@ -12,6 +12,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.bind.annotation.GetMapping;
+
 
 
 @RestController
@@ -79,6 +81,12 @@ public class UserController {
                 .map(ResponseEntity::ok)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Utente non trovato"));
     }
+
+    @GetMapping("/ping")
+    public String getMethodName() {
+        return "Pong";
+    }
+    
 
 
 }

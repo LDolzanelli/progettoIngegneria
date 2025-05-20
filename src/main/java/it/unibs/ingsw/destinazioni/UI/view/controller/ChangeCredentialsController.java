@@ -1,4 +1,4 @@
-package it.unibs.ingsw.destinazioni.web.view.controller;
+package it.unibs.ingsw.destinazioni.UI.view.controller;
 
 import it.unibs.ingsw.destinazioni.domain.dto.ChangeCredentialsDTO;
 import jakarta.servlet.http.HttpServletRequest;
