@@ -58,16 +58,17 @@ CREATE TABLE visit_types (
 CREATE TABLE visits (
   id INT NOT NULL AUTO_INCREMENT,
   date DATE NOT NULL,
-  volunteer_nickname VARCHAR(50) NOT NULL,
+  volunteer_id INT NOT NULL,
   status VARCHAR(50) NOT NULL,
   visit_type_id INT NOT NULL,
   PRIMARY KEY (id),
-  FOREIGN KEY (volunteer_nickname) REFERENCES users(nickname)
+  FOREIGN KEY (volunteer_id) REFERENCES users(id)
     ON DELETE RESTRICT ON UPDATE CASCADE,
   FOREIGN KEY (visit_type_id) REFERENCES visit_types(id)
     ON DELETE CASCADE ON UPDATE CASCADE,
   CHECK (status IN ('proposed', 'completed', 'cancelled', 'full', 'confirmed'))
 );
+
 
 CREATE TABLE visitors (
   visit_id INT NOT NULL,
@@ -90,6 +91,11 @@ CREATE TABLE visit_days (
 CREATE TABLE config (
   name VARCHAR(100) PRIMARY KEY,
   value VARCHAR(100) NOT NULL
+);
+
+CREATE TABLE blocked_dates (
+  date DATE NOT NULL,
+  PRIMARY KEY (date)
 );
 
 CREATE TABLE volunteers_visit_types (

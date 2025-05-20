@@ -2,12 +2,9 @@ package it.unibs.ingsw.destinazioni;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import com.vaadin.flow.theme.Theme;
-import com.vaadin.flow.component.page.AppShellConfigurator;
 
 @SpringBootApplication
-@Theme("my-theme")
-public class DestinazioniApplication implements AppShellConfigurator {
+public class DestinazioniApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(DestinazioniApplication.class, args);

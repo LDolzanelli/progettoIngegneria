@@ -59,12 +59,8 @@ INSERT INTO visit_days (visit_type_id, day_of_week) VALUES
 (4, 'Friday'), (4, 'Saturday'), (4, 'Sunday'),
 (5, 'Saturday');
 
--- 8. Insert actual visits for each visit type
-INSERT INTO visits (date, volunteer_nickname, status, visit_type_id) VALUES
-('2024-03-04', 'volunteer1', 'completed', 1),  -- Monday
-('2024-03-05', 'volunteer2', 'completed', 2),  -- Tuesday
-('2024-04-03', 'volunteer3', 'completed', 3),  -- Wednesday
-('2024-05-03', 'volunteer4', 'completed', 4),  -- Friday
-('2024-06-01', 'volunteer5', 'completed', 5);  -- Saturday
+
+
+
 
 INSERT INTO config (name, value) VALUES ('max_tickets_per_user_per_event', '10');
