@@ -5,6 +5,6 @@ import it.unibs.ingsw.destinazioni.domain.model.User;
 
 
 public interface GetUserInfoUseCase {
-    public Optional<User> findById(int id);
-    public Optional<User> findByNickname(String nickname);
+    Optional<User> findById(int id);
+    Optional<User> findByNickname(String nickname);
 }

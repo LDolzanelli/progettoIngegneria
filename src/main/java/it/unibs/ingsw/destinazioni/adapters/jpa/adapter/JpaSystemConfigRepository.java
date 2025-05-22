@@ -19,7 +19,7 @@ import it.unibs.ingsw.destinazioni.application.port.out.SystemConfigRepositoryPo
 @Repository
 public class JpaSystemConfigRepository implements SystemConfigRepositoryPort{
 
-    private static final String MAX_TICKETS_PER_USER = "maxTicketsPerUser";
+    private static final String MAX_TICKETS_PER_USER = "max_tickets_per_user_per_event";
     private final BlockedDatesRepository blockedDatesRepository;
     private final ConfigRepository configRepository;
 
