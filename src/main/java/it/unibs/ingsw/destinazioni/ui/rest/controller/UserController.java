@@ -1,4 +1,4 @@
-package it.unibs.ingsw.destinazioni.UI.REST.controller;
+package it.unibs.ingsw.destinazioni.ui.rest.controller;
 
 import it.unibs.ingsw.destinazioni.application.port.in.ChangeCredentialsUseCase;
 import it.unibs.ingsw.destinazioni.application.port.in.GetUserInfoUseCase;

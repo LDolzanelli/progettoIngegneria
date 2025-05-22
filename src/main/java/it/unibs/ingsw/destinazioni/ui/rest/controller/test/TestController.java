@@ -1,4 +1,4 @@
-package it.unibs.ingsw.destinazioni.UI.REST.controller.test;
+package it.unibs.ingsw.destinazioni.ui.rest.controller.test;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Profile;

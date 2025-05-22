@@ -1,6 +1,5 @@
-package it.unibs.ingsw.destinazioni.UI.view.controller;
+package it.unibs.ingsw.destinazioni.ui.view.controller;
 
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -37,7 +36,7 @@ public class InsertAreasController {
 
         try {
             for (String town : towns) {
-                restTemplate.postForEntity("http://localhost:8080/api/locations/addTown", town, Void.class);
+                restTemplate.postForEntity("http://localhost:8080/api/area-of-interest/addTown", town, Void.class);
             }
         } catch (HttpClientErrorException e) {
             model.addAttribute("error", "Errore durante l'inserimento: " + e.getResponseBodyAsString());

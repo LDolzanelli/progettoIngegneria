@@ -1,6 +1,6 @@
-package it.unibs.ingsw.destinazioni.UI.view.controller;
+package it.unibs.ingsw.destinazioni.ui.view.controller;
 
-import it.unibs.ingsw.destinazioni.UI.view.dto.LoginFormDTO;
+import it.unibs.ingsw.destinazioni.ui.view.dto.LoginFormDTO;
 import it.unibs.ingsw.destinazioni.domain.dto.LoginRequestDTO;
 import it.unibs.ingsw.destinazioni.domain.dto.LoginResponseDTO;
 import org.springframework.stereotype.Controller;

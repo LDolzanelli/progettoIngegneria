@@ -1,8 +1,6 @@
-package it.unibs.ingsw.destinazioni.UI.view.controller;
+package it.unibs.ingsw.destinazioni.ui.view.controller;
 
-import it.unibs.ingsw.destinazioni.application.service.UserService;
 import it.unibs.ingsw.destinazioni.domain.dto.LoginResponseDTO;
-import it.unibs.ingsw.destinazioni.domain.model.User;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
@@ -42,7 +40,7 @@ public class HomeController {
         //Se l'utente è un configuratore, e non esiste ancora un corpo dati, viene reindirizzato ad una pagina
         //che gli permette di inserire location
         if (userInfo.role().equalsIgnoreCase("configurator")) {
-            String urlArea = url + "locations/isEmpty";
+            String urlArea = url + "area-of-interest/isEmpty";
             Boolean exists = restTemplate.getForObject(urlArea, Boolean.class);
             if(Boolean.TRUE.equals(restTemplate.getForObject(urlArea, Boolean.class))) {
                 return "redirect:/insert-areas-of-interest";

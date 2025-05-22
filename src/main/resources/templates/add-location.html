@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Aggiungi Luogo</title>
+    <meta charset="UTF-8" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container mt-5">
+    <h1 class="mb-4">Aggiungi un nuovo luogo di interesse</h1>
+
+    <form id="addLocationForm" class="needs-validation" novalidate onsubmit="submitLocation(event)">
+        <div class="mb-3">
+            <label for="name" class="form-label">Nome:</label>
+            <input type="text" id="name" name="name" class="form-control" required/>
+            <div class="invalid-feedback">Inserire il nome della location.</div>
+        </div>
+
+        <div class="mb-3">
+            <label for="description" class="form-label">Descrizione:</label>
+            <textarea id="description" name="description" class="form-control" rows="3"></textarea>
+        </div>
+
+        <fieldset class="border p-3 mb-3">
+            <legend class="float-none w-auto px-2">Indirizzo</legend>
+            <div class="mb-3">
+                <label for="street" class="form-label">Via:</label>
+                <input type="text" id="street" name="street" class="form-control" required/>
+                <div class="invalid-feedback">Inserire la via.</div>
+            </div>
+            <div class="mb-3">
+                <label for="number" class="form-label">Numero civico:</label>
+                <input type="text" id="number" name="number" class="form-control" required/>
+                <div class="invalid-feedback">Inserire il numero.</div>
+            </div>
+            <div class="mb-3">
+                <label for="town" class="form-label">Paese:</label>
+                <select id="town" name="town" class="form-select" required>
+                    <option value="" selected disabled>Selezionare il paese</option>
+                </select>
+                <div class="invalid-feedback">Selezionare un paese.</div>
+            </div>
+            <div class="mb-3">
+                <label for="province" class="form-label">Provincia:</label>
+                <input type="text" id="province" name="province" class="form-control" required/>
+                <div class="invalid-feedback">Inserire la provincia.</div>
+            </div>
+        </fieldset>
+
+        <button type="submit" class="btn btn-success">Conferma aggiunta luogo</button>
+        <a href="/view-locations" class="btn btn-secondary ms-2">Tornare all'elenco dei luoghi</a>
+    </form>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    async function submitLocation(event) {
+        event.preventDefault();  // ferma submit tradizionale
+
+        const form = event.target;
+        if (!form.checkValidity()) {
+            form.classList.add('was-validated');
+            return;
+        }
+
+        // Prepara i dati in JSON da inviare
+        const data = {
+            name: form.name.value,
+            description: form.description.value,
+            address: {
+                street: form.street.value,
+                streetNumber: form.number.value,
+                town: form.town.value,
+                province: form.province.value
+            },
+            visitTypes: []  // puoi modificarlo se vuoi aggiungere visite
+        };
+
+        try {
+            const response = await fetch('/api/location/add', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+
+            if (response.ok) {
+                alert('Location aggiunta con successo!');
+                form.reset();
+                form.classList.remove('was-validated');
+            } else {
+                const errorText = await response.text();
+                alert('Errore nell\'aggiunta della location: ' + errorText);
+                //TODO: aggiungere perchè non è stato aggiunto (esempio: indirizzo già presente)
+            }
+        } catch (error) {
+            alert('Errore di rete o server: ' + error.message);
+        }
+    }
+    (() => {
+        'use strict'
+
+        // Bootstrap form validation
+        const forms = document.querySelectorAll('.needs-validation');
+        Array.from(forms).forEach(form => {
+            form.addEventListener('submit', event => {
+                if (!form.checkValidity()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            }, false);
+        });
+
+        // Fetch towns from API and populate dropdown
+        fetch('/api/area-of-interest/townList')
+            .then(response => response.json())
+            .then(data => {
+                // assuming data structure: { towns: ["Town1", "Town2", ...] }
+                const towns = data.towns || data; // adatta in base al DTO che restituisce la lista
+                const townSelect = document.getElementById('town');
+                towns.forEach(town => {
+                    const option = document.createElement('option');
+                    option.value = town;
+                    option.textContent = town;
+                    townSelect.appendChild(option);
+                });
+            })
+            .catch(err => {
+                console.error('Failed to load towns:', err);
+            });
+    })();
+</script>
+
+</body>
+</html>

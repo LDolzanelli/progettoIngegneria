@@ -1,4 +1,4 @@
-package it.unibs.ingsw.destinazioni.UI.view.controller;
+package it.unibs.ingsw.destinazioni.ui.view.controller;
 
 import java.util.Scanner;
 import org.springframework.web.client.RestTemplate;

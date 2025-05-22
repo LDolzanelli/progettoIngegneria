@@ -1,4 +1,4 @@
-package it.unibs.ingsw.destinazioni.UI.REST.controller;
+package it.unibs.ingsw.destinazioni.ui.rest.controller;
 
 import it.unibs.ingsw.destinazioni.application.port.in.ManageAreaOfInterestUseCase;
 import it.unibs.ingsw.destinazioni.application.port.in.QueryAreaOfInterestUseCase;
@@ -7,12 +7,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.awt.geom.Area;
-
 @RestController
-@RequestMapping("/api/locations")
+@RequestMapping("/api/area-of-interest")
 @RequiredArgsConstructor
-public class LocationController {
+public class AreaOfInterestController {
     private final ManageAreaOfInterestUseCase manageAreaOfInterest;
     private final QueryAreaOfInterestUseCase queryAreaOfInterest;
 
