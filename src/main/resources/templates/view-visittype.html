@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Visualizza Tipi di Visita</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+</head>
+<body>
+<div class="container my-4">
+    <h2>Lista Tipi di Visita</h2>
+    <a href="/add-visittype" class="btn btn-success mb-3">Aggiungi Tipo di Visita</a>
+
+    <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+    <div th:if="${visitTypes.isEmpty()}" class="alert alert-info">Nessun tipo di visita disponibile.</div>
+
+    <div class="row">
+        <div class="col-md-4 mb-3" th:each="vt : ${visitTypes}">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title" th:text="${vt.title}">Titolo</h5>
+                    <p class="card-text" th:text="${vt.description}">Descrizione</p>
+                    <p class="card-text">
+                        <small class="text-muted">
+                            Dal <span th:text="${vt.startDate}"></span> al <span th:text="${vt.endDate}"></span><br/>
+                            Punto d'incontro: <span th:text="${vt.meetingPoint}"></span><br/>
+                            Inizio: <span th:text="${vt.startTime}"></span><br/>
+                            Durata: <span th:text="${vt.duration}"></span> minuti<br/>
+                            Max partecipanti: <span th:text="${vt.maxParticipants}"></span>
+                        </small>
+                    </p>
+                </div>
+                <div class="card-footer text-end bg-transparent border-top-0">
+                    <a th:href="@{/manage-visittype/{id}(id=${vt.id})}" class="btn btn-primary btn-sm">Gestisci</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function getLocationIdFromUrl() {
+        const params = new URLSearchParams(window.location.search);
+        return params.get('locationId');
+    }
+
+    async function loadVisitTypes() {
+        const locationId = getLocationIdFromUrl();
+        if (!locationId) {
+            alert('Location ID non fornito nell\'URL');
+            return;
+        }
+
+        const resp = await fetch(`/api/visit-type/list/${locationId}`);
+        if (!resp.ok) {
+            alert('Errore nel caricamento dei tipi di visita');
+            return;
+        }
+        const visitTypes = await resp.json();
+        const grid = document.getElementById('visitTypesGrid');
+        const noVisitTypesMessage = document.getElementById('noVisitTypesMessage');
+        grid.innerHTML = '';
+
+        if (visitTypes.length === 0) {
+            noVisitTypesMessage.style.display = 'block';
+            return;
+        } else {
+            noVisitTypesMessage.style.display = 'none';
+        }
+
+        visitTypes.forEach(vt => {
+            const period = `Dal ${vt.startDate} al ${vt.endDate}`;
+            const details = `
+                <strong>Punto d'incontro:</strong> ${vt.meetingPoint}<br/>
+                <strong>Durata:</strong> ${vt.duration} minuti<br/>
+                <strong>Ora inizio:</strong> ${vt.startTime}<br/>
+                <strong>Max partecipanti:</strong> ${vt.maxParticipants}
+            `;
+
+            const cardCol = document.createElement('div');
+            cardCol.className = 'col-sm-6 col-md-4 col-lg-3 mb-4';
+
+            cardCol.innerHTML = `
+                <div class="card h-100 shadow-sm d-flex flex-column">
+                    <div class="card-body d-flex flex-column flex-grow-1">
+                        <h5 class="card-title">${vt.title}</h5>
+                        <p class="card-text flex-grow-1">${vt.description ?? ''}</p>
+                        <p class="card-text"><small class="text-muted">${period}</small></p>
+                        <p class="card-text"><small class="text-muted">${details}</small></p>
+                    </div>
+                    <div class="card-footer bg-transparent border-top-0 d-flex justify-content-end">
+                        <a href="/manage-visittype/${vt.id}" class="btn btn-primary btn-sm">Gestisci</a>
+                    </div>
+                </div>
+            `;
+            grid.appendChild(cardCol);
+        });
+    }
+
+    window.onload = loadVisitTypes;
+</script>
+</body>
+</html>

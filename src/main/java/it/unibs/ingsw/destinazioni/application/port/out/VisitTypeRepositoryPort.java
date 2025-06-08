@@ -5,7 +5,6 @@ import java.util.Set;
 import java.util.Optional;
 
 public interface VisitTypeRepositoryPort {
-
     void save(VisitType visitType, int locationId);
     Optional<VisitType> findById(int id);
     void deleteById(int id);

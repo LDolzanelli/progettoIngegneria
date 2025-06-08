@@ -3,6 +3,8 @@ package it.unibs.ingsw.destinazioni.ui.rest.controller;
 import it.unibs.ingsw.destinazioni.application.port.in.ManageLocationUseCase;
 import it.unibs.ingsw.destinazioni.domain.dto.LocationAddressDTO;
 import it.unibs.ingsw.destinazioni.domain.dto.LocationDTO;
+import it.unibs.ingsw.destinazioni.domain.model.Location;
+import it.unibs.ingsw.destinazioni.domain.model.LocationAddress;
 import it.unibs.ingsw.destinazioni.domain.model.VisitType;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -22,7 +24,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class LocationController {
 
-    private static final Logger log = LoggerFactory.getLogger(LocationController.class);
     private final ManageLocationUseCase manageLocationUseCase;
 
     @PostMapping("/add")
@@ -32,10 +33,8 @@ public class LocationController {
             manageLocationUseCase.addLocation(location);
             return ResponseEntity.ok().build();
         } catch (IllegalArgumentException e) {
-            log.error("Errore nella conversione DTO to domain: {}", e.getMessage());
             return ResponseEntity.badRequest().build();
         } catch (Exception e) {
-            log.error("Errore interno nel metodo addLocation", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -46,7 +45,6 @@ public class LocationController {
             manageLocationUseCase.removeLocation(id);
             return ResponseEntity.ok().build();
         } catch (Exception e) {
-            log.error("Errore nella rimozione location con id {}: {}", id, e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -61,7 +59,7 @@ public class LocationController {
     }
 
     // Mapper domain a DTO
-    private LocationDTO mapToDTO(it.unibs.ingsw.destinazioni.domain.model.Location location) {
+    private LocationDTO mapToDTO(Location location) {
         var address = location.getAddress();
         return new LocationDTO(
                 location.getId(),
@@ -78,10 +76,10 @@ public class LocationController {
     }
 
     // Mapper DTO a domain
-    private it.unibs.ingsw.destinazioni.domain.model.Location mapToDomain(LocationDTO dto) {
+    private Location mapToDomain(LocationDTO dto) {
         var addressDto = dto.address();
 
-        var address = new it.unibs.ingsw.destinazioni.domain.model.LocationAddress(
+        var address = new LocationAddress(
                 addressDto.street(),
                 addressDto.streetNumber(),
                 addressDto.town(),
@@ -129,7 +127,7 @@ public class LocationController {
             }).toList();
         }
 
-        return new it.unibs.ingsw.destinazioni.domain.model.Location(
+        return new Location(
                 dto.id(),
                 dto.name(),
                 dto.description(),
