@@ -39,7 +39,7 @@ public class UserService implements LoginUseCase, GetUserInfoUseCase, ChangeCred
                 .orElseThrow(() -> new IllegalArgumentException("Utente non trovato"));
 
         if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
-            throw new IllegalArgumentException("Password errata");
+            throw new IllegalArgumentException("Password corrente errata");
         }
 
         user.setPassword(passwordEncoder.encode(newPassword));
@@ -51,7 +51,7 @@ public class UserService implements LoginUseCase, GetUserInfoUseCase, ChangeCred
     @Override
     public void changeUsername(String oldNickname, String newNickname) {
         if (oldNickname != newNickname && userRepository.findByNickname(newNickname).isPresent()) {
-            throw new IllegalArgumentException("Nickname già esistente: " + newNickname);
+            throw new IllegalArgumentException("Nickname \"" + newNickname + "\" già esistente. Riprovare.");
         }
 
         User user = userRepository.findByNickname(oldNickname)

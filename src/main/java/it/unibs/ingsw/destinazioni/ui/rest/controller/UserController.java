@@ -60,13 +60,13 @@ public class UserController {
 
 
     @PostMapping("/change-both-credentials")
-    public ResponseEntity<Void> postMethodName(@RequestBody ChangeCredentialsDTO dto) {
+    public ResponseEntity<String> changeBothCredentials(@RequestBody ChangeCredentialsDTO dto) {
         try {
             changeCredentialsService.changeBothCredentials(dto.oldUsername(), dto.newUsername(), dto.oldPassword(),
                     dto.newPassword());
             return ResponseEntity.ok().build();
         } catch (IllegalArgumentException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Richiesta non valida: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
 

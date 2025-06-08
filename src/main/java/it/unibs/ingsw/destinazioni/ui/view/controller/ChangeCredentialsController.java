@@ -3,16 +3,21 @@ package it.unibs.ingsw.destinazioni.ui.view.controller;
 import it.unibs.ingsw.destinazioni.domain.dto.ChangeCredentialsDTO;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
 
 @Controller
 @RequiredArgsConstructor
+@Slf4j
 @RequestMapping("/change-credentials")
 public class ChangeCredentialsController {
 
@@ -42,18 +47,38 @@ public class ChangeCredentialsController {
             return "change-credentials";
         }
 
-
-
         var dto = new ChangeCredentialsDTO(currentUsername, newUsername, oldPassword, newPassword);
 
         try {
-            restTemplate.postForEntity("http://localhost:8080/api/users/change-both-credentials", dto, Void.class);
+            ResponseEntity<String> response = restTemplate.postForEntity("http://localhost:8080/api/users/change-both-credentials", dto, String.class);
+
+            System.out.println("ERRORE = " + response + " FINE");
+            if (response.getStatusCode().is2xxSuccessful()) {
+                request.getSession().invalidate();
+                return "redirect:/login?logout";
+            } else {
+                model.addAttribute("username", currentUsername);
+                model.addAttribute("error", "Errore durante l'aggiornamento delle credenziali");
+                return "change-credentials";
+            }
+
         } catch (HttpClientErrorException e) {
-            model.addAttribute("error", "Errore: " + e.getResponseBodyAsString());
+            //messaggio di default
+            String errorMessage = "Errore durante l'aggiornamento delle credenziali";
+
+            if (e.getStatusCode() == HttpStatus.BAD_REQUEST) {
+                try {
+                    //Response body come messaggio di errore
+                    errorMessage = e.getResponseBodyAsString();
+                } catch (Exception ex) {
+                    //default
+                }
+            }
+
+            model.addAttribute("username", currentUsername);
+            model.addAttribute("error", errorMessage);
             return "change-credentials";
         }
-
-        request.getSession().invalidate();
-        return "redirect:/login?logout";
     }
 }
+
