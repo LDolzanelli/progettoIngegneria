@@ -7,9 +7,14 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
 </head>
 <body>
+<nav class="navbar navbar-expand-lg bg-light shadow-sm mb-4">
+    <div class="container">
+        <a class="navbar-brand text-primary fw-bold fs-4" href="/">Centro Visite</a>
+    </div>
+</nav>
 <div class="container my-4">
     <h2>Lista Tipi di Visita</h2>
-    <a href="/add-visittype" class="btn btn-success mb-3">Aggiungi Tipo di Visita</a>
+    <a id="addVisitTypeBtn" href="#" class="btn btn-success mb-3">Aggiungi Tipo di Visita</a>
 
     <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
     <div th:if="${visitTypes.isEmpty()}" class="alert alert-info">Nessun tipo di visita disponibile.</div>
@@ -49,6 +54,13 @@
         if (!locationId) {
             alert('Location ID non fornito nell\'URL');
             return;
+        }
+
+        //recupera il pulsante dalla pagina e aggiunge il locationID per poter assegnare
+        //la visitType alla location desiderata
+        const addBtn = document.getElementById('addVisitTypeBtn');
+        if (addBtn) {
+            addBtn.href = `/add-visittype?locationId=${encodeURIComponent(locationId)}`;
         }
 
         const resp = await fetch(`/api/visit-type/list/${locationId}`);
