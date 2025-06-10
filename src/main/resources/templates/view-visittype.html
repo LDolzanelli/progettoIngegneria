@@ -31,7 +31,10 @@
                             Punto d'incontro: <span th:text="${vt.meetingPoint}"></span><br/>
                             Inizio: <span th:text="${vt.startTime}"></span><br/>
                             Durata: <span th:text="${vt.duration}"></span> minuti<br/>
-                            Max partecipanti: <span th:text="${vt.maxParticipants}"></span>
+                            Min partecipanti: <span th:text="${vt.minParticipants}"></span><br/>
+                            Max partecipanti: <span th:text="${vt.maxParticipants}"></span><br/>
+                            La visita è <span th:text="${vt.free} ? 'gratuita' : 'a pagamento'"></span><br/>
+                            Giorni disponibili: <span class="days-available" th:text="${vt.daysAvailable}"></span>
                         </small>
                     </p>
                 </div>
@@ -86,7 +89,10 @@
                 <strong>Punto d'incontro:</strong> ${vt.meetingPoint}<br/>
                 <strong>Durata:</strong> ${vt.duration} minuti<br/>
                 <strong>Ora inizio:</strong> ${vt.startTime}<br/>
-                <strong>Max partecipanti:</strong> ${vt.maxParticipants}
+                <strong>Min partecipanti:</strong> ${vt.minParticipants}<br/>
+                <strong>Max partecipanti:</strong> ${vt.maxParticipants}<br/>
+                <strong>Gratuita:</strong> ${vt.isFree}<br/>
+                <strong>Giorni disponibili:</strong> ${vt.daysAvailable}<br/>
             `;
 
             const cardCol = document.createElement('div');
@@ -108,6 +114,58 @@
             grid.appendChild(cardCol);
         });
     }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const daysElements = document.querySelectorAll('.days-available');
+
+        //ordine dei giorni per fare sorting
+        const dayOrder = {
+            'MONDAY': 1,
+            'TUESDAY': 2,
+            'WEDNESDAY': 3,
+            'THURSDAY': 4,
+            'FRIDAY': 5,
+            'SATURDAY': 6,
+            'SUNDAY': 7
+        };
+
+        const dayTranslation = {
+            'MONDAY': 'Lunedì',
+            'TUESDAY': 'Martedì',
+            'WEDNESDAY': 'Mercoledì',
+            'THURSDAY': 'Giovedì',
+            'FRIDAY': 'Venerdì',
+            'SATURDAY': 'Sabato',
+            'SUNDAY': 'Domenica'
+        };
+
+        daysElements.forEach(element => {
+            try {
+                //testo di thymeleaf
+                const daysText = element.textContent;
+
+                //pulizia del dato di thymeleaf per rimuovere i bracket
+                let daysArray = daysText.replace(/[\[\]]/g, '').split(/\s*,\s*/);
+
+                if (daysArray.length > 0 && daysArray[0] !== '') {
+                    //ordina i giorni
+                    daysArray.sort((a, b) => {
+                        return dayOrder[a.trim().toUpperCase()] - dayOrder[b.trim().toUpperCase()];
+                    });
+
+                    const translated = daysArray
+                        .map(day => dayTranslation[day.trim().toUpperCase()] || day)
+                        .join(', ');
+                    element.textContent = translated;
+                } else {
+                    element.textContent = 'Nessun giorno selezionato';
+                }
+            } catch (e) {
+                console.error('Error processing days:', e);
+                element.textContent = 'Giorni non disponibili';
+            }
+        });
+    });
 
     window.onload = loadVisitTypes;
 </script>

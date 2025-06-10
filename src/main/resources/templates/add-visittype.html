@@ -56,12 +56,69 @@
             <input type="number" id="duration" name="duration" class="form-control" min="1" required />
             <div class="invalid-feedback">Inserire la durata.</div>
         </div>
-
+        <!-- Minimo partecipanti -->
+        <div class="mb-3">
+            <label for="minParticipants" class="form-label">Minimo partecipanti:</label>
+            <input type="number" id="minParticipants" name="minParticipants" class="form-control" min="1" required />
+            <div class="invalid-feedback">Inserire il numero minimo di partecipanti.</div>
+        </div>
+        
         <div class="mb-3">
             <label for="maxParticipants" class="form-label">Massimo partecipanti:</label>
             <input type="number" id="maxParticipants" name="maxParticipants" class="form-control" min="1" required />
             <div class="invalid-feedback">Inserire il numero massimo di partecipanti.</div>
         </div>
+
+
+        <!-- È gratuito -->
+        <div class="form-check mb-3">
+            <input class="form-check-input" type="checkbox" id="isFree" name="isFree" />
+            <label class="form-check-label" for="isFree">Visita gratuita</label>
+        </div>
+
+        <!-- Giorni disponibili -->
+        <div class="mb-3">
+            <label class="form-label">Giorni disponibili:</label>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" name="daysAvailable" value="MONDAY" id="monday">
+                <label class="form-check-label" for="monday">Lunedì</label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" name="daysAvailable" value="TUESDAY" id="tuesday">
+                <label class="form-check-label" for="tuesday">Martedì</label>
+            </div>
+            <!-- Ripeti per gli altri giorni -->
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" name="daysAvailable" value="WEDNESDAY" id="wednesday">
+                <label class="form-check-label" for="wednesday">Mercoledì</label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" name="daysAvailable" value="THURSDAY" id="thursday">
+                <label class="form-check-label" for="thursday">Giovedì</label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" name="daysAvailable" value="FRIDAY" id="friday">
+                <label class="form-check-label" for="friday">Venerdì</label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" name="daysAvailable" value="SATURDAY" id="saturday">
+                <label class="form-check-label" for="saturday">Sabato</label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" name="daysAvailable" value="SUNDAY" id="sunday">
+                <label class="form-check-label" for="sunday">Domenica</label>
+            </div>
+        </div>
+
+<!--        &lt;!&ndash; Selezione volontari &ndash;&gt;-->
+<!--        <div class="mb-3">-->
+<!--            <label for="volunteers" class="form-label">Seleziona volontari:</label>-->
+<!--            <select id="volunteers" name="volunteers" class="form-select" multiple required>-->
+<!--                &lt;!&ndash; Opzioni caricate dinamicamente &ndash;&gt;-->
+<!--            </select>-->
+<!--            <div class="form-text">Tieni premuto Ctrl (o Cmd su Mac) per selezionare più volontari.</div>-->
+<!--        </div>-->
+
 
         <button type="submit" class="btn btn-success">Aggiungi tipo di visita</button>
         <a href="/view-locations" class="btn btn-secondary ms-2">Torna alla lista luoghi</a>
@@ -93,6 +150,14 @@
             return;
         }
 
+        const maxParticipants = parseInt(form.maxParticipants.value);
+        const minParticipants = parseInt(form.minParticipants.value);
+
+        if (minParticipants >= maxParticipants) {
+            alert('Numero di partecipanti minimi maggiore dei partecipanti massimi.');
+            return;
+        }
+
         const urlParams = new URLSearchParams(window.location.search);
         const locationId = urlParams.get('locationId');
 
@@ -109,7 +174,11 @@
             endDate: form.endDate.value,
             startTime: form.startTime.value,
             duration: parseInt(form.duration.value),
-            maxParticipants: parseInt(form.maxParticipants.value)
+            maxParticipants: parseInt(form.maxParticipants.value),
+            minParticipants: parseInt(form.minParticipants.value),
+            isFree: form.isFree.checked,
+            daysAvailable: Array.from(document.querySelectorAll('input[name="daysAvailable"]:checked')).map(cb => cb.value),
+            //volunteers: Array.from(form.volunteers.selectedOptions).map(opt => opt.value)
         };
 
         try {

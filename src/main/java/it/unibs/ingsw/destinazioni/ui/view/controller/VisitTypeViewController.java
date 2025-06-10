@@ -13,6 +13,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Controller
@@ -57,7 +58,10 @@ public class VisitTypeViewController {
                                      @RequestParam String endDate,
                                      @RequestParam String startTime,     // Formato ISO: "14:00:00"
                                      @RequestParam int duration,
+                                     @RequestParam int minParticipants,
                                      @RequestParam int maxParticipants,
+                                     @RequestParam boolean isFree,
+                                     @RequestParam List<String> daysOfWeek,
                                      Model model) {
 
         model.addAttribute("username", principal.getUsername());
@@ -70,7 +74,10 @@ public class VisitTypeViewController {
         visitTypeDto.put("endDate", endDate);
         visitTypeDto.put("startTime", startTime);
         visitTypeDto.put("duration", duration);
+        visitTypeDto.put("minParticipants", minParticipants);
         visitTypeDto.put("maxParticipants", maxParticipants);
+        visitTypeDto.put("isFree", isFree);
+        visitTypeDto.put("daysOfWeek", daysOfWeek);
 
         try {
             restTemplate.postForEntity("http://localhost:8080/api/visit-type/add", visitTypeDto, Void.class);
@@ -82,4 +89,6 @@ public class VisitTypeViewController {
 
         return "add-visittype";
     }
+
+
 }

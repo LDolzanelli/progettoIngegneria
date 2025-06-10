@@ -3,11 +3,9 @@ package it.unibs.ingsw.destinazioni.ui.rest.controller;
 import it.unibs.ingsw.destinazioni.application.port.in.ChangeCredentialsUseCase;
 import it.unibs.ingsw.destinazioni.application.port.in.GetUserInfoUseCase;
 import it.unibs.ingsw.destinazioni.application.port.in.LoginUseCase;
-import it.unibs.ingsw.destinazioni.domain.dto.ChangeCredentialsDTO;
-import it.unibs.ingsw.destinazioni.domain.dto.ChangePasswordDTO;
-import it.unibs.ingsw.destinazioni.domain.dto.ChangeUserNameDTO;
-import it.unibs.ingsw.destinazioni.domain.dto.LoginRequestDTO;
-import it.unibs.ingsw.destinazioni.domain.dto.LoginResponseDTO;
+import it.unibs.ingsw.destinazioni.application.port.in.RegisterUserUseCase;
+import it.unibs.ingsw.destinazioni.domain.dto.*;
+import it.unibs.ingsw.destinazioni.domain.model.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
@@ -22,6 +20,7 @@ public class UserController {
     private final LoginUseCase loginService;
     private final ChangeCredentialsUseCase changeCredentialsService;
     private final GetUserInfoUseCase UserInfoService;
+    private final RegisterUserUseCase registerUserService;
 
 
     @PostMapping("/login")
@@ -70,6 +69,17 @@ public class UserController {
         }
     }
 
+    @PostMapping("/register")
+    public ResponseEntity<String> registerUser(@RequestBody RegisterUserDTO dto) {
+        try {
+            User user = new User(dto.nickname(), dto.password(), dto.role());
+            registerUserService.registerNewUser(user);
+            return ResponseEntity.status(HttpStatus.CREATED).build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
 
     @GetMapping("/info/{username}")
     public ResponseEntity<LoginResponseDTO> getUserInfo(@PathVariable String username) {
@@ -78,12 +88,5 @@ public class UserController {
                 .map(ResponseEntity::ok)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Utente non trovato"));
     }
-
-    @GetMapping("/ping")
-    public String getMethodName() {
-        return "Pong";
-    }
-    
-
 
 }
