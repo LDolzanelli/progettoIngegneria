@@ -118,18 +118,7 @@
     document.addEventListener('DOMContentLoaded', function() {
         const daysElements = document.querySelectorAll('.days-available');
 
-        //ordine dei giorni per fare sorting
-        const dayOrder = {
-            'MONDAY': 1,
-            'TUESDAY': 2,
-            'WEDNESDAY': 3,
-            'THURSDAY': 4,
-            'FRIDAY': 5,
-            'SATURDAY': 6,
-            'SUNDAY': 7
-        };
-
-        const dayTranslation = {
+        const dayMap = {
             'MONDAY': 'Lunedì',
             'TUESDAY': 'Martedì',
             'WEDNESDAY': 'Mercoledì',
@@ -139,22 +128,24 @@
             'SUNDAY': 'Domenica'
         };
 
+        //per il sorting
+        const orderedDays = ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY'];
+
         daysElements.forEach(element => {
             try {
-                //testo di thymeleaf
+                //ottiene testo da thymeleaf
                 const daysText = element.textContent;
 
-                //pulizia del dato di thymeleaf per rimuovere i bracket
-                let daysArray = daysText.replace(/[\[\]]/g, '').split(/\s*,\s*/);
+                //toglie i bracket
+                const daysArray = daysText.replace(/[\[\]]/g, '').split(/\s*,\s*/);
 
                 if (daysArray.length > 0 && daysArray[0] !== '') {
-                    //ordina i giorni
                     daysArray.sort((a, b) => {
-                        return dayOrder[a.trim().toUpperCase()] - dayOrder[b.trim().toUpperCase()];
+                        return orderedDays.indexOf(a) - orderedDays.indexOf(b);
                     });
 
                     const translated = daysArray
-                        .map(day => dayTranslation[day.trim().toUpperCase()] || day)
+                        .map(day => dayMap[day.trim().toUpperCase()] || day)
                         .join(', ');
                     element.textContent = translated;
                 } else {
@@ -166,6 +157,8 @@
             }
         });
     });
+
+
 
     window.onload = loadVisitTypes;
 </script>
