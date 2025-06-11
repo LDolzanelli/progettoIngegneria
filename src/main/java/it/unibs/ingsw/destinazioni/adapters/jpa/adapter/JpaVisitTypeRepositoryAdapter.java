@@ -2,6 +2,8 @@ package it.unibs.ingsw.destinazioni.adapters.jpa.adapter;
 
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import it.unibs.ingsw.destinazioni.adapters.jpa.repository.UserRepository;
 import org.springframework.stereotype.Repository;
 import it.unibs.ingsw.destinazioni.adapters.jpa.entity.LocationEntity;
 import it.unibs.ingsw.destinazioni.adapters.jpa.entity.UserEntity;
@@ -32,10 +34,13 @@ public class JpaVisitTypeRepositoryAdapter implements VisitTypeRepositoryPort {
 
     private final VisitTypeRepository visitTypeRepository;
     private final LocationRepository locationRepository;
+    private final UserRepository userRepository;
 
-    public JpaVisitTypeRepositoryAdapter(VisitTypeRepository visitTypeRepository, LocationRepository locationRepository) {
+    public JpaVisitTypeRepositoryAdapter(VisitTypeRepository visitTypeRepository, LocationRepository locationRepository, UserRepository userRepository) {
         this.locationRepository = locationRepository;
         this.visitTypeRepository = visitTypeRepository;
+        this.userRepository = userRepository;
+
     }
 
 
@@ -44,7 +49,8 @@ public class JpaVisitTypeRepositoryAdapter implements VisitTypeRepositoryPort {
         LocationEntity location = locationRepository.findById(locationId)
                 .orElseThrow(() -> new IllegalArgumentException("Location not found"));
 
-        VisitTypeEntity entity = toEntity(visitType, location);
+        VisitTypeEntity entity = this.toEntity(visitType, location);
+
         visitTypeRepository.save(entity);
     }
 
@@ -90,7 +96,7 @@ public class JpaVisitTypeRepositoryAdapter implements VisitTypeRepositoryPort {
 
 
 
-    protected static VisitTypeEntity toEntity(VisitType visitType, LocationEntity locationEntity) {
+    protected VisitTypeEntity toEntity(VisitType visitType, LocationEntity locationEntity) {
         VisitTypeEntity entity = new VisitTypeEntity();
         entity.setTitle(visitType.getTitle());
         entity.setDescription(visitType.getDescription());
@@ -114,17 +120,18 @@ public class JpaVisitTypeRepositoryAdapter implements VisitTypeRepositoryPort {
         }).collect(Collectors.toSet());
         entity.setVisitDayEntities(days);
 
+
         Set<VolunteersVisitTypeEntity> volunteerLinks = visitType.getVolunteers().stream().map(user -> {
             VolunteersVisitTypeEntity link = new VolunteersVisitTypeEntity();
             VolunteersVisitTypeEntityId id = new VolunteersVisitTypeEntityId();
             id.setVolunteerId(user.getId());
-            id.setVisitTypeId(entity.getId()); // Potrebbe essere null per nuovi record
             link.setId(id);
 
-            UserEntity volunteerEntity = new UserEntity();
-            volunteerEntity.setId(user.getId());
-            link.setVolunteer(volunteerEntity);
+            // CARICA L'ENTITÀ GESTITA DAL DB
+            UserEntity volunteerEntity = userRepository.findById(user.getId())
+                    .orElseThrow(() -> new IllegalArgumentException("Volunteer not found"));
 
+            link.setVolunteer(volunteerEntity);
             link.setVisitType(entity);
             return link;
         }).collect(Collectors.toSet());

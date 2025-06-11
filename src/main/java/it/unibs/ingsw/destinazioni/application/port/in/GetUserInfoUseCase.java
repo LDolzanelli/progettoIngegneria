@@ -11,4 +11,5 @@ public interface GetUserInfoUseCase {
     Optional<User> findById(int id);
     Optional<User> findByNickname(String nickname);
     List<User> getUsersByRole(String role);
+    List<User> findAllByNicknames(List<String> nicknames);
 }

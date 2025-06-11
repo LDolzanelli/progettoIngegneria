@@ -1,5 +1,6 @@
 package it.unibs.ingsw.destinazioni.ui.rest.controller;
 
+import it.unibs.ingsw.destinazioni.application.port.in.GetUserInfoUseCase;
 import it.unibs.ingsw.destinazioni.application.port.in.ManageVisitTypeUseCase;
 import it.unibs.ingsw.destinazioni.domain.dto.VisitTypeDTO;
 import it.unibs.ingsw.destinazioni.domain.model.DaysOfWeek;
@@ -25,17 +26,25 @@ import java.util.stream.Collectors;
 public class VisitTypeController {
 
     private final ManageVisitTypeUseCase manageVisitTypeUseCase;
+    private final GetUserInfoUseCase getUserInfoUseCase;
 
     @PostMapping("/add/{locationId}")
-    public ResponseEntity<Void> addVisitType(@RequestBody VisitTypeDTO dto, @PathVariable int locationId) {
+    public ResponseEntity<String> addVisitType(@RequestBody VisitTypeDTO dto, @PathVariable int locationId) {
         try {
-            var visitType = mapToDomain(dto);
+            System.out.println("DTO Ricevuto: " + dto.toString());
+            List<User> resolvedVolunteers = getUserInfoUseCase.findAllByNicknames(dto.volunteers());
+            for(User volunteer : resolvedVolunteers) {
+                System.out.println(volunteer.getId());
+            }
+            var visitType = mapToDomain(dto, resolvedVolunteers);
             manageVisitTypeUseCase.addVisitType(visitType, locationId);
             return ResponseEntity.ok().build();
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().build();
+            e.printStackTrace(); // useful for backend logs
+            return ResponseEntity.badRequest().body("Dati non validi: " + e.getMessage());
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            e.printStackTrace(); // for debugging
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Errore interno: " + e.getMessage());
         }
     }
 
@@ -66,7 +75,8 @@ public class VisitTypeController {
     @PutMapping("/update/{locationId}")
     public ResponseEntity<Void> updateVisitType(@RequestBody VisitTypeDTO dto, @PathVariable int locationId) {
         try {
-            var visitType = mapToDomain(dto);
+            List<User> resolvedVolunteers = getUserInfoUseCase.findAllByNicknames(dto.volunteers());
+            var visitType = mapToDomain(dto, resolvedVolunteers);
             manageVisitTypeUseCase.updateVisitType(visitType, locationId);
             return ResponseEntity.ok().build();
         } catch (IllegalArgumentException e) {
@@ -104,7 +114,7 @@ public class VisitTypeController {
         );
     }
 
-    private VisitType mapToDomain(VisitTypeDTO dto) {
+    private VisitType mapToDomain(VisitTypeDTO dto, List<User> volunteers) {
         LocalDate startDate = null;
         LocalDate endDate = null;
         LocalTime startTime = null;
@@ -124,12 +134,6 @@ public class VisitTypeController {
                 ? dto.daysAvailable().stream()
                 .map(String::toUpperCase)
                 .map(DaysOfWeek::valueOf)
-                .toList()
-                : Collections.emptyList();
-
-        List<User> volunteers = dto.volunteers() != null
-                ? dto.volunteers().stream()
-                .map(nick -> new User(null, nick, "", "volunteer", true)) // dummy user
                 .toList()
                 : Collections.emptyList();
 

@@ -15,8 +15,6 @@ import java.util.Set;
 public class VisitTypeService implements ManageVisitTypeUseCase {
 
     private final VisitTypeRepositoryPort repository;
-    private final UserRepositoryPort userRepository;
-
 
     @Override
     public void addVisitType(VisitType visitType, int locationId) {

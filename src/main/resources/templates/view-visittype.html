@@ -35,10 +35,7 @@
                             Max partecipanti: <span th:text="${vt.maxParticipants}"></span><br/>
                             La visita è <span th:text="${vt.free} ? 'gratuita' : 'a pagamento'"></span><br/>
                             Giorni disponibili: <span class="days-available" th:text="${vt.daysAvailable}"></span><br/>
-                            Volontari:
-                            <span th:if="${#lists.isEmpty(vt.volunteers)}">Nessun volontario</span>
-                            <span th:if="${!#lists.isEmpty(vt.volunteers)}"
-                                  th:text="${#strings.arrayJoin(vt.volunteers.?[nickname], ', ')}"></span>
+                            Volontari: <span th:text="${#strings.arrayJoin(vt.volunteers, ', ')}"></span>
                         </small>
                     </p>
                 </div>

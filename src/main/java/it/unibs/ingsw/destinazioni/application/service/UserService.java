@@ -107,4 +107,12 @@ public class UserService implements LoginUseCase, GetUserInfoUseCase, ChangeCred
     public List<User> getUsersByRole(String role) {
         return userRepository.findAllByRole(role);
     }
+
+    @Override
+    public List<User> findAllByNicknames(List<String> nicknames) {
+        return nicknames.stream()
+                .map(nick -> userRepository.findByNickname(nick)
+                        .orElseThrow(() -> new IllegalArgumentException("Utente non trovato: " + nick)))
+                .toList();
+    }
 }

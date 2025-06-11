@@ -52,6 +52,7 @@ public class VisitTypeViewController {
             String url = "http://localhost:8080/api/users/list_volunteers";
             ResponseEntity<VolunteerDTO[]> response = restTemplate.getForEntity(url, VolunteerDTO[].class);
             List<VolunteerDTO> volunteers = Arrays.asList(response.getBody());
+
             model.addAttribute("volunteers", volunteers);
         } catch (HttpClientErrorException e) {
             model.addAttribute("error", "Errore nel recupero dei volontari");

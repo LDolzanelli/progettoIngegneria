@@ -27,7 +27,7 @@ public class VisitType {
 
     public VisitType(Integer id, String title, String description, String meetingPoint, LocalDate startDate,
             LocalDate endDate, LocalTime startTime, int duration, int maxParticipants, int minParticipants,
-            boolean isFree, List<DaysOfWeek> daysAvailable, List<User> volunteers2) {
+            boolean isFree, List<DaysOfWeek> daysAvailable, List<User> volunteers) {
         this.id = id;
         this.title = title;
         this.description = description;
@@ -40,9 +40,8 @@ public class VisitType {
         this.minParticipants = minParticipants;
         this.isFree = isFree;
         this.daysAvailable = daysAvailable;
-        this.volunteers = volunteers2;
+        this.volunteers = volunteers;
     }
-
 
     /**
      * Costruttore per la creazione di un nuovo VisitType, la generazione dell'ID è gestita dal
@@ -52,14 +51,6 @@ public class VisitType {
             LocalTime startTime, int duration, int maxParticipants, int minParticipants, boolean isFree, List<DaysOfWeek> daysAvailable, List<User> volunteers) {
         this(null, title, description, meetingPoint, startDate, endDate, startTime, duration, maxParticipants,
                 minParticipants, isFree, daysAvailable, volunteers);
-    }
-
-    public VisitType withVolunteers(List<User> newVolunteers) {
-        return new VisitType(
-                id, title, description, meetingPoint, startDate, endDate,
-                startTime, duration, maxParticipants, minParticipants,
-                isFree, daysAvailable, newVolunteers
-        );
     }
 
 }
