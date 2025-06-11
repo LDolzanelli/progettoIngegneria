@@ -7,11 +7,13 @@ import it.unibs.ingsw.destinazioni.application.port.in.RegisterUserUseCase;
 import it.unibs.ingsw.destinazioni.application.port.out.UserRepositoryPort;
 import it.unibs.ingsw.destinazioni.domain.dto.LoginRequestDTO;
 import it.unibs.ingsw.destinazioni.domain.dto.LoginResponseDTO;
+import it.unibs.ingsw.destinazioni.domain.model.Role;
 import it.unibs.ingsw.destinazioni.domain.model.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -99,5 +101,10 @@ public class UserService implements LoginUseCase, GetUserInfoUseCase, ChangeCred
         }
 
         return new LoginResponseDTO(user.getNickname(), user.getRole(), user.isFirstLogin());
+    }
+
+    @Override
+    public List<User> getUsersByRole(String role) {
+        return userRepository.findAllByRole(role);
     }
 }

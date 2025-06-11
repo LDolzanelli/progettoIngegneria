@@ -3,9 +3,11 @@ package it.unibs.ingsw.destinazioni.adapters.jpa.adapter;
 import it.unibs.ingsw.destinazioni.adapters.jpa.entity.UserEntity;
 import it.unibs.ingsw.destinazioni.adapters.jpa.repository.UserRepository;
 import it.unibs.ingsw.destinazioni.application.port.out.UserRepositoryPort;
+import it.unibs.ingsw.destinazioni.domain.model.Role;
 import it.unibs.ingsw.destinazioni.domain.model.User;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -67,6 +69,13 @@ public class JpaUserRepositoryAdapter implements UserRepositoryPort {
         entity.setRole(user.getRole());
         entity.setFirstLogin(user.isFirstLogin());
         return entity;
+    }
+
+    @Override
+    public List<User> findAllByRole(String role) {
+        return jpaRepo.findAllByRole(role).stream()
+                .map(JpaUserRepositoryAdapter::toDomain)
+                .toList();
     }
 
 }

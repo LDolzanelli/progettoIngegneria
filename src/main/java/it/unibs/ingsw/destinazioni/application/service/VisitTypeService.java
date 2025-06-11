@@ -1,6 +1,7 @@
 package it.unibs.ingsw.destinazioni.application.service;
 
 import it.unibs.ingsw.destinazioni.application.port.in.ManageVisitTypeUseCase;
+import it.unibs.ingsw.destinazioni.application.port.out.UserRepositoryPort;
 import it.unibs.ingsw.destinazioni.application.port.out.VisitTypeRepositoryPort;
 import it.unibs.ingsw.destinazioni.domain.model.VisitType;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +15,8 @@ import java.util.Set;
 public class VisitTypeService implements ManageVisitTypeUseCase {
 
     private final VisitTypeRepositoryPort repository;
+    private final UserRepositoryPort userRepository;
+
 
     @Override
     public void addVisitType(VisitType visitType, int locationId) {

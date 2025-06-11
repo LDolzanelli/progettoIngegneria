@@ -54,4 +54,12 @@ public class VisitType {
                 minParticipants, isFree, daysAvailable, volunteers);
     }
 
+    public VisitType withVolunteers(List<User> newVolunteers) {
+        return new VisitType(
+                id, title, description, meetingPoint, startDate, endDate,
+                startTime, duration, maxParticipants, minParticipants,
+                isFree, daysAvailable, newVolunteers
+        );
+    }
+
 }

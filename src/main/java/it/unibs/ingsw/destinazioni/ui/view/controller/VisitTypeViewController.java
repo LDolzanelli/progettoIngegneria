@@ -1,6 +1,8 @@
 package it.unibs.ingsw.destinazioni.ui.view.controller;
 
 import it.unibs.ingsw.destinazioni.domain.dto.VisitTypeDTO;
+import it.unibs.ingsw.destinazioni.domain.dto.VolunteerDTO;
+import it.unibs.ingsw.destinazioni.domain.model.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -45,6 +47,17 @@ public class VisitTypeViewController {
     @GetMapping("/add-visittype")
     public String addVisitTypeForm(@AuthenticationPrincipal UserDetails principal, Model model) {
         model.addAttribute("username", principal.getUsername());
+
+        try {
+            String url = "http://localhost:8080/api/users/list_volunteers";
+            ResponseEntity<VolunteerDTO[]> response = restTemplate.getForEntity(url, VolunteerDTO[].class);
+            List<VolunteerDTO> volunteers = Arrays.asList(response.getBody());
+            model.addAttribute("volunteers", volunteers);
+        } catch (HttpClientErrorException e) {
+            model.addAttribute("error", "Errore nel recupero dei volontari");
+            model.addAttribute("volunteers", List.of());
+        }
+
         return "add-visittype";
     }
 
@@ -62,6 +75,7 @@ public class VisitTypeViewController {
                                      @RequestParam int maxParticipants,
                                      @RequestParam boolean isFree,
                                      @RequestParam List<String> daysOfWeek,
+                                     @RequestParam List<String> volunteers,
                                      Model model) {
 
         model.addAttribute("username", principal.getUsername());
@@ -78,6 +92,7 @@ public class VisitTypeViewController {
         visitTypeDto.put("maxParticipants", maxParticipants);
         visitTypeDto.put("isFree", isFree);
         visitTypeDto.put("daysOfWeek", daysOfWeek);
+        visitTypeDto.put("volunteers", volunteers);
 
         try {
             restTemplate.postForEntity("http://localhost:8080/api/visit-type/add", visitTypeDto, Void.class);

@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.bind.annotation.GetMapping;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
@@ -19,7 +21,7 @@ public class UserController {
 
     private final LoginUseCase loginService;
     private final ChangeCredentialsUseCase changeCredentialsService;
-    private final GetUserInfoUseCase UserInfoService;
+    private final GetUserInfoUseCase userInfoService;
     private final RegisterUserUseCase registerUserService;
 
 
@@ -83,10 +85,17 @@ public class UserController {
 
     @GetMapping("/info/{username}")
     public ResponseEntity<LoginResponseDTO> getUserInfo(@PathVariable String username) {
-        return UserInfoService.findByNickname(username)
+        return userInfoService.findByNickname(username)
                 .map(user -> new LoginResponseDTO(user.getNickname(), user.getRole(), user.isFirstLogin()))
                 .map(ResponseEntity::ok)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Utente non trovato"));
+    }
+
+    @GetMapping("/list_volunteers")
+    public List<VolunteerDTO> listVolunteers() {
+        return userInfoService.getUsersByRole("volunteer").stream()
+                .map(user -> new VolunteerDTO(user.getNickname()))
+                .toList();
     }
 
 }

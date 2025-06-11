@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>Aggiungi tipo di visita</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
 </head>
 <body>
 <nav class="navbar navbar-expand-lg bg-light shadow-sm mb-4">
@@ -56,7 +57,7 @@
             <input type="number" id="duration" name="duration" class="form-control" min="1" required />
             <div class="invalid-feedback">Inserire la durata.</div>
         </div>
-        <!-- Minimo partecipanti -->
+
         <div class="mb-3">
             <label for="minParticipants" class="form-label">Minimo partecipanti:</label>
             <input type="number" id="minParticipants" name="minParticipants" class="form-control" min="1" required />
@@ -70,13 +71,11 @@
         </div>
 
 
-        <!-- È gratuito -->
         <div class="form-check mb-3">
             <input class="form-check-input" type="checkbox" id="isFree" name="isFree" />
             <label class="form-check-label" for="isFree">Visita gratuita</label>
         </div>
 
-        <!-- Giorni disponibili -->
         <div class="mb-3">
             <label class="form-label">Giorni disponibili:</label>
             <div class="form-check">
@@ -108,24 +107,35 @@
                 <input class="form-check-input" type="checkbox" name="daysAvailable" value="SUNDAY" id="sunday">
                 <label class="form-check-label" for="sunday">Domenica</label>
             </div>
-        </div>
 
-<!--        &lt;!&ndash; Selezione volontari &ndash;&gt;-->
-<!--        <div class="mb-3">-->
-<!--            <label for="volunteers" class="form-label">Seleziona volontari:</label>-->
-<!--            <select id="volunteers" name="volunteers" class="form-select" multiple required>-->
-<!--                &lt;!&ndash; Opzioni caricate dinamicamente &ndash;&gt;-->
-<!--            </select>-->
-<!--            <div class="form-text">Tieni premuto Ctrl (o Cmd su Mac) per selezionare più volontari.</div>-->
-<!--        </div>-->
-
+            <div class="mb-3">
+                <label for="volunteers">Seleziona volontari:</label>
+                <select id="volunteers" name="volunteers" multiple>
+                    <option th:each="vol : ${volunteers}"
+                            th:value="${vol.nickname}"
+                            th:text="${vol.nickname}"></option>
+                </select>
+                <a href="/register-user" class="btn btn-link p-0 mt-2">+ Aggiungi nuovo volontario</a>
+            </div>
 
         <button type="submit" class="btn btn-success">Aggiungi tipo di visita</button>
         <a href="/view-locations" class="btn btn-secondary ms-2">Torna alla lista luoghi</a>
     </form>
 </div>
-
+<script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
 <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const volunteerSelect = document.getElementById('volunteers');
+        new Choices(volunteerSelect, {
+            removeItemButton: true,
+            placeholder: true,
+            placeholderValue: 'Seleziona volontari...',
+            searchEnabled: true,
+            noResultsText: 'Nessun volontario trovato',
+            itemSelectText: '',
+        });
+    });
+
     async function submitVisitType(event) {
         event.preventDefault();
 

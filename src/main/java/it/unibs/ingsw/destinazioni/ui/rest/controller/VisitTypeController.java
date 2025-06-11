@@ -129,7 +129,7 @@ public class VisitTypeController {
 
         List<User> volunteers = dto.volunteers() != null
                 ? dto.volunteers().stream()
-                .map(nick -> new User(null, nick, "", "VOLUNTEER", true)) // dummy user
+                .map(nick -> new User(null, nick, "", "volunteer", true)) // dummy user
                 .toList()
                 : Collections.emptyList();
 

@@ -1,7 +1,9 @@
 package it.unibs.ingsw.destinazioni.application.port.out;
 
+import it.unibs.ingsw.destinazioni.domain.model.Role;
 import it.unibs.ingsw.destinazioni.domain.model.User;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface UserRepositoryPort {
@@ -10,4 +12,5 @@ public interface UserRepositoryPort {
     User save(User user);
     void deleteByNickname(String nickname);
     void deleteById(int id);
+    List<User> findAllByRole(String role);
 }

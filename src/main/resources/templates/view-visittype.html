@@ -34,7 +34,11 @@
                             Min partecipanti: <span th:text="${vt.minParticipants}"></span><br/>
                             Max partecipanti: <span th:text="${vt.maxParticipants}"></span><br/>
                             La visita è <span th:text="${vt.free} ? 'gratuita' : 'a pagamento'"></span><br/>
-                            Giorni disponibili: <span class="days-available" th:text="${vt.daysAvailable}"></span>
+                            Giorni disponibili: <span class="days-available" th:text="${vt.daysAvailable}"></span><br/>
+                            Volontari:
+                            <span th:if="${#lists.isEmpty(vt.volunteers)}">Nessun volontario</span>
+                            <span th:if="${!#lists.isEmpty(vt.volunteers)}"
+                                  th:text="${#strings.arrayJoin(vt.volunteers.?[nickname], ', ')}"></span>
                         </small>
                     </p>
                 </div>
@@ -93,6 +97,7 @@
                 <strong>Max partecipanti:</strong> ${vt.maxParticipants}<br/>
                 <strong>Gratuita:</strong> ${vt.isFree}<br/>
                 <strong>Giorni disponibili:</strong> ${vt.daysAvailable}<br/>
+                <strong>Volontari:</strong> ${vt.volunteers}<br/>
             `;
 
             const cardCol = document.createElement('div');
