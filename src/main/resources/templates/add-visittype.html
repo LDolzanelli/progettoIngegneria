@@ -109,7 +109,7 @@
 
             <div class="mb-3">
                 <label for="volunteers">Seleziona volontari:</label>
-                <select id="volunteers" name="volunteers" multiple class="form-select" size="5">
+                <select id="volunteers" name="volunteers" multiple class="form-select" size="5" required>
                     <option th:each="vol : ${volunteers}"
                             th:value="${vol.nickname}"
                             th:text="${vol.nickname}"></option>

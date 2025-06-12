@@ -1,11 +1,9 @@
 package it.unibs.ingsw.destinazioni.ui.rest.controller;
 
-import it.unibs.ingsw.destinazioni.application.port.in.ChangeCredentialsUseCase;
-import it.unibs.ingsw.destinazioni.application.port.in.GetUserInfoUseCase;
-import it.unibs.ingsw.destinazioni.application.port.in.LoginUseCase;
-import it.unibs.ingsw.destinazioni.application.port.in.RegisterUserUseCase;
+import it.unibs.ingsw.destinazioni.application.port.in.*;
 import it.unibs.ingsw.destinazioni.domain.dto.*;
 import it.unibs.ingsw.destinazioni.domain.model.User;
+import it.unibs.ingsw.destinazioni.domain.model.VisitType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
@@ -13,6 +11,7 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.bind.annotation.GetMapping;
 
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/api/users")
@@ -23,6 +22,7 @@ public class UserController {
     private final ChangeCredentialsUseCase changeCredentialsService;
     private final GetUserInfoUseCase userInfoService;
     private final RegisterUserUseCase registerUserService;
+    private final ManageVisitTypeUseCase manageVisitTypeUseCase;
 
 
     @PostMapping("/login")
@@ -95,6 +95,28 @@ public class UserController {
     public List<VolunteerDTO> listVolunteers() {
         return userInfoService.getUsersByRole("volunteer").stream()
                 .map(user -> new VolunteerDTO(user.getNickname()))
+                .toList();
+    }
+
+    @GetMapping("/volunteers-with-visits")
+    public List<VolunteerWithVisitsDTO> getVolunteersWithVisits() {
+        //carica tutti i volontari
+        List<User> volunteers = userInfoService.getUsersByRole("volunteer");
+
+        //carica tutte le visitType
+        Set<VisitType> allVisitTypes = manageVisitTypeUseCase.listAll();
+
+        //associa i due
+        return volunteers.stream()
+                .map(volunteer -> {
+                    String nickname = volunteer.getNickname();
+                    List<String> visitTitles = allVisitTypes.stream()
+                            .filter(visit -> visit.getVolunteers().stream()
+                                    .anyMatch(v -> v.getNickname().equals(volunteer.getNickname()))) // <-- confronto sicuro
+                            .map(VisitType::getTitle)
+                            .toList();
+                    return new VolunteerWithVisitsDTO(nickname, visitTitles);
+                })
                 .toList();
     }
 
