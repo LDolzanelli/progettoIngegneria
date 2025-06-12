@@ -12,6 +12,4 @@ public interface BlockedDatesRepository extends JpaRepository<BlockedDatesEntity
 
     boolean existsByDate(LocalDate date);
 
-
-
 }
