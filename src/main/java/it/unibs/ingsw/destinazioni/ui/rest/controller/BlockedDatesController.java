@@ -24,10 +24,6 @@ public class BlockedDatesController {
     public ResponseEntity<Void> addBlockedDates(@RequestBody BlockedDatesDTO blockedDatesDTO, HttpServletRequest request) {
         try{
 
-            if(blockedDatesDTO.equals(null))
-                System.out.println("Error");
-            else System.out.println("Dates inserted: " + blockedDatesDTO.dateList());
-
             Set<LocalDate> blockedDates = new HashSet<>();
 
             for(String date: blockedDatesDTO.dateList())
@@ -37,8 +33,6 @@ public class BlockedDatesController {
                 }catch (DateTimeParseException e){
                     throw new IllegalArgumentException("Formato data non valido: " + e.getMessage());
                 }
-
-            System.out.println("Date end -->");
 
             blockedDatesUseCase.updateBlockedDates(blockedDates);
 
