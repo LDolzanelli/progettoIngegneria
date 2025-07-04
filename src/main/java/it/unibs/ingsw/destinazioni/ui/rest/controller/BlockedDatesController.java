@@ -23,12 +23,8 @@ public class BlockedDatesController {
     @PostMapping("/set")
     public ResponseEntity<Void> addBlockedDates(@RequestBody BlockedDatesDTO blockedDatesDTO, HttpServletRequest request) {
         try{
-            System.out.println("POST request for setting Blocked Dates");
 
-            String contentType = request.getContentType();
-            System.out.println("Content type:  " +contentType);
-
-            if(blockedDatesDTO.equals(null) )
+            if(blockedDatesDTO.equals(null))
                 System.out.println("Error");
             else System.out.println("Dates inserted: " + blockedDatesDTO.dateList());
 

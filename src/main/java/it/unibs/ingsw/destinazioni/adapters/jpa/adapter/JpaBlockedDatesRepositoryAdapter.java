@@ -10,6 +10,7 @@ import it.unibs.ingsw.destinazioni.adapters.jpa.entity.BlockedDatesEntity;
 import it.unibs.ingsw.destinazioni.adapters.jpa.repository.BlockedDatesRepository;
 import it.unibs.ingsw.destinazioni.application.port.out.BlockedDatesRepositoryPort;
 import it.unibs.ingsw.destinazioni.domain.model.BlockedDates;
+import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 public class JpaBlockedDatesRepositoryAdapter implements BlockedDatesRepositoryPort {
@@ -57,6 +58,7 @@ public class JpaBlockedDatesRepositoryAdapter implements BlockedDatesRepositoryP
     }
 
     @Override
+    @Transactional
     public void updateByMonth(BlockedDates dates, Month month) {
         BlockedDates toBeRemoved = loadByMonth(month);
         toBeRemoved.getDates().forEach(this::delete);
