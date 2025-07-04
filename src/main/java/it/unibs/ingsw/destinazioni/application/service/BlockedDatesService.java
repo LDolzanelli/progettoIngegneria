@@ -30,8 +30,19 @@ public class BlockedDatesService implements BlockedDatesUseCase {
         return repository.loadAll();
     }
 
-    private Month getMonthToUpdate(){
-       int currentMonth = LocalDate.now().getMonth().getValue();
-       return Month.of(currentMonth + 3);
+    @Override
+    public Month getMonthToUpdate(){
+        LocalDate today = LocalDate.now();
+        int baseMonth;
+
+        if (today.getDayOfMonth() < 16) {
+            baseMonth = today.getMonthValue();
+        } else {
+            baseMonth = today.plusMonths(1).getMonthValue();
+        }
+
+        //il risultato del modulo può essere 0. si fa +1 alla fine per garantire di avere il mese desiderato
+        int targetMonth = ((baseMonth + 2) % 12) + 1;
+        return Month.of(targetMonth);
     }
 }

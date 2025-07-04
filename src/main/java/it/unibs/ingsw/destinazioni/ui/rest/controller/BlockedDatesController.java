@@ -3,6 +3,7 @@ package it.unibs.ingsw.destinazioni.ui.rest.controller;
 import it.unibs.ingsw.destinazioni.application.port.in.BlockedDatesUseCase;
 import it.unibs.ingsw.destinazioni.domain.dto.BlockedDatesDTO;
 import it.unibs.ingsw.destinazioni.domain.dto.LocationDTO;
+import it.unibs.ingsw.destinazioni.domain.model.BlockedDates;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -10,8 +11,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.time.Month;
 import java.time.format.DateTimeParseException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/blocked-dates")
@@ -19,6 +22,25 @@ import java.util.*;
 public class BlockedDatesController {
 
     private final BlockedDatesUseCase blockedDatesUseCase;
+
+    @GetMapping("/month-to-update")
+    public ResponseEntity<Integer> getMonthToUpdate() {
+        Month month = blockedDatesUseCase.getMonthToUpdate();
+        return ResponseEntity.ok(month.getValue());
+    }
+
+    @GetMapping("/month-dates")
+    public ResponseEntity<Set<String>> getBlockedDatesForMonth() {
+        Month month = blockedDatesUseCase.getMonthToUpdate();
+        BlockedDates blockedDates = blockedDatesUseCase.getBlockedDates(month.getValue());
+
+        Set<String> dates = blockedDates.getDates().stream()
+                .filter(d -> d.getMonth() == month)
+                .map(LocalDate::toString)
+                .collect(Collectors.toSet());
+
+        return ResponseEntity.ok(dates);
+    }
 
     @PostMapping("/set")
     public ResponseEntity<Void> addBlockedDates(@RequestBody BlockedDatesDTO blockedDatesDTO, HttpServletRequest request) {
