@@ -26,7 +26,12 @@ public class BlockedDatesService implements BlockedDatesUseCase {
     }
 
     @Override
-    public BlockedDates getBlockedDates(int month){
+    public BlockedDates getBlockedDates() {
+        return repository.loadAll();
+    }
+
+    @Override
+    public BlockedDates getBlockedDates(int month) {
         return repository.loadAll();
     }
 

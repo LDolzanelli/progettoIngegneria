@@ -9,6 +9,7 @@ import java.util.Set;
 
 public interface BlockedDatesUseCase {
     void updateBlockedDates(Set<LocalDate> blockedDates);
+    BlockedDates getBlockedDates();
     BlockedDates getBlockedDates(int month);
     Month getMonthToUpdate();
 }

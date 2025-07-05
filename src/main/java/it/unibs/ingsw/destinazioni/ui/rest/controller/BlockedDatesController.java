@@ -42,6 +42,16 @@ public class BlockedDatesController {
         return ResponseEntity.ok(dates);
     }
 
+    @GetMapping("/get")
+    public ResponseEntity<Set<String>> getBlockedDates() {
+        BlockedDates blockedDates = blockedDatesUseCase.getBlockedDates();
+        Set<String> dates = blockedDates.getDates().stream()
+                .sorted()
+                .map(LocalDate::toString)
+                .collect(Collectors.toCollection(LinkedHashSet::new)); // ordine cronologico
+        return ResponseEntity.ok(dates);
+    }
+
     @PostMapping("/set")
     public ResponseEntity<Void> addBlockedDates(@RequestBody BlockedDatesDTO blockedDatesDTO, HttpServletRequest request) {
         try{
