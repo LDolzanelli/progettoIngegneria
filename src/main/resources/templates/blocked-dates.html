@@ -111,7 +111,14 @@
             const monthToUpdate = await fetch('http://localhost:8080/api/blocked-dates/month-to-update')
                 .then(res => res.ok ? res.json() : Promise.reject('Errore mese'));
 
-            const year = new Date().getFullYear();
+            const now = new Date();
+            let year = now.getFullYear();
+
+            // Se il mese da aggiornare è prima del mese corrente, si va all'anno successivo
+            if (monthToUpdate < now.getMonth() + 1) {
+                year += 1;
+            }
+
             const firstDay = new Date(year, monthToUpdate - 1, 1);
             const lastDay = new Date(year, monthToUpdate, 0);
 
@@ -132,8 +139,16 @@
             const blockedDates = await fetch('http://localhost:8080/api/blocked-dates/month-dates')
                 .then(res => res.ok ? res.json() : []);
 
-            const dateObjects = blockedDates.map(dateStr => new Date(dateStr + 'T00:00:00'));
-            $('#inline-datepicker').datepicker('setDate', dateObjects);
+            if (blockedDates.length > 0) {
+                const dateObjects = blockedDates.map(dateStr => new Date(dateStr + 'T00:00:00'));
+                $('#inline-datepicker').datepicker('setDate', dateObjects);
+            } else {
+                setTimeout(() => {
+                    const dp = $('#inline-datepicker').data('datepicker');
+                    dp.viewDate = firstDay;
+                    dp._fill(); // forza il rendering del mese
+                }, 0);
+            }
 
             let selectedDates = blockedDates;
 
@@ -150,7 +165,7 @@
                     body: JSON.stringify({ dateList: selectedDates })
                 });
                 if (response.ok) {
-                    alert('Date bloccate aggiunte con successo!');
+                    alert('Date bloccate aggiornate con successo!');
                 } else {
                     alert('Errore: ' + await response.text());
                 }
