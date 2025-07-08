@@ -8,6 +8,7 @@ import it.unibs.ingsw.destinazioni.domain.model.BlockedDates;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.Clock;
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.Set;
@@ -17,6 +18,7 @@ import java.util.Set;
 public class BlockedDatesService implements BlockedDatesUseCase {
 
     private final BlockedDatesRepositoryPort repository;
+    private final Clock clock;
 
     @Override
     public void updateBlockedDates(Set<LocalDate> blockedDates) {
@@ -25,13 +27,18 @@ public class BlockedDatesService implements BlockedDatesUseCase {
     }
 
     @Override
-    public BlockedDates getBlockedDates(int month){
+    public BlockedDates getBlockedDates() {
+        return repository.loadAll();
+    }
+
+    @Override
+    public BlockedDates getBlockedDates(int month) {
         return repository.loadAll();
     }
 
     @Override
     public Month getMonthToUpdate(){
-        LocalDate today = LocalDate.now();
+        LocalDate today = LocalDate.now(clock);
         int baseMonth;
 
         if (today.getDayOfMonth() < 16) {
