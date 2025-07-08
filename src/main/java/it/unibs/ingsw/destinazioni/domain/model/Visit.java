@@ -5,6 +5,7 @@ import lombok.Setter;
 
 import java.time.LocalDate;
 import java.util.Set;
+import it.unibs.ingsw.destinazioni.domain.model.enums.VisitStatus;
 
 @Getter
 @Setter

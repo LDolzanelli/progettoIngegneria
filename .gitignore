@@ -33,12 +33,11 @@ build/
 target/
 
 
-mvnw.cmd
-mvnw
-
+.mvnw
 mvnw
 mvnw.cmd
 .gitattributes
 
 ### VS Code ###
 .vscode/
+bin/

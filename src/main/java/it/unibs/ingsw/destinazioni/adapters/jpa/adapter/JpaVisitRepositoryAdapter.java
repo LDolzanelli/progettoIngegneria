@@ -15,8 +15,8 @@ import it.unibs.ingsw.destinazioni.adapters.jpa.repository.VisitTypeRepository;
 import it.unibs.ingsw.destinazioni.application.port.out.VisitRepositoryPort;
 import it.unibs.ingsw.destinazioni.domain.model.User;
 import it.unibs.ingsw.destinazioni.domain.model.Visit;
-import it.unibs.ingsw.destinazioni.domain.model.VisitStatus;
 import it.unibs.ingsw.destinazioni.domain.model.VisitType;
+import it.unibs.ingsw.destinazioni.domain.model.enums.VisitStatus;
 
 
 /**
