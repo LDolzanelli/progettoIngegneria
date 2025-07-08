@@ -4,6 +4,7 @@ import it.unibs.ingsw.destinazioni.application.port.in.*;
 import it.unibs.ingsw.destinazioni.domain.dto.*;
 import it.unibs.ingsw.destinazioni.domain.model.User;
 import it.unibs.ingsw.destinazioni.domain.model.VisitType;
+import it.unibs.ingsw.destinazioni.domain.model.enums.Role;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
@@ -71,10 +72,11 @@ public class UserController {
         }
     }
 
+
     @PostMapping("/register")
     public ResponseEntity<String> registerUser(@RequestBody RegisterUserDTO dto) {
         try {
-            User user = new User(dto.nickname(), dto.password(), dto.role());
+            User user = new User(dto.nickname(), dto.password(), Role.fromString(dto.role()));
             registerUserService.registerNewUser(user);
             return ResponseEntity.status(HttpStatus.CREATED).build();
         } catch (IllegalArgumentException e) {
@@ -86,38 +88,36 @@ public class UserController {
     @GetMapping("/info/{username}")
     public ResponseEntity<LoginResponseDTO> getUserInfo(@PathVariable String username) {
         return userInfoService.findByNickname(username)
-                .map(user -> new LoginResponseDTO(user.getNickname(), user.getRole(), user.isFirstLogin()))
+                .map(user -> new LoginResponseDTO(user.getNickname(), user.getRole().getName(), user.isFirstLogin()))
                 .map(ResponseEntity::ok)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Utente non trovato"));
     }
 
+
     @GetMapping("/list_volunteers")
     public List<VolunteerDTO> listVolunteers() {
-        return userInfoService.getUsersByRole("volunteer").stream()
-                .map(user -> new VolunteerDTO(user.getNickname()))
+        return userInfoService.getUsersByRole(Role.VOLUNTEER).stream().map(user -> new VolunteerDTO(user.getNickname()))
                 .toList();
     }
 
+
     @GetMapping("/volunteers-with-visits")
     public List<VolunteerWithVisitsDTO> getVolunteersWithVisits() {
-        //carica tutti i volontari
-        List<User> volunteers = userInfoService.getUsersByRole("volunteer");
+        // carica tutti i volontari
+        List<User> volunteers = userInfoService.getUsersByRole(Role.VOLUNTEER);
 
-        //carica tutte le visitType
+        // carica tutte le visitType
         Set<VisitType> allVisitTypes = manageVisitTypeUseCase.listAll();
 
-        //associa i due
-        return volunteers.stream()
-                .map(volunteer -> {
-                    String nickname = volunteer.getNickname();
-                    List<String> visitTitles = allVisitTypes.stream()
-                            .filter(visit -> visit.getVolunteers().stream()
-                                    .anyMatch(v -> v.getNickname().equals(volunteer.getNickname()))) // <-- confronto sicuro
-                            .map(VisitType::getTitle)
-                            .toList();
-                    return new VolunteerWithVisitsDTO(nickname, visitTitles);
-                })
-                .toList();
+        // associa i due
+        return volunteers.stream().map(volunteer -> {
+            String nickname = volunteer.getNickname();
+            List<String> visitTitles = allVisitTypes.stream()
+                    .filter(visit -> visit.getVolunteers().stream()
+                            .anyMatch(v -> v.getNickname().equals(volunteer.getNickname()))) // <-- confronto sicuro
+                    .map(VisitType::getTitle).toList();
+            return new VolunteerWithVisitsDTO(nickname, visitTitles);
+        }).toList();
     }
 
 }

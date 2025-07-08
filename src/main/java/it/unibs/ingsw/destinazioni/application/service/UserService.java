@@ -7,8 +7,8 @@ import it.unibs.ingsw.destinazioni.application.port.in.RegisterUserUseCase;
 import it.unibs.ingsw.destinazioni.application.port.out.UserRepositoryPort;
 import it.unibs.ingsw.destinazioni.domain.dto.LoginRequestDTO;
 import it.unibs.ingsw.destinazioni.domain.dto.LoginResponseDTO;
-import it.unibs.ingsw.destinazioni.domain.model.Role;
 import it.unibs.ingsw.destinazioni.domain.model.User;
+import it.unibs.ingsw.destinazioni.domain.model.enums.Role;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -100,11 +100,11 @@ public class UserService implements LoginUseCase, GetUserInfoUseCase, ChangeCred
             throw new IllegalArgumentException("Password errata");
         }
 
-        return new LoginResponseDTO(user.getNickname(), user.getRole(), user.isFirstLogin());
+        return new LoginResponseDTO(user.getNickname(), user.getRole().getName(), user.isFirstLogin());
     }
 
     @Override
-    public List<User> getUsersByRole(String role) {
+    public List<User> getUsersByRole(Role role) {
         return userRepository.findAllByRole(role);
     }
 

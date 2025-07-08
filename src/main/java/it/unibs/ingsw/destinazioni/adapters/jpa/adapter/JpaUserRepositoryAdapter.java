@@ -3,8 +3,8 @@ package it.unibs.ingsw.destinazioni.adapters.jpa.adapter;
 import it.unibs.ingsw.destinazioni.adapters.jpa.entity.UserEntity;
 import it.unibs.ingsw.destinazioni.adapters.jpa.repository.UserRepository;
 import it.unibs.ingsw.destinazioni.application.port.out.UserRepositoryPort;
-import it.unibs.ingsw.destinazioni.domain.model.Role;
 import it.unibs.ingsw.destinazioni.domain.model.User;
+import it.unibs.ingsw.destinazioni.domain.model.enums.Role;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -56,7 +56,7 @@ public class JpaUserRepositoryAdapter implements UserRepositoryPort {
                 entity.getId(),
                 entity.getNickname(),
                 entity.getPassword(),
-                entity.getRole(),
+                Role.fromString(entity.getRole()),
                 Boolean.TRUE.equals(entity.getFirstLogin())
         );
     }
@@ -66,14 +66,14 @@ public class JpaUserRepositoryAdapter implements UserRepositoryPort {
         entity.setId(user.getId());
         entity.setNickname(user.getNickname());
         entity.setPassword(user.getPassword());
-        entity.setRole(user.getRole());
+        entity.setRole(user.getRole().getName());
         entity.setFirstLogin(user.isFirstLogin());
         return entity;
     }
 
     @Override
-    public List<User> findAllByRole(String role) {
-        return jpaRepo.findAllByRole(role).stream()
+    public List<User> findAllByRole(Role role) {
+        return jpaRepo.findAllByRole(role.getName()).stream()
                 .map(JpaUserRepositoryAdapter::toDomain)
                 .toList();
     }

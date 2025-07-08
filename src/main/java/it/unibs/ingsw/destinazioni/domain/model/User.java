@@ -1,7 +1,7 @@
 package it.unibs.ingsw.destinazioni.domain.model;
 
+import it.unibs.ingsw.destinazioni.domain.model.enums.Role;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 
@@ -11,10 +11,10 @@ public class User {
     private Integer id;
     private String nickname;
     private String password;
-    private String role;
+    private Role role;
     private boolean firstLogin;
 
-    public User(Integer id, String nickname, String password, String role, boolean firstLogin) {
+    public User(Integer id, String nickname, String password, Role role, boolean firstLogin) {
         this.id = id;
         this.nickname = nickname;
         this.password = password;
@@ -25,7 +25,7 @@ public class User {
     /**
      * Costruttore per la creazione di un nuovo utente, la generazione dell'ID è gestita dal database.
      */
-    public User(String nickname, String password, String role) {
+    public User(String nickname, String password, Role role) {
         this(null, nickname, password, role, true);
     }
 }

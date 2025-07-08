@@ -52,7 +52,7 @@ public class JpaLocationRepositoryAdapter implements LocationRepositoryPort {
 
     @Override
     public List<Location> findAll() {
-        return locationRepository.findAll().stream().map(this::toDomain).collect(Collectors.toList());
+        return locationRepository.findAll().stream().map(this::toDomain).toList();
     }
 
 
