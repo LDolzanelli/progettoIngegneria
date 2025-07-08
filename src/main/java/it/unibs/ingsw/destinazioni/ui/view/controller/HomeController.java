@@ -29,12 +29,10 @@ public class HomeController {
             throw new IllegalStateException("Errore nel recupero dell'utente: " + nickname, e);
         }
 
-        //Al primo login viene controllato il ruolo. Se
+        //Al primo login viene controllato il ruolo.
         if (userInfo.firstLogin()) {
-            if(userInfo.role().equalsIgnoreCase("configurator")) {
-                return "redirect:/change-credentials";
-            }
-            //TODO: redirect:/change-password per i volontari
+            String urlRedirect = "redirect:/change-credentials?role=";
+            return urlRedirect + userInfo.role();
         }
 
         //Se l'utente è un configuratore, e non esiste ancora un corpo dati, viene reindirizzato ad una pagina
@@ -42,7 +40,7 @@ public class HomeController {
         if (userInfo.role().equalsIgnoreCase("configurator")) {
             String urlArea = url + "area-of-interest/isEmpty";
             Boolean exists = restTemplate.getForObject(urlArea, Boolean.class);
-            if(Boolean.TRUE.equals(restTemplate.getForObject(urlArea, Boolean.class))) {
+            if(Boolean.TRUE.equals(exists)) {
                 return "redirect:/insert-areas-of-interest";
             }
         }
