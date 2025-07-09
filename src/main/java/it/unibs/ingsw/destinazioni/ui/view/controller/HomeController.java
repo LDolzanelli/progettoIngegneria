@@ -29,11 +29,8 @@ public class HomeController {
             throw new IllegalStateException("Errore nel recupero dell'utente: " + nickname, e);
         }
 
-        //Al primo login viene controllato il ruolo.
-        if (userInfo.firstLogin()) {
-            String urlRedirect = "redirect:/change-credentials?role=";
-            return urlRedirect + userInfo.role();
-        }
+        assert userInfo != null;
+        model.addAttribute("username", userInfo.nickname());
 
         //Se l'utente è un configuratore, e non esiste ancora un corpo dati, viene reindirizzato ad una pagina
         //che gli permette di inserire location
@@ -45,8 +42,7 @@ public class HomeController {
             }
         }
 
-        model.addAttribute("username", userInfo.nickname());
-        return "home";
+        return "/home";
     }
 }
 

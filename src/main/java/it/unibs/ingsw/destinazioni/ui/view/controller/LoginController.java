@@ -3,6 +3,7 @@ package it.unibs.ingsw.destinazioni.ui.view.controller;
 import it.unibs.ingsw.destinazioni.ui.view.dto.LoginFormDTO;
 import it.unibs.ingsw.destinazioni.domain.dto.LoginRequestDTO;
 import it.unibs.ingsw.destinazioni.domain.dto.LoginResponseDTO;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -10,6 +11,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+@Slf4j
 @Controller
 public class LoginController {
 
@@ -40,7 +42,7 @@ public class LoginController {
                 return "redirect:/login";
             }
 
-            return response.firstLogin() ? "redirect:/change-credentials" : "redirect:/home";
+            return "redirect:/home";
 
         } catch (HttpClientErrorException e) {
             redirectAttributes.addFlashAttribute("error", "Login fallito: credenziali errate");

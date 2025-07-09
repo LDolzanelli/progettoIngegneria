@@ -1,18 +1,17 @@
 package it.unibs.ingsw.destinazioni.domain.model.enums;
 
+import lombok.Getter;
+
+@Getter
 public enum Role {
-    CONFIGURATOR("Configurator"),
-    VOLUNTEER("Volunteer"),
-    FINAL_USER("FinalUser");
+    CONFIGURATOR("configurator"),
+    VOLUNTEER("volunteer"),
+    FINAL_USER("finalUser");
 
     private final String name;
 
     Role(String name) {
         this.name = name;
-    }
-
-    public String getName() {
-        return name;
     }
 
     public static Role fromString(String role) {
@@ -22,5 +21,10 @@ public enum Role {
             }
         }
         throw new IllegalArgumentException("Invalid role: " + role);
+    }
+
+    @Override
+    public String toString() {
+        return name;
     }
 }

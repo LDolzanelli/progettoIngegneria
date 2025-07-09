@@ -66,6 +66,13 @@ public class UserService implements LoginUseCase, GetUserInfoUseCase, ChangeCred
 
     @Override
     public void changeBothCredentials(String oldNickname, String newNickname, String oldPassword, String newPassword) {
+        User user = userRepository.findByNickname(oldNickname)
+                .orElseThrow(() -> new IllegalArgumentException("Utente non trovato"));
+
+        if (user.getRole() == Role.VOLUNTEER && !oldNickname.equals(newNickname)) {
+            throw new IllegalArgumentException("I volontari non possono modificare il nome utente");
+        }
+
         if (!oldNickname.equals(newNickname)) {
             changeUsername(oldNickname, newNickname);
             changePassword(newNickname, oldPassword, newPassword);

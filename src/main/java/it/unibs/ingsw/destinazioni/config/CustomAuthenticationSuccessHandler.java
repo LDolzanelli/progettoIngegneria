@@ -31,7 +31,7 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
         User user = userService.findByNickname(nickname).orElseThrow();
 
         if (Boolean.TRUE.equals(user.isFirstLogin())) {
-            response.sendRedirect("/change-credentials");
+            response.sendRedirect("/change-credentials?role=" + user.getRole().toString());
         } else {
             response.sendRedirect("/");
         }
