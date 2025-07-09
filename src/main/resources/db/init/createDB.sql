@@ -107,3 +107,11 @@ CREATE TABLE volunteers_visit_types (
   FOREIGN KEY (volunteer_id) REFERENCES users(id)
       ON DELETE RESTRICT ON UPDATE CASCADE
 );
+
+CREATE TABLE volunteer_available_dates (
+   volunteer_id INT NOT NULL,
+   available_date DATE NOT NULL,
+   PRIMARY KEY (volunteer_id, available_date),
+   FOREIGN KEY (volunteer_id) REFERENCES users(id)
+       ON DELETE CASCADE ON UPDATE CASCADE
+);

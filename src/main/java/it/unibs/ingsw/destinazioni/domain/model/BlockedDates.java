@@ -13,11 +13,4 @@ public class BlockedDates {
         this.dates = dates;
     }
 
-    public BlockedDates() {
-        this.dates = Set.of();
-    }
-
-    public boolean isBlocked(LocalDate date) {
-        return dates.contains(date);
-    }
 }
