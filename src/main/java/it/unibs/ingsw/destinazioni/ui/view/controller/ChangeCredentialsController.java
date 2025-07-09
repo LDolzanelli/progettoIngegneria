@@ -24,8 +24,11 @@ public class ChangeCredentialsController {
     private final RestTemplate restTemplate = new RestTemplate();
 
     @GetMapping
-    public String showForm(@AuthenticationPrincipal UserDetails principal, Model model) {
+    public String showForm(@AuthenticationPrincipal UserDetails principal,
+                           @RequestParam String role,
+                           Model model) {
         model.addAttribute("username", principal.getUsername());
+        model.addAttribute("role", role);
         return "change-credentials";
     }
 
