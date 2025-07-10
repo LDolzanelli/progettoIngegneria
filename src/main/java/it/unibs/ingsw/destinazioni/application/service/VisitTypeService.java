@@ -1,14 +1,14 @@
 package it.unibs.ingsw.destinazioni.application.service;
 
+import java.util.Optional;
+import java.util.Set;
+
+import org.springframework.stereotype.Service;
+
 import it.unibs.ingsw.destinazioni.application.port.in.ManageVisitTypeUseCase;
-import it.unibs.ingsw.destinazioni.application.port.out.UserRepositoryPort;
 import it.unibs.ingsw.destinazioni.application.port.out.VisitTypeRepositoryPort;
 import it.unibs.ingsw.destinazioni.domain.model.VisitType;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-
-import java.util.Optional;
-import java.util.Set;
 
 @Service
 @RequiredArgsConstructor

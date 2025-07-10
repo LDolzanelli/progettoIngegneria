@@ -2,6 +2,7 @@ package it.unibs.ingsw.destinazioni.domain.model;
 
 import java.time.LocalDate;
 import java.util.Set;
+
 import lombok.Getter;
 
 @Getter
@@ -12,5 +13,6 @@ public class BlockedDates {
     public BlockedDates(Set<LocalDate> dates) {
         this.dates = dates;
     }
+
 
 }
