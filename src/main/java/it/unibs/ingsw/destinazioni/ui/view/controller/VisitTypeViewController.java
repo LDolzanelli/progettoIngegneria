@@ -24,26 +24,56 @@ public class VisitTypeViewController {
 
     private final RestTemplate restTemplate = new RestTemplate();
 
-    // Pagina per visualizzare i tipi di visita
     @GetMapping("/view-visittype")
-    public String viewVisitTypes(@RequestParam Long locationId,
-                                 @AuthenticationPrincipal UserDetails principal,
-                                 Model model) {
+    public String viewVisitTypes(
+            @RequestParam(required = false) Long locationId,
+            @RequestParam(required = false) Integer volunteerId,
+            @AuthenticationPrincipal UserDetails principal,
+            Model model) {
+
         model.addAttribute("username", principal.getUsername());
+        String userRole = "finalUser";
 
         try {
-            String url = "http://localhost:8080/api/visit-type/list/" + locationId;
-            ResponseEntity<VisitTypeDTO[]> response = restTemplate.getForEntity(url, VisitTypeDTO[].class);
-            VisitTypeDTO[] visitTypes = response.getBody();
-            model.addAttribute("visitTypes", Arrays.asList(visitTypes));
-        } catch (HttpClientErrorException e) {
+            String url = "http://localhost:8080/api/users/get-role/" + principal.getUsername();
+            ResponseEntity<String> role = restTemplate.getForEntity(url, String.class);
+            userRole = role.getBody();
+        } catch (Exception e) {
+            model.addAttribute("error", "Errore nel recupero dello user");
+        }
+
+        model.addAttribute("role", userRole);
+
+        try {
+            VisitTypeDTO[] visitTypes;
+
+            if (volunteerId != null) {
+                // caso volontario: carica le visite a lui assegnate
+                String url = "http://localhost:8080/api/visit-type/volunteer/" + volunteerId;
+                ResponseEntity<VisitTypeDTO[]> response = restTemplate.getForEntity(url, VisitTypeDTO[].class);
+                visitTypes = response.getBody();
+
+            } else if (locationId != null) {
+                // caso normale: carica le visite associate ad un luogo
+                String url = "http://localhost:8080/api/visit-type/list/" + locationId;
+                ResponseEntity<VisitTypeDTO[]> response = restTemplate.getForEntity(url, VisitTypeDTO[].class);
+                visitTypes = response.getBody();
+
+            } else {
+                // caso in cui non viene fornito niente: mostra lista vuota
+                visitTypes = new VisitTypeDTO[0];
+            }
+
+            model.addAttribute("visitTypes", visitTypes != null ? Arrays.asList(visitTypes) : List.of());
+
+        } catch (Exception e) {
             model.addAttribute("error", "Errore nel recupero dei tipi di visita");
+            model.addAttribute("visitTypes", List.of());
         }
 
         return "view-visittype";
     }
 
-    // Pagina per mostrare il form di aggiunta
     @GetMapping("/add-visittype")
     public String addVisitTypeForm(@AuthenticationPrincipal UserDetails principal, Model model) {
         model.addAttribute("username", principal.getUsername());

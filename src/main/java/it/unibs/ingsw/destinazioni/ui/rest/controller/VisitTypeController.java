@@ -86,7 +86,21 @@ public class VisitTypeController {
         }
     }
 
-    // === Mapper Methods ===
+    @GetMapping("/volunteer/{volunteerId}")
+    public ResponseEntity<Set<VisitTypeDTO>> listByVolunteer(@PathVariable int volunteerId) {
+        try {
+            Set<VisitType> visitTypes = manageVisitTypeUseCase.listByVolunteerId(volunteerId);
+            Set<VisitTypeDTO> dtos = visitTypes.stream()
+                    .map(this::mapToDTO)
+                    .collect(Collectors.toSet());
+            return ResponseEntity.ok(dtos);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    // ======= mappers ==========
 
     private VisitTypeDTO mapToDTO(VisitType visitType) {
         List<String> days = visitType.getDaysAvailable() != null

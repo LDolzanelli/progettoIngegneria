@@ -10,5 +10,5 @@ public interface VisitTypeRepositoryPort {
     void deleteById(int id);
     Set<VisitType> findAll();
     Set<VisitType> findByLocationId(int locationId);
-    
+    Set<VisitType> findByVolunteerId(int volunteerId);
 }

@@ -80,7 +80,14 @@ public class JpaVisitTypeRepositoryAdapter implements VisitTypeRepositoryPort {
                 .collect(Collectors.toSet());
     }
 
-
+    @Override
+    public Set<VisitType> findByVolunteerId(int volunteerId) {
+        return visitTypeRepository
+                .findDistinctByVolunteersVisitTypeEntities_Id_VolunteerId(volunteerId)
+                .stream()
+                .map(JpaVisitTypeRepositoryAdapter::toDomain)
+                .collect(Collectors.toSet());
+    }
 
     protected static VisitType toDomain(VisitTypeEntity entity) {
         List<DaysOfWeek> days = entity.getVisitDayEntities().stream().map(VisitDayEntity::getId)
@@ -93,8 +100,6 @@ public class JpaVisitTypeRepositoryAdapter implements VisitTypeRepositoryPort {
                 entity.getStartDate(), entity.getEndDate(), entity.getStartTime(), entity.getDuration(),
                 entity.getMaxNumParticipants(), entity.getMinNumParticipants(), entity.getIsFree(), days, volunteers);
     }
-
-
 
     protected VisitTypeEntity toEntity(VisitType visitType, LocationEntity locationEntity) {
         VisitTypeEntity entity = new VisitTypeEntity();

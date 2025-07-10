@@ -36,7 +36,7 @@
                     <!-- opzioni per i volontari -->
 
                     <div class="d-grid gap-3 col-6 mx-auto" th:if="${role == 'volunteer'}">
-                        <a href="/view-locations" class="btn btn-primary btn-lg shadow-sm">
+                        <a th:href="@{/view-visittype(volunteerId=${userId})}" class="btn btn-primary btn-lg shadow-sm">
                             Visualizza i tipi di visita a te assegnati
                         </a>
                         <a href="/date-picker?mode=available" class="btn btn-secondary btn-lg shadow-sm">

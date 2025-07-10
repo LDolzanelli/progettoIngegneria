@@ -20,8 +20,10 @@ public class HomeController {
 
         String url = "http://localhost:8080/api/";
         String urlNickname = url + "users/info/" + nickname;
+        String urlId = url + "/users/get-id/" + nickname;
 
         LoginResponseDTO userInfo;
+        int userId;
 
         try {
             userInfo = restTemplate.getForObject(urlNickname, LoginResponseDTO.class);
@@ -29,8 +31,15 @@ public class HomeController {
             throw new IllegalStateException("Errore nel recupero dell'utente: " + nickname, e);
         }
 
+        try {
+            userId = restTemplate.getForObject(urlId, Integer.class);
+        } catch (Exception e) {
+            throw new IllegalStateException("Errore nel recupero dell'utente: " + nickname, e);
+        }
+
         assert userInfo != null;
         model.addAttribute("username", userInfo.nickname());
+        model.addAttribute("userId", userId);
         model.addAttribute("role", userInfo.role());
 
         //Se l'utente è un configuratore, e non esiste ancora un corpo dati, viene reindirizzato ad una pagina
