@@ -9,6 +9,7 @@ import it.unibs.ingsw.destinazioni.domain.model.enums.Role;
 public interface GetUserInfoUseCase {
     Optional<User> findById(int id);
     Optional<User> findByNickname(String nickname);
+    int getIdByNickname(String nickname);
     List<User> getUsersByRole(Role role);
     List<User> findAllByNicknames(List<String> nicknames);
 }

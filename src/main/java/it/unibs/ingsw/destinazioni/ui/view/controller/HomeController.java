@@ -31,6 +31,7 @@ public class HomeController {
 
         assert userInfo != null;
         model.addAttribute("username", userInfo.nickname());
+        model.addAttribute("role", userInfo.role());
 
         //Se l'utente è un configuratore, e non esiste ancora un corpo dati, viene reindirizzato ad una pagina
         //che gli permette di inserire location
