@@ -1,6 +1,12 @@
 package it.unibs.ingsw.destinazioni.ui.view.controller;
 
+import java.time.Month;
+
 import it.unibs.ingsw.destinazioni.domain.dto.LoginResponseDTO;
+
+import java.time.format.TextStyle;
+import java.util.Locale;
+
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
@@ -32,15 +38,52 @@ public class HomeController {
         assert userInfo != null;
         model.addAttribute("username", userInfo.nickname());
 
-        //Se l'utente è un configuratore, e non esiste ancora un corpo dati, viene reindirizzato ad una pagina
-        //che gli permette di inserire location
+        // Se l'utente è un configuratore, e non esiste ancora un corpo dati, viene reindirizzato ad una
+        // pagina
+        // che gli permette di inserire location
         if (userInfo.role().equalsIgnoreCase("configurator")) {
             String urlArea = url + "area-of-interest/isEmpty";
             Boolean exists = restTemplate.getForObject(urlArea, Boolean.class);
-            if(Boolean.TRUE.equals(exists)) {
+            if (Boolean.TRUE.equals(exists)) {
                 return "redirect:/insert-areas-of-interest";
             }
         }
+
+        if (userInfo.role().equalsIgnoreCase("configurator")) {
+            // check corpo dati
+            String urlArea = url + "area-of-interest/isEmpty";
+            Boolean exists = restTemplate.getForObject(urlArea, Boolean.class);
+            if (Boolean.TRUE.equals(exists)) {
+                return "redirect:/insert-areas-of-interest";
+            }
+
+            // controlli pulsanti
+            String canEnableUrl = url + "volunteer-availability/can-enable";
+            String canDisableUrl = url + "volunteer-availability/can-disable";
+
+            Boolean canEnable = restTemplate.getForObject(canEnableUrl, Boolean.class);
+            Boolean canDisable = restTemplate.getForObject(canDisableUrl, Boolean.class);
+            Boolean canCreateVisitPlan = restTemplate.getForObject(url + "visit-plan/can-create", Boolean.class);
+
+
+            Integer monthToUpdate =
+                    restTemplate.getForObject(url + "volunteer-availability/month-to-enable", Integer.class);
+            Integer monthToDisable =
+                    restTemplate.getForObject(url + "volunteer-availability/month-to-disable", Integer.class);
+            Integer monthToCreate = restTemplate.getForObject(url + "visit-plan/next-month", Integer.class);
+
+
+            model.addAttribute("canCreateVisitPlan", canCreateVisitPlan);
+            model.addAttribute("canEnableAvailability", canEnable);
+            model.addAttribute("canDisableAvailability", canDisable);
+            model.addAttribute("enableMonthLabel",
+                    Month.of(monthToUpdate).getDisplayName(TextStyle.FULL, Locale.ITALIAN));
+            model.addAttribute("disableMonthLabel",
+                    Month.of(monthToDisable).getDisplayName(TextStyle.FULL, Locale.ITALIAN));
+            model.addAttribute("createVisitPlanLabel",
+                    Month.of(monthToCreate).getDisplayName(TextStyle.FULL, Locale.ITALIAN));
+        }
+
 
         return "/home";
     }

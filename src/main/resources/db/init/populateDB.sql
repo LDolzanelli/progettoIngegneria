@@ -26,4 +26,17 @@ INSERT INTO users (nickname, password, role, first_login) VALUES
 ('user9', '$2a$10$IZi.HLr26eZ8BrcDAgtoQu2gm5OPjkPMeZjWFivZAVmwXGmm6B4uC', 'finalUser', TRUE),
 ('user10', '$2a$10$IZi.HLr26eZ8BrcDAgtoQu2gm5OPjkPMeZjWFivZAVmwXGmm6B4uC', 'finalUser', TRUE);
 
-INSERT INTO config (name, value) VALUES ('max_tickets_per_user_per_event', '10');
+INSERT INTO volunteer_available_dates (volunteer_id, available_date) VALUES
+(1, '2025-07-10'),
+(1, '2025-07-12'),
+(2, '2025-07-11'),
+(2, '2025-07-13'),
+(3, '2025-07-14'),
+(4, '2025-07-15'),
+(4, '2025-07-16'),
+(5, '2025-07-17');
+
+
+INSERT INTO config (name, value) VALUES ('max_tickets_per_user_per_event', '10'); 
+
+

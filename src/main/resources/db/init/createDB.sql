@@ -115,3 +115,12 @@ CREATE TABLE volunteer_available_dates (
    FOREIGN KEY (volunteer_id) REFERENCES users(id)
        ON DELETE CASCADE ON UPDATE CASCADE
 );
+
+CREATE TABLE month_collection_state (
+  month INT NOT NULL,
+  year INT NOT NULL,
+  volunteers_availability_collection_enabled BOOLEAN NOT NULL,
+  visit_plan_created BOOLEAN NOT NULL,
+  PRIMARY KEY (month, year),
+  CHECK (month BETWEEN 1 AND 12)
+);
