@@ -122,4 +122,10 @@ public class UserService implements LoginUseCase, GetUserInfoUseCase, ChangeCred
                         .orElseThrow(() -> new IllegalArgumentException("Utente non trovato: " + nick)))
                 .toList();
     }
+
+    @Override
+    public int getIdByNickname(String nickname) {
+        Optional<User> user = findByNickname(nickname);
+        return user.get().getId();
+    }
 }

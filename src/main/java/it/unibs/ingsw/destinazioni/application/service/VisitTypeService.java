@@ -36,6 +36,11 @@ public class VisitTypeService implements ManageVisitTypeUseCase {
     }
 
     @Override
+    public Set<VisitType> listByVolunteerId(int volunteerId) {
+        return repository.findByVolunteerId(volunteerId);
+    }
+
+    @Override
     public Optional<VisitType> findById(int id) {
         return repository.findById(id);
     }

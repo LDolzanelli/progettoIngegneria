@@ -1,14 +1,15 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="it" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calendario Date Non Utilizzabili</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title th:text="${mode == 'available'} ? 'Disponibilità' : 'Calendario Date Non Utilizzabili'">Calendario Date Non Utilizzabili</title>
 
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css" rel="stylesheet" />
 
     <style>
+        /* Your existing styles unchanged */
         .datepicker-inline {
             font-size: 1.2rem;
             width: 100%;
@@ -19,7 +20,8 @@
             width: 100%;
         }
 
-        .datepicker td, .datepicker th {
+        .datepicker td,
+        .datepicker th {
             width: 3rem;
             height: 3rem;
             text-align: center;
@@ -27,7 +29,6 @@
             font-size: 1rem;
             border-radius: 0.25rem;
         }
-
 
         .datepicker td.active,
         .datepicker td.active:hover {
@@ -40,9 +41,13 @@
 
         .datepicker table tr td.active,
         .datepicker table tr td.active:hover {
-            background-image: linear-gradient(to bottom,#ec3841,#ec6a6a);
+            background-image: linear-gradient(to bottom, #ec3841, #ec6a6a);
         }
 
+        .available-mode .datepicker table tr td.active,
+        .available-mode .datepicker table tr td.active:hover {
+            background-image: linear-gradient(to bottom, #28a745, #7cd37c);
+        }
         .datepicker td.day:hover {
             background-color: #e2e6ea;
             border-radius: 0.25rem;
@@ -69,7 +74,7 @@
         }
     </style>
 </head>
-<body>
+<body th:classappend="${mode == 'available'} ? 'available-mode' : ''">
 <nav class="navbar navbar-expand-lg bg-light shadow-sm mb-4">
     <div class="container">
         <a class="navbar-brand text-primary fw-bold fs-4" href="/">Centro Visite</a>
@@ -77,11 +82,11 @@
 </nav>
 
 <div class="container mb-5">
-    <h1 class="mb-4">Date precluse</h1>
+    <h1 class="mb-4" th:text="${mode == 'available'} ? 'Seleziona le tue disponibilità' : 'Date precluse'">Date precluse</h1>
 
     <form id="blocked-dates-form">
         <div class="mb-3">
-            <label class="form-label">Seleziona le date precluse</label>
+            <label class="form-label" th:text="${mode == 'available'} ? 'Seleziona le date disponibili' : 'Seleziona le date precluse'">Seleziona le date precluse</label>
             <div id="inline-datepicker"></div>
         </div>
 
@@ -98,6 +103,10 @@
     </div>
 </div>
 
+<script th:inline="javascript">
+    const mode = /*[[${mode}]]*/ 'blocked';
+</script>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
@@ -111,15 +120,23 @@
         return `${y}-${m}-${d}`;
     }
 
+    function parseLocalDate(dateStr) {
+        const [y, m, d] = dateStr.split('-').map(Number);
+        return new Date(y, m - 1, d);
+    }
+
     $(async function () {
+        const API_BASE = mode === 'blocked'
+            ? 'http://localhost:8080/api/blocked-dates'
+            : 'http://localhost:8080/api/volunteers-availability';
+
         try {
-            const monthToUpdate = await fetch('http://localhost:8080/api/blocked-dates/month-to-update')
+            const monthToUpdate = await fetch(`${API_BASE}/month-to-update`)
                 .then(res => res.ok ? res.json() : Promise.reject('Errore mese'));
 
             const now = new Date();
             let year = now.getFullYear();
 
-            // Se il mese da aggiornare è prima del mese corrente, si va all'anno successivo
             if (monthToUpdate < now.getMonth() + 1) {
                 year += 1;
             }
@@ -136,26 +153,24 @@
                 startDate: firstDay,
                 endDate: lastDay,
                 language: 'it',
-                maxViewMode: 0,
-                beforeShowMonth: () => ({ enabled: false }),
-                beforeShowYear: () => ({ enabled: false }),
+                maxViewMode: 0
             });
 
-            const blockedDates = await fetch('http://localhost:8080/api/blocked-dates/month-dates')
+            const dates = await fetch(`${API_BASE}${mode === 'blocked' ? '/month-dates' : '/get-own'}`)
                 .then(res => res.ok ? res.json() : []);
 
-            if (blockedDates.length > 0) {
-                const dateObjects = blockedDates.map(dateStr => new Date(dateStr + 'T00:00:00'));
+            if (dates.length > 0) {
+                const dateObjects = dates.map(parseLocalDate);
                 $('#inline-datepicker').datepicker('setDate', dateObjects);
             } else {
                 setTimeout(() => {
                     const dp = $('#inline-datepicker').data('datepicker');
                     dp.viewDate = firstDay;
-                    dp._fill(); // forza il rendering del mese
+                    dp._fill();
                 }, 0);
             }
 
-            let selectedDates = blockedDates;
+            let selectedDates = dates;
 
             $('#inline-datepicker').on('changeDate', function () {
                 selectedDates = $('#inline-datepicker').datepicker('getDates').map(formatDateLocal);
@@ -164,13 +179,19 @@
 
             $('#blocked-dates-form').on('submit', async function (e) {
                 e.preventDefault();
-                const response = await fetch('http://localhost:8080/api/blocked-dates/set', {
-                    method: 'POST',
+
+                const payload = { dateList: selectedDates };
+
+                const response = await fetch(`${API_BASE}${mode === 'blocked' ? '/set' : '/update-own'}`, {
+                    method: mode === 'blocked' ? 'POST' : 'PUT',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ dateList: selectedDates })
+                    body: JSON.stringify(payload)
                 });
+
                 if (response.ok) {
-                    alert('Date bloccate aggiornate con successo!');
+                    alert(mode === 'blocked'
+                        ? 'Date bloccate aggiornate con successo!'
+                        : 'Disponibilità aggiornata con successo!');
                 } else {
                     alert('Errore: ' + await response.text());
                 }

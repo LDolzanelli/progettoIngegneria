@@ -12,6 +12,7 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.bind.annotation.GetMapping;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @RestController
@@ -118,6 +119,19 @@ public class UserController {
                     .map(VisitType::getTitle).toList();
             return new VolunteerWithVisitsDTO(nickname, visitTitles);
         }).toList();
+    }
+
+    @GetMapping("/get-id/{username}")
+    public ResponseEntity<Integer> getId(@PathVariable String username) {
+        int id = userInfoService.getIdByNickname(username);
+        return ResponseEntity.ok(id);
+    }
+
+    @GetMapping("/get-role/{username}")
+    public ResponseEntity<String> getRole(@PathVariable String username) {
+        Optional<User> user = userInfoService.findByNickname(username);
+        String role = user.get().getRole().toString();
+        return ResponseEntity.ok(role);
     }
 
 }

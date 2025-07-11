@@ -14,12 +14,12 @@
 </nav>
 <div class="container my-4">
     <h2>Lista Tipi di Visita</h2>
-    <a id="addVisitTypeBtn" href="#" class="btn btn-success mb-3">Aggiungi Tipo di Visita</a>
+    <a id="addVisitTypeBtn" href="#" class="btn btn-success mb-3" th:if="${role == 'configurator'}">Aggiungi Tipo di Visita</a>
 
     <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
-    <div th:if="${visitTypes.isEmpty()}" class="alert alert-info">Nessun tipo di visita disponibile.</div>
+    <div th:if="${visitTypes.isEmpty()}" id="noVisitTypesMessage" class="alert alert-info">Nessun tipo di visita disponibile.</div>
 
-    <div class="row">
+    <div class="row" id="visitTypesGrid">
         <div class="col-md-4 mb-3" th:each="vt : ${visitTypes}">
             <div class="card h-100 shadow-sm">
                 <div class="card-body">
@@ -39,87 +39,95 @@
                         </small>
                     </p>
                 </div>
-                <div class="card-footer text-end bg-transparent border-top-0">
-                    <a th:href="@{/manage-visittype/{id}(id=${vt.id})}" class="btn btn-primary btn-sm">Gestisci</a>
-                </div>
             </div>
         </div>
     </div>
 </div>
 
+<!-- Campo nascosto per rilevare se Thymeleaf ha già fornito i dati -->
+<input type="hidden" id="thymeleafDataPresent" th:value="${visitTypes != null}" />
+
 <script>
-    function getLocationIdFromUrl() {
+    function getParamFromUrl(name) {
         const params = new URLSearchParams(window.location.search);
-        return params.get('locationId');
+        return params.get(name);
     }
 
     async function loadVisitTypes() {
-        const locationId = getLocationIdFromUrl();
-        if (!locationId) {
-            alert('Location ID non fornito nell\'URL');
-            return;
-        }
+        const locationId = getParamFromUrl("locationId");
+        const volunteerId = getParamFromUrl("volunteerId");
 
-        //recupera il pulsante dalla pagina e aggiunge il locationID per poter assegnare
-        //la visitType alla location desiderata
-        const addBtn = document.getElementById('addVisitTypeBtn');
-        if (addBtn) {
-            addBtn.href = `/add-visittype?locationId=${encodeURIComponent(locationId)}`;
-        }
+        let endpoint = null;
 
-        const resp = await fetch(`/api/visit-type/list/${locationId}`);
-        if (!resp.ok) {
-            alert('Errore nel caricamento dei tipi di visita');
-            return;
-        }
-        const visitTypes = await resp.json();
-        const grid = document.getElementById('visitTypesGrid');
-        const noVisitTypesMessage = document.getElementById('noVisitTypesMessage');
-        grid.innerHTML = '';
-
-        if (visitTypes.length === 0) {
-            noVisitTypesMessage.style.display = 'block';
-            return;
+        if (locationId) {
+            endpoint = `/api/visit-type/list/${locationId}`;
+            const addBtn = document.getElementById('addVisitTypeBtn');
+            if (addBtn) {
+                addBtn.href = `/add-visittype?locationId=${encodeURIComponent(locationId)}`;
+            }
+        } else if (volunteerId) {
+            endpoint = `/api/visit-type/volunteer/${volunteerId}`;
         } else {
-            noVisitTypesMessage.style.display = 'none';
+            console.warn("Nessun locationId o volunteerId fornito nell'URL.");
+            return;
         }
 
-        visitTypes.forEach(vt => {
-            const period = `Dal ${vt.startDate} al ${vt.endDate}`;
-            const details = `
-                <strong>Punto d'incontro:</strong> ${vt.meetingPoint}<br/>
-                <strong>Durata:</strong> ${vt.duration} minuti<br/>
-                <strong>Ora inizio:</strong> ${vt.startTime}<br/>
-                <strong>Min partecipanti:</strong> ${vt.minParticipants}<br/>
-                <strong>Max partecipanti:</strong> ${vt.maxParticipants}<br/>
-                <strong>Gratuita:</strong> ${vt.isFree}<br/>
-                <strong>Giorni disponibili:</strong> ${vt.daysAvailable}<br/>
-                <strong>Volontari:</strong> ${vt.volunteers}<br/>
-            `;
+        try {
+            const resp = await fetch(endpoint);
+            if (!resp.ok) throw new Error("HTTP error");
 
-            const cardCol = document.createElement('div');
-            cardCol.className = 'col-sm-6 col-md-4 col-lg-3 mb-4';
+            const visitTypes = await resp.json();
+            const grid = document.getElementById("visitTypesGrid");
+            const noVisitTypesMessage = document.getElementById("noVisitTypesMessage");
+            grid.innerHTML = "";
 
-            cardCol.innerHTML = `
-                <div class="card h-100 shadow-sm d-flex flex-column">
-                    <div class="card-body d-flex flex-column flex-grow-1">
-                        <h5 class="card-title">${vt.title}</h5>
-                        <p class="card-text flex-grow-1">${vt.description ?? ''}</p>
-                        <p class="card-text"><small class="text-muted">${period}</small></p>
-                        <p class="card-text"><small class="text-muted">${details}</small></p>
+            if (visitTypes.length === 0) {
+                noVisitTypesMessage.style.display = "block";
+                return;
+            } else {
+                noVisitTypesMessage.style.display = "none";
+            }
+
+            visitTypes.forEach(vt => {
+                const cardCol = document.createElement('div');
+                cardCol.className = 'col-md-4 mb-3';
+
+                const period = `Dal ${vt.startDate} al ${vt.endDate}`;
+                const details = `
+                    <strong>Punto d'incontro:</strong> ${vt.meetingPoint}<br/>
+                    <strong>Durata:</strong> ${vt.duration} minuti<br/>
+                    <strong>Ora inizio:</strong> ${vt.startTime}<br/>
+                    <strong>Min partecipanti:</strong> ${vt.minParticipants}<br/>
+                    <strong>Max partecipanti:</strong> ${vt.maxParticipants}<br/>
+                    <strong>Gratuita:</strong> ${vt.free ? 'Sì' : 'No'}<br/>
+                    <strong>Giorni disponibili:</strong> ${vt.daysAvailable}<br/>
+                    <strong>Volontari:</strong> ${vt.volunteers}<br/>
+                `;
+
+                cardCol.innerHTML = `
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title">${vt.title}</h5>
+                            <p class="card-text">${vt.description ?? ''}</p>
+                            <p class="card-text"><small class="text-muted">${period}</small></p>
+                            <p class="card-text"><small class="text-muted">${details}</small></p>
+                        </div>
+                        <div class="card-footer bg-transparent border-top-0 d-flex justify-content-end">
+                            <a href="/manage-visittype/${vt.id}" class="btn btn-primary btn-sm">Gestisci</a>
+                        </div>
                     </div>
-                    <div class="card-footer bg-transparent border-top-0 d-flex justify-content-end">
-                        <a href="/manage-visittype/${vt.id}" class="btn btn-primary btn-sm">Gestisci</a>
-                    </div>
-                </div>
-            `;
-            grid.appendChild(cardCol);
-        });
+                `;
+                grid.appendChild(cardCol);
+            });
+
+        } catch (error) {
+            console.error("Errore caricamento dati:", error);
+            alert("Errore nel caricamento dei tipi di visita");
+        }
     }
 
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', () => {
         const daysElements = document.querySelectorAll('.days-available');
-
         const dayMap = {
             'MONDAY': 'Lunedì',
             'TUESDAY': 'Martedì',
@@ -129,40 +137,29 @@
             'SATURDAY': 'Sabato',
             'SUNDAY': 'Domenica'
         };
-
-        //per il sorting
-        const orderedDays = ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY'];
+        const orderedDays = Object.keys(dayMap);
 
         daysElements.forEach(element => {
             try {
-                //ottiene testo da thymeleaf
                 const daysText = element.textContent;
-
-                //toglie i bracket
                 const daysArray = daysText.replace(/[\[\]]/g, '').split(/\s*,\s*/);
 
-                if (daysArray.length > 0 && daysArray[0] !== '') {
-                    daysArray.sort((a, b) => {
-                        return orderedDays.indexOf(a) - orderedDays.indexOf(b);
-                    });
-
-                    const translated = daysArray
-                        .map(day => dayMap[day.trim().toUpperCase()] || day)
-                        .join(', ');
-                    element.textContent = translated;
+                if (daysArray.length && daysArray[0] !== '') {
+                    daysArray.sort((a, b) => orderedDays.indexOf(a) - orderedDays.indexOf(b));
+                    element.textContent = daysArray.map(d => dayMap[d.trim().toUpperCase()] || d).join(', ');
                 } else {
                     element.textContent = 'Nessun giorno selezionato';
                 }
             } catch (e) {
-                console.error('Error processing days:', e);
                 element.textContent = 'Giorni non disponibili';
             }
         });
+
+        const isThymeleafDataPresent = document.getElementById("thymeleafDataPresent")?.value === "true";
+        if (!isThymeleafDataPresent) {
+            loadVisitTypes();
+        }
     });
-
-
-
-    window.onload = loadVisitTypes;
 </script>
 </body>
 </html>

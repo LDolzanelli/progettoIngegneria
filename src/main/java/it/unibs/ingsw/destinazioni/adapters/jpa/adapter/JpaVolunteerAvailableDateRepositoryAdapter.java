@@ -1,7 +1,9 @@
 package it.unibs.ingsw.destinazioni.adapters.jpa.adapter;
 
+import it.unibs.ingsw.destinazioni.adapters.jpa.entity.UserEntity;
 import it.unibs.ingsw.destinazioni.adapters.jpa.entity.VolunteerAvailableDateEntity;
 import it.unibs.ingsw.destinazioni.adapters.jpa.entity.VolunteerAvailableDateEntityId;
+import it.unibs.ingsw.destinazioni.adapters.jpa.repository.UserRepository;
 import it.unibs.ingsw.destinazioni.adapters.jpa.repository.VolunteerAvailableDateRepository;
 import it.unibs.ingsw.destinazioni.application.port.out.VolunteerAvailableDateRepositoryPort;
 import it.unibs.ingsw.destinazioni.domain.model.VolunteerAvailableDate;
@@ -15,9 +17,11 @@ import java.util.stream.Collectors;
 public class JpaVolunteerAvailableDateRepositoryAdapter implements VolunteerAvailableDateRepositoryPort {
 
     private final VolunteerAvailableDateRepository repository;
+    private final UserRepository userRepository;
 
-    public JpaVolunteerAvailableDateRepositoryAdapter(VolunteerAvailableDateRepository repository) {
+    public JpaVolunteerAvailableDateRepositoryAdapter(VolunteerAvailableDateRepository repository, UserRepository userRepository) {
         this.repository = repository;
+        this.userRepository = userRepository;
     }
 
     @Override
@@ -27,6 +31,12 @@ public class JpaVolunteerAvailableDateRepositoryAdapter implements VolunteerAvai
         id.setVolunteerId(availableDate.getVolunteerId());
         id.setAvailableDate(availableDate.getAvailableDate());
         entity.setId(id);
+
+        // ✅ Imposta UserEntity (che ha ruolo "volunteer")
+        UserEntity user = userRepository.findById(availableDate.getVolunteerId())
+                .orElseThrow(() -> new IllegalArgumentException("Volunteer (user) non trovato con ID " + availableDate.getVolunteerId()));
+        entity.setVolunteer(user);
+
         repository.save(entity);
     }
 
