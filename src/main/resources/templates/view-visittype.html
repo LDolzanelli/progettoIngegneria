@@ -12,12 +12,15 @@
         <a class="navbar-brand text-primary fw-bold fs-4" href="/">Centro Visite</a>
     </div>
 </nav>
+
 <div class="container my-4">
     <h2>Lista Tipi di Visita</h2>
-    <a id="addVisitTypeBtn" href="#" class="btn btn-success mb-3" th:if="${role == 'configurator'}">Aggiungi Tipo di Visita</a>
+    <a id="addVisitTypeBtn" href="#" class="btn btn-success mb-3" th:classappend="${role != 'configurator'} ? ' d-none' : ''">Aggiungi Tipo di Visita</a>
 
     <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
-    <div th:if="${visitTypes.isEmpty()}" id="noVisitTypesMessage" class="alert alert-info">Nessun tipo di visita disponibile.</div>
+    <div th:if="${visitTypes.isEmpty()}" id="noVisitTypesMessage" class="alert alert-info">
+        Nessun tipo di visita disponibile.
+    </div>
 
     <div class="row" id="visitTypesGrid">
         <div class="col-md-4 mb-3" th:each="vt : ${visitTypes}">
@@ -44,7 +47,6 @@
     </div>
 </div>
 
-<!-- Campo nascosto per rilevare se Thymeleaf ha già fornito i dati -->
 <input type="hidden" id="thymeleafDataPresent" th:value="${visitTypes != null}" />
 
 <script>
@@ -61,10 +63,6 @@
 
         if (locationId) {
             endpoint = `/api/visit-type/list/${locationId}`;
-            const addBtn = document.getElementById('addVisitTypeBtn');
-            if (addBtn) {
-                addBtn.href = `/add-visittype?locationId=${encodeURIComponent(locationId)}`;
-            }
         } else if (volunteerId) {
             endpoint = `/api/visit-type/volunteer/${volunteerId}`;
         } else {
@@ -154,6 +152,17 @@
                 element.textContent = 'Giorni non disponibili';
             }
         });
+
+        const locationId = getParamFromUrl("locationId");
+        const addBtn = document.getElementById("addVisitTypeBtn");
+
+        if (addBtn) {
+            if (locationId) {
+                addBtn.href = `/add-visittype?locationId=${encodeURIComponent(locationId)}`;
+            } else {
+                addBtn.addEventListener('click', e => e.preventDefault());
+            }
+        }
 
         const isThymeleafDataPresent = document.getElementById("thymeleafDataPresent")?.value === "true";
         if (!isThymeleafDataPresent) {
