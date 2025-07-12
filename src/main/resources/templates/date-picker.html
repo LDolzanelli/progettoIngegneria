@@ -156,8 +156,11 @@
                 maxViewMode: 0
             });
 
-            $('#inline-datepicker').datepicker('setDate', firstDay);
-            $('#inline-datepicker').datepicker('setDates', []);
+            setTimeout(() => {
+                const dp = $('#inline-datepicker').data('datepicker');
+                dp.viewDate = firstDay;
+                dp._fill(); // force re-render
+            }, 0);
 
             const dates = await fetch(`${API_BASE}${mode === 'blocked' ? '/month-dates' : '/get-own'}`)
                 .then(res => res.ok ? res.json() : []);
