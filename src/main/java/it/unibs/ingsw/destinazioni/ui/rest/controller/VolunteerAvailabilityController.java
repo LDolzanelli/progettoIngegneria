@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import java.time.LocalDate;
 import java.time.Month;
+import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -100,17 +102,19 @@ public class VolunteerAvailabilityController {
 
     @PutMapping("/update-own")
     public ResponseEntity<Void> updateOwnAvailability(@AuthenticationPrincipal UserDetails user,
-            @RequestBody AvailabilityDatesDTO dto) {
+                                                      @RequestBody AvailabilityDatesDTO dto) {
+
         int volunteerId = userInfoUseCase.getIdByNickname(user.getUsername());
 
-        // conversione da String a LocalDate
-        Set<LocalDate> dates = dto.dateList().stream().map(LocalDate::parse).collect(Collectors.toSet());
+        Set<LocalDate> dates = Optional.ofNullable(dto.dateList())  //se null da Optional.empty()
+                .orElse(List.of())
+                .stream()
+                .map(LocalDate::parse)
+                .collect(Collectors.toSet());
 
-        volunteersUseCase.updateAvailability(volunteerId, dates);
         volunteersUseCase.updateAvailability(volunteerId, dates);
         return ResponseEntity.ok().build();
     }
-
 
     @GetMapping("/get-own")
     public ResponseEntity<Set<LocalDate>> getOwnAvailability(@AuthenticationPrincipal UserDetails user,

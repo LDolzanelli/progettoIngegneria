@@ -128,7 +128,7 @@
     $(async function () {
         const API_BASE = mode === 'blocked'
             ? 'http://localhost:8080/api/blocked-dates'
-            : 'http://localhost:8080/api/volunteers-availability';
+            : 'http://localhost:8080/api/volunteer-availability';
 
         try {
             const monthToUpdate = await fetch(`${API_BASE}/month-to-update`)
@@ -155,6 +155,9 @@
                 language: 'it',
                 maxViewMode: 0
             });
+
+            $('#inline-datepicker').datepicker('setDate', firstDay);
+            $('#inline-datepicker').datepicker('setDates', []);
 
             const dates = await fetch(`${API_BASE}${mode === 'blocked' ? '/month-dates' : '/get-own'}`)
                 .then(res => res.ok ? res.json() : []);
