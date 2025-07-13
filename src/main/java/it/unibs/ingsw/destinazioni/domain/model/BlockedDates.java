@@ -14,5 +14,9 @@ public class BlockedDates {
         this.dates = dates;
     }
 
+    public boolean isBlocked(LocalDate date) {
+        return dates.contains(date);
+    }
+
 
 }

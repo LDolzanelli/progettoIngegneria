@@ -3,6 +3,7 @@ package it.unibs.ingsw.destinazioni.domain.model;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
+import it.unibs.ingsw.destinazioni.domain.model.enums.DaysOfWeek;
 import lombok.Getter;
 import lombok.Setter;
 

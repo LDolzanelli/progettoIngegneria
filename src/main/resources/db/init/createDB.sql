@@ -58,7 +58,7 @@ CREATE TABLE visit_types (
 CREATE TABLE visits (
   id INT NOT NULL AUTO_INCREMENT,
   date DATE NOT NULL,
-  volunteer_id INT NOT NULL,
+  volunteer_id INT,
   status VARCHAR(50) NOT NULL,
   visit_type_id INT NOT NULL,
   PRIMARY KEY (id),

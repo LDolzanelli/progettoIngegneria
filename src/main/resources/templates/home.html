@@ -30,8 +30,11 @@
               </h1>
               <p class="lead mb-4">Scegli un'opzione per continuare:</p>
 
-                    <!-- opzioni per i configuratori -->
-              <div class="d-grid gap-3 col-6 mx-auto" th:if="${role == 'configurator'}">
+              <!-- opzioni per i configuratori -->
+              <div
+                class="d-grid gap-3 col-6 mx-auto"
+                th:if="${role == 'configurator'}"
+              >
                 <a
                   href="/view-locations"
                   class="btn btn-primary btn-lg shadow-sm"
@@ -91,18 +94,27 @@
                 </form>
               </div>
 
-                    <!-- opzioni per i volontari -->
+              <!-- opzioni per i volontari -->
 
-                    <div class="d-grid gap-3 col-6 mx-auto" th:if="${role == 'volunteer'}">
-                        <a th:href="@{/view-visittype(volunteerId=${userId})}" class="btn btn-primary btn-lg shadow-sm">
-                            Visualizza i tipi di visita a te assegnati
-                        </a>
-                        <a href="/date-picker?mode=available" class="btn btn-secondary btn-lg shadow-sm">
-                            Dai le tue disponibilità per il mese successivo
-                        </a>
-                    </div>
-
+              <div
+                class="d-grid gap-3 col-6 mx-auto"
+                th:if="${role == 'volunteer'}"
+              >
+                <a
+                  th:href="@{/view-visittype(volunteerId=${userId})}"
+                  class="btn btn-primary btn-lg shadow-sm"
+                >
+                  Visualizza i tipi di visita a te assegnati
+                </a>
+                <a
+                  href="/date-picker?mode=available"
+                  class="btn btn-secondary btn-lg shadow-sm"
+                >
+                  Dai le tue disponibilità per il mese successivo
+                </a>
+              </div>
             </div>
+            
           </div>
         </div>
       </div>

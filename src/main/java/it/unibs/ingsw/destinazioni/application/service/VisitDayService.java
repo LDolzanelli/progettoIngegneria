@@ -1,20 +1,22 @@
 package it.unibs.ingsw.destinazioni.application.service;
 
-import org.springframework.stereotype.Service;
-import it.unibs.ingsw.destinazioni.application.port.in.VisitDaysUseCase;
-import it.unibs.ingsw.destinazioni.domain.model.VisitType;
-import it.unibs.ingsw.destinazioni.domain.model.enums.VisitStatus;
-import lombok.RequiredArgsConstructor;
-import it.unibs.ingsw.destinazioni.application.port.out.VisitRepositoryPort;
-import it.unibs.ingsw.destinazioni.application.port.out.VisitTypeRepositoryPort;
-import it.unibs.ingsw.destinazioni.domain.model.DaysOfWeek;
-import it.unibs.ingsw.destinazioni.domain.model.Visit;
+import java.time.Clock;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.time.Clock;
 import java.util.Set;
+import org.springframework.stereotype.Service;
+
+import it.unibs.ingsw.destinazioni.application.port.in.VisitDaysUseCase;
+import it.unibs.ingsw.destinazioni.application.port.out.BlockedDatesRepositoryPort;
+import it.unibs.ingsw.destinazioni.application.port.out.VisitRepositoryPort;
+import it.unibs.ingsw.destinazioni.application.port.out.VisitTypeRepositoryPort;
+import it.unibs.ingsw.destinazioni.domain.model.BlockedDates;
+import it.unibs.ingsw.destinazioni.domain.model.Visit;
+import it.unibs.ingsw.destinazioni.domain.model.VisitType;
+import it.unibs.ingsw.destinazioni.domain.model.enums.DaysOfWeek;
+import it.unibs.ingsw.destinazioni.domain.model.enums.VisitStatus;
+import lombok.RequiredArgsConstructor;
 
 
 
@@ -24,16 +26,20 @@ public class VisitDayService implements VisitDaysUseCase {
 
     private final VisitRepositoryPort visitRepository;
     private final VisitTypeRepositoryPort visitTypeRepository;
+    private final BlockedDatesRepositoryPort blockedDatesRepository;
     private final Clock clock;
 
     @Override
     public void createDefaultVisitDays(int month) {
+
+        BlockedDates blockedDates = blockedDatesRepository.loadAll();
+
         LocalDate now = LocalDate.now(clock);
         int year = now.getYear();
 
-        // Gestione corretta per dicembre ➝ gennaio
-        if (month == 1 && now.getMonthValue() == 12) {
-            year += 1;
+        if (month != now.plusMonths(2).getMonthValue() || now.getDayOfMonth() < 15) {
+            throw new IllegalArgumentException(
+                    "non è possibile creare visite per il mese i + 2 se non è dopo il 15 del mese corrente");
         }
 
         YearMonth targetMonth = YearMonth.of(year, month);
@@ -42,24 +48,28 @@ public class VisitDayService implements VisitDaysUseCase {
 
         List<VisitType> visitTypes =
                 visitTypeRepository.findAll().stream().filter(visitType -> !visitType.getStartDate().isAfter(endOfMonth)
-                        && !visitType.getEndDate().isBefore(startOfMonth)).collect(Collectors.toList());
+                        && !visitType.getEndDate().isBefore(startOfMonth)).toList();
 
         for (VisitType visitType : visitTypes) {
-            LocalDate current = startOfMonth;
+            createVisitsForType(visitType, startOfMonth, endOfMonth, blockedDates);
+        }
+    }
 
-            while (!current.isAfter(endOfMonth)) {
-                if (!current.isBefore(visitType.getStartDate()) && !current.isAfter(visitType.getEndDate())) {
-                    DaysOfWeek day = DaysOfWeek.valueOf(current.getDayOfWeek().name());
-
-                    if (visitType.getDaysAvailable().contains(day)) {
-                        Visit visit = new Visit(current, null, "PROPOSED", visitType, Set.of(), 
-                                VisitStatus.PROPOSED);
-
-                        visitRepository.save(visit);
-                    }
-                }
+    private void createVisitsForType(VisitType visitType, LocalDate startOfMonth, LocalDate endOfMonth, BlockedDates blockedDates) {
+        LocalDate current = startOfMonth;
+        while (!current.isAfter(endOfMonth)) {
+            if (blockedDates.isBlocked(current)) {
                 current = current.plusDays(1);
+                continue;
             }
+            if (!current.isBefore(visitType.getStartDate()) && !current.isAfter(visitType.getEndDate())) {
+                DaysOfWeek day = DaysOfWeek.valueOf(current.getDayOfWeek().name());
+                if (visitType.getDaysAvailable().contains(day)) {
+                    Visit visit = new Visit(current, null, "PROPOSED", visitType, Set.of(), VisitStatus.PROPOSED);
+                    visitRepository.save(visit);
+                }
+            }
+            current = current.plusDays(1);
         }
     }
 

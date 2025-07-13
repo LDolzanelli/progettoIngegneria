@@ -4,7 +4,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+
 import org.springframework.stereotype.Repository;
+
 import it.unibs.ingsw.destinazioni.adapters.jpa.entity.LocationAddressEntity;
 import it.unibs.ingsw.destinazioni.adapters.jpa.entity.LocationAddressIdEntity;
 import it.unibs.ingsw.destinazioni.adapters.jpa.entity.LocationEntity;
@@ -13,11 +15,12 @@ import it.unibs.ingsw.destinazioni.adapters.jpa.entity.VisitTypeEntity;
 import it.unibs.ingsw.destinazioni.adapters.jpa.entity.VolunteersVisitTypeEntity;
 import it.unibs.ingsw.destinazioni.adapters.jpa.repository.LocationRepository;
 import it.unibs.ingsw.destinazioni.application.port.out.LocationRepositoryPort;
-import it.unibs.ingsw.destinazioni.domain.model.DaysOfWeek;
 import it.unibs.ingsw.destinazioni.domain.model.Location;
 import it.unibs.ingsw.destinazioni.domain.model.LocationAddress;
 import it.unibs.ingsw.destinazioni.domain.model.User;
 import it.unibs.ingsw.destinazioni.domain.model.VisitType;
+import it.unibs.ingsw.destinazioni.domain.model.enums.DaysOfWeek;
+
 
 
 /**

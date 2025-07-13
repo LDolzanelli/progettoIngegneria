@@ -1,4 +1,4 @@
-package it.unibs.ingsw.destinazioni.domain.model;
+package it.unibs.ingsw.destinazioni.domain.model.enums;
 
 public enum DaysOfWeek {
     MONDAY("Lunedì"), TUESDAY("Martedì"), WEDNESDAY("Mercoledì"), THURSDAY("Giovedì"), FRIDAY("Venerdì"), SATURDAY(

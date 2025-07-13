@@ -1,212 +1,257 @@
 <!DOCTYPE html>
 <html lang="it" xmlns:th="http://www.thymeleaf.org">
-<head>
+  <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title th:text="${mode == 'available'} ? 'Disponibilità' : 'Calendario Date Non Utilizzabili'">Calendario Date Non Utilizzabili</title>
+    <title
+      th:text="${mode == 'available'} ? 'Disponibilità' : 'Calendario Date Non Utilizzabili'"
+    >
+      Calendario Date Non Utilizzabili
+    </title>
 
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet" />
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css" rel="stylesheet" />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css"
+      rel="stylesheet"
+    />
 
     <style>
-        /* Your existing styles unchanged */
-        .datepicker-inline {
-            font-size: 1.2rem;
-            width: 100%;
-            display: block;
-        }
+      /* Your existing styles unchanged */
+      .datepicker-inline {
+        font-size: 1.2rem;
+        width: 100%;
+        display: block;
+      }
 
-        .datepicker table {
-            width: 100%;
-        }
+      .datepicker table {
+        width: 100%;
+      }
 
-        .datepicker td,
-        .datepicker th {
-            width: 3rem;
-            height: 3rem;
-            text-align: center;
-            vertical-align: middle;
-            font-size: 1rem;
-            border-radius: 0.25rem;
-        }
+      .datepicker td,
+      .datepicker th {
+        width: 3rem;
+        height: 3rem;
+        text-align: center;
+        vertical-align: middle;
+        font-size: 1rem;
+        border-radius: 0.25rem;
+      }
 
-        .datepicker td.active,
-        .datepicker td.active:hover {
-            background-color: #6c757d !important;
-            color: #fff;
-            border-color: #6c757d !important;
-            border-radius: 0.35rem;
-            transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;
-        }
+      .datepicker td.active,
+      .datepicker td.active:hover {
+        background-color: #6c757d !important;
+        color: #fff;
+        border-color: #6c757d !important;
+        border-radius: 0.35rem;
+        transition: background-color 0.2s ease-in-out,
+          border-color 0.2s ease-in-out;
+      }
 
-        .datepicker table tr td.active,
-        .datepicker table tr td.active:hover {
-            background-image: linear-gradient(to bottom, #ec3841, #ec6a6a);
-        }
+      .datepicker table tr td.active,
+      .datepicker table tr td.active:hover {
+        background-image: linear-gradient(to bottom, #ec3841, #ec6a6a);
+      }
 
-        .available-mode .datepicker table tr td.active,
-        .available-mode .datepicker table tr td.active:hover {
-            background-image: linear-gradient(to bottom, #28a745, #7cd37c);
-        }
-        .datepicker td.day:hover {
-            background-color: #e2e6ea;
-            border-radius: 0.25rem;
-        }
+      .available-mode .datepicker table tr td.active,
+      .available-mode .datepicker table tr td.active:hover {
+        background-image: linear-gradient(to bottom, #28a745, #7cd37c);
+      }
+      .datepicker td.day:hover {
+        background-color: #e2e6ea;
+        border-radius: 0.25rem;
+      }
 
-        .datepicker td.active.focus,
-        .datepicker td.active:hover.focus {
-            outline: none;
-            box-shadow: none;
-        }
+      .datepicker td.active.focus,
+      .datepicker td.active:hover.focus {
+        outline: none;
+        box-shadow: none;
+      }
 
-        .datepicker {
-            margin: 0 auto;
-            float: none;
-        }
+      .datepicker {
+        margin: 0 auto;
+        float: none;
+      }
 
-        .datepicker-days .datepicker-switch {
-            cursor: default;
-        }
+      .datepicker-days .datepicker-switch {
+        cursor: default;
+      }
 
-        .datepicker .datepicker-switch:hover {
-            background-color: transparent !important;
-            color: inherit !important;
-        }
+      .datepicker .datepicker-switch:hover {
+        background-color: transparent !important;
+        color: inherit !important;
+      }
     </style>
-</head>
-<body th:classappend="${mode == 'available'} ? 'available-mode' : ''">
-<nav class="navbar navbar-expand-lg bg-light shadow-sm mb-4">
-    <div class="container">
-        <a class="navbar-brand text-primary fw-bold fs-4" href="/">Centro Visite</a>
-    </div>
-</nav>
+  </head>
 
-<div class="container mb-5">
-    <h1 class="mb-4" th:text="${mode == 'available'} ? 'Seleziona le tue disponibilità' : 'Date precluse'">Date precluse</h1>
+  <body th:classappend="${mode == 'available'} ? 'available-mode' : ''">
+    <nav class="navbar navbar-expand-lg bg-light shadow-sm mb-4">
+      <div class="container">
+        <a class="navbar-brand text-primary fw-bold fs-4" href="/"
+          >Centro Visite</a
+        >
+      </div>
+    </nav>
 
-    <form id="blocked-dates-form">
+    <div class="container mb-5">
+      <h1
+        class="mb-4"
+        th:text="${mode == 'available'} ? 'Seleziona le tue disponibilità' : 'Date precluse'"
+      >
+        Date precluse
+      </h1>
+
+      <div
+        th:if="${mode == 'available' and !availabilityStatus}"
+        class="alert alert-warning"
+      >
+        La raccolta delle disponibilità è attualmente chiusa. Le date
+        selezionate sono in sola lettura.
+      </div>
+
+      <form id="blocked-dates-form">
         <div class="mb-3">
-            <label class="form-label" th:text="${mode == 'available'} ? 'Seleziona le date disponibili' : 'Seleziona le date precluse'">Seleziona le date precluse</label>
-            <div id="inline-datepicker"></div>
+          <label
+            class="form-label"
+            th:text="${mode == 'available'} ? 'Seleziona le date disponibili' : 'Seleziona le date precluse'"
+          >
+            Seleziona le date precluse
+          </label>
+          <div id="inline-datepicker"></div>
         </div>
 
         <div class="gap-2 d-flex justify-content-start">
-            <button type="submit" class="btn btn-primary">Invia</button>
+          <button
+            type="submit"
+            class="btn btn-primary"
+            th:disabled="${mode == 'available' and !availabilityStatus}"
+          >
+            Invia
+          </button>
         </div>
-    </form>
+      </form>
 
-    <div id="results" class="mt-4" style="display: none;">
+      <div id="results" class="mt-4" style="display: none">
         <div class="alert alert-success">
-            <h5>Registrazione completata con successo!</h5>
-            <div id="resultContent"></div>
+          <h5>Registrazione completata con successo!</h5>
+          <div id="resultContent"></div>
         </div>
+      </div>
     </div>
-</div>
 
-<script th:inline="javascript">
-    const mode = /*[[${mode}]]*/ 'blocked';
-</script>
+    <script th:inline="javascript">
+      const mode = /*[[${mode}]]*/ "blocked";
+      const isReadOnly = /*[[${availabilityStatus}]]*/ false === false;
+    </script>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/locales/bootstrap-datepicker.it.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/locales/bootstrap-datepicker.it.min.js"></script>
 
-<script>
-    function formatDateLocal(date) {
+    <script>
+      function formatDateLocal(date) {
         const y = date.getFullYear();
-        const m = String(date.getMonth() + 1).padStart(2, '0');
-        const d = String(date.getDate()).padStart(2, '0');
+        const m = String(date.getMonth() + 1).padStart(2, "0");
+        const d = String(date.getDate()).padStart(2, "0");
         return `${y}-${m}-${d}`;
-    }
+      }
 
-    function parseLocalDate(dateStr) {
-        const [y, m, d] = dateStr.split('-').map(Number);
+      function parseLocalDate(dateStr) {
+        const [y, m, d] = dateStr.split("-").map(Number);
         return new Date(y, m - 1, d);
-    }
+      }
 
-    $(async function () {
-        const API_BASE = mode === 'blocked'
-            ? 'http://localhost:8080/api/blocked-dates'
-            : 'http://localhost:8080/api/volunteer-availability';
+      $(async function () {
+        const API_BASE =
+          mode === "blocked"
+            ? "http://localhost:8080/api/blocked-dates"
+            : "http://localhost:8080/api/volunteer-availability";
 
         try {
-            const monthToUpdate = await fetch(`${API_BASE}/month-to-update`)
-                .then(res => res.ok ? res.json() : Promise.reject('Errore mese'));
+          const monthToUpdate = await fetch(`${API_BASE}/month-to-update`).then(
+            (res) => (res.ok ? res.json() : Promise.reject("Errore mese"))
+          );
 
-            const now = new Date();
-            let year = now.getFullYear();
+          const now = new Date();
+          let year = now.getFullYear();
 
-            if (monthToUpdate < now.getMonth() + 1) {
-                year += 1;
-            }
+          if (monthToUpdate < now.getMonth() + 1) {
+            year += 1;
+          }
 
-            const firstDay = new Date(year, monthToUpdate - 1, 1);
-            const lastDay = new Date(year, monthToUpdate, 0);
+          const firstDay = new Date(year, monthToUpdate - 1, 1);
+          const lastDay = new Date(year, monthToUpdate, 0);
 
-            $('#inline-datepicker').datepicker({
-                format: 'yyyy-mm-dd',
-                todayHighlight: false,
-                multidate: true,
-                orientation: 'bottom auto',
-                defaultViewDate: firstDay,
-                startDate: firstDay,
-                endDate: lastDay,
-                language: 'it',
-                maxViewMode: 0
-            });
+          $("#inline-datepicker").datepicker({
+            format: "yyyy-mm-dd",
+            todayHighlight: false,
+            multidate: true,
+            orientation: "bottom auto",
+            language: "it",
+            maxViewMode: 0,
+            defaultViewDate: firstDay,
+            startDate: firstDay,
+            endDate: lastDay,
+            enabled: (mode === "available" && !isReadOnly) || mode === "blocked",
+          });
 
-            setTimeout(() => {
-                const dp = $('#inline-datepicker').data('datepicker');
-                dp.viewDate = firstDay;
-                dp._fill(); // force re-render
-            }, 0);
+          setTimeout(() => {
+            const dp = $("#inline-datepicker").data("datepicker");
+            dp.viewDate = firstDay;
+            dp._fill();
+          }, 0);
 
-            const dates = await fetch(`${API_BASE}${mode === 'blocked' ? '/month-dates' : '/get-own'}`)
-                .then(res => res.ok ? res.json() : []);
+          const dates = await fetch(
+            `${API_BASE}${mode === "blocked" ? "/month-dates" : "/get-own"}`
+          ).then((res) => (res.ok ? res.json() : []));
 
-            if (dates.length > 0) {
-                const dateObjects = dates.map(parseLocalDate);
-                $('#inline-datepicker').datepicker('setDate', dateObjects);
+          if (dates.length > 0) {
+            const dateObjects = dates.map(parseLocalDate);
+            $("#inline-datepicker").datepicker("setDate", dateObjects);
+          }
+
+          let selectedDates = dates;
+
+          $("#inline-datepicker").on("changeDate", function () {
+            selectedDates = $("#inline-datepicker")
+              .datepicker("getDates")
+              .map(formatDateLocal);
+            console.log("Date selezionate:", selectedDates);
+          });
+
+          $("#blocked-dates-form").on("submit", async function (e) {
+            e.preventDefault();
+            
+            //if (mode === "available" && isReadOnly) return;
+
+            const payload = { dateList: selectedDates };
+
+            const response = await fetch(
+              `${API_BASE}${mode === "blocked" ? "/set" : "/update-own"}`,
+              {
+                method: mode === "blocked" ? "POST" : "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload),
+              }
+            );
+
+            if (response.ok) {
+              alert(
+                mode === "blocked"
+                  ? "Date bloccate aggiornate con successo!"
+                  : "Disponibilità aggiornata con successo!"
+              );
             } else {
-                setTimeout(() => {
-                    const dp = $('#inline-datepicker').data('datepicker');
-                    dp.viewDate = firstDay;
-                    dp._fill();
-                }, 0);
+              alert("Errore: " + (await response.text()));
             }
-
-            let selectedDates = dates;
-
-            $('#inline-datepicker').on('changeDate', function () {
-                selectedDates = $('#inline-datepicker').datepicker('getDates').map(formatDateLocal);
-                console.log("Date selezionate:", selectedDates);
-            });
-
-            $('#blocked-dates-form').on('submit', async function (e) {
-                e.preventDefault();
-
-                const payload = { dateList: selectedDates };
-
-                const response = await fetch(`${API_BASE}${mode === 'blocked' ? '/set' : '/update-own'}`, {
-                    method: mode === 'blocked' ? 'POST' : 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-
-                if (response.ok) {
-                    alert(mode === 'blocked'
-                        ? 'Date bloccate aggiornate con successo!'
-                        : 'Disponibilità aggiornata con successo!');
-                } else {
-                    alert('Errore: ' + await response.text());
-                }
-            });
-
+          });
         } catch (err) {
-            alert('Errore caricamento dati: ' + err);
+          alert("Errore caricamento dati: " + err);
         }
-    });
-</script>
-</body>
+      });
+    </script>
+  </body>
 </html>

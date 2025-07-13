@@ -24,31 +24,20 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 
-
-
-
-
-
-
 @RestController
 @RequestMapping("/api/volunteer-availability")
 @RequiredArgsConstructor
 public class VolunteerAvailabilityController {
 
-    private final VolunteerAvailabilityControlUseCase useCase;
+    private final VolunteerAvailabilityControlUseCase volunteerAvailabilityControlUseCase;
     private final VolunteersAvailabilityUseCase volunteersUseCase;
     private final GetUserInfoUseCase userInfoUseCase;
-
-    @GetMapping("/status")
-    public ResponseEntity<Boolean> getAvailabilityStatus() {
-        return ResponseEntity.ok(useCase.canEnableAvailability());
-    }
 
 
     @PostMapping("/enable")
     public ResponseEntity<Void> enableAvailability() {
         try {
-            useCase.enableAvailability();
+            volunteerAvailabilityControlUseCase.enableAvailability();
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().build();
         }
@@ -59,7 +48,7 @@ public class VolunteerAvailabilityController {
     @PostMapping("/disable")
     public ResponseEntity<Void> disableAvailability() {
         try {
-            useCase.disableAvailability();
+            volunteerAvailabilityControlUseCase.disableAvailability();
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().build();
         }
@@ -69,27 +58,27 @@ public class VolunteerAvailabilityController {
 
     @GetMapping("/can-enable")
     public ResponseEntity<Boolean> canEnable() {
-        return ResponseEntity.ok(useCase.canEnableAvailability());
+        return ResponseEntity.ok(volunteerAvailabilityControlUseCase.canEnableAvailability());
     }
 
 
     @GetMapping("/can-disable")
     public ResponseEntity<Boolean> canDisable() {
-        return ResponseEntity.ok(useCase.canDisableAvailability());
+        return ResponseEntity.ok(volunteerAvailabilityControlUseCase.canDisableAvailability());
     }
 
 
     @GetMapping("/month-to-enable")
     public ResponseEntity<Integer> monthToEnable() {
 
-        return ResponseEntity.ok(useCase.getMonthToEnable());
+        return ResponseEntity.ok(volunteerAvailabilityControlUseCase.getMonthToEnable());
     }
 
 
     @GetMapping("/month-to-disable")
     public ResponseEntity<Integer> monthToDisable() {
 
-        return ResponseEntity.ok(useCase.getMonthToDisable());
+        return ResponseEntity.ok(volunteerAvailabilityControlUseCase.getMonthToDisable());
     }
 
 
@@ -99,22 +88,31 @@ public class VolunteerAvailabilityController {
         return ResponseEntity.ok(month.getValue());
     }
 
+    @GetMapping("/is-enabled")
+    public ResponseEntity<Boolean> isAvailabilityEnabled() {
+        return ResponseEntity.ok(volunteerAvailabilityControlUseCase.isAvailabilityEnabled());
+    }
+
 
     @PutMapping("/update-own")
-    public ResponseEntity<Void> updateOwnAvailability(@AuthenticationPrincipal UserDetails user,
-                                                      @RequestBody AvailabilityDatesDTO dto) {
+    public ResponseEntity<String> updateOwnAvailability(@AuthenticationPrincipal UserDetails user,
+            @RequestBody AvailabilityDatesDTO dto) {
+
 
         int volunteerId = userInfoUseCase.getIdByNickname(user.getUsername());
 
-        Set<LocalDate> dates = Optional.ofNullable(dto.dateList())  //se null da Optional.empty()
-                .orElse(List.of())
-                .stream()
-                .map(LocalDate::parse)
-                .collect(Collectors.toSet());
+        Set<LocalDate> dates = Optional.ofNullable(dto.dateList())  // se null da Optional.empty()
+                .orElse(List.of()).stream().map(LocalDate::parse).collect(Collectors.toSet());
 
-        volunteersUseCase.updateAvailability(volunteerId, dates);
+        try {
+            volunteersUseCase.updateAvailability(volunteerId, dates);
+        } catch (IllegalStateException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+
         return ResponseEntity.ok().build();
     }
+
 
     @GetMapping("/get-own")
     public ResponseEntity<Set<LocalDate>> getOwnAvailability(@AuthenticationPrincipal UserDetails user,

@@ -8,4 +8,5 @@ public interface VolunteerAvailabilityControlUseCase {
     void disableAvailability();
     int getMonthToEnable();
     int getMonthToDisable();
+    boolean isAvailabilityEnabled();
 }

@@ -5,7 +5,9 @@ package it.unibs.ingsw.destinazioni.adapters.jpa.adapter;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+
 import org.springframework.stereotype.Repository;
+
 import it.unibs.ingsw.destinazioni.adapters.jpa.entity.UserEntity;
 import it.unibs.ingsw.destinazioni.adapters.jpa.entity.VisitEntity;
 import it.unibs.ingsw.destinazioni.adapters.jpa.entity.VisitTypeEntity;
@@ -78,6 +80,7 @@ public class JpaVisitRepositoryAdapter implements VisitRepositoryPort {
 
     }
 
+
     @Override
     public Set<Visit> findByVisitType(int visitTypeId) {
         return Set.of(visitRepository.findByVisitType_Id(visitTypeId)).stream().map(this::toDomain)
@@ -106,9 +109,14 @@ public class JpaVisitRepositoryAdapter implements VisitRepositoryPort {
 
         entity.setDate(visit.getDate());
 
-        UserEntity volunteer = userRepository.findById(visit.getVolunteer().getId())
-                .orElseThrow(() -> new IllegalArgumentException("Volunteer not found"));
-        entity.setVolunteer(volunteer);
+
+        if (visit.getVolunteer() == null) {
+            entity.setVolunteer(null);
+        } else {
+            UserEntity volunteer = userRepository.findById(visit.getVolunteer().getId())
+                    .orElseThrow(() -> new IllegalArgumentException("Volunteer not found"));
+            entity.setVolunteer(volunteer);
+        }
 
         VisitTypeEntity visitType = visitTypeRepository.findById(visit.getVisitType().getId())
                 .orElseThrow(() -> new IllegalArgumentException("VisitType not found"));

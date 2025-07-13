@@ -15,9 +15,9 @@ import it.unibs.ingsw.destinazioni.adapters.jpa.entity.VolunteersVisitTypeEntity
 import it.unibs.ingsw.destinazioni.adapters.jpa.repository.LocationRepository;
 import it.unibs.ingsw.destinazioni.adapters.jpa.repository.VisitTypeRepository;
 import it.unibs.ingsw.destinazioni.application.port.out.VisitTypeRepositoryPort;
-import it.unibs.ingsw.destinazioni.domain.model.DaysOfWeek;
 import it.unibs.ingsw.destinazioni.domain.model.User;
 import it.unibs.ingsw.destinazioni.domain.model.VisitType;
+import it.unibs.ingsw.destinazioni.domain.model.enums.DaysOfWeek;
 import java.util.List;
 import java.util.Optional;
 
