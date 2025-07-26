@@ -34,6 +34,12 @@ public class VisitPlanService implements VisitPlanUseCase {
         int nextMonthValue = nextMonth.getMonthValue();
         int nextYear = nextMonth.getYear();
 
+        //per debug, da togliere
+        System.out.println("Data: " + LocalDate.now(clock).toString());
+        System.out.println("NextMonthValue: " + nextMonthValue + "\tNextYear: " + nextYear);
+        System.out.println("VisitPlanCreated: " + statePort.isVisitPlanCreated(nextMonthValue, nextYear));
+        System.out.println("VolunteerAvailabilityOpen: " + availabilityStatePort.isVolunteerAvailabilityOpen(nextMonthValue, nextYear));
+
         if (statePort.isVisitPlanCreated(nextMonthValue, nextYear))
             return false;
         if (availabilityStatePort.isVolunteerAvailabilityOpen(nextMonthValue, nextYear))
@@ -59,6 +65,7 @@ public class VisitPlanService implements VisitPlanUseCase {
 
     @Override
     public List<Visit> getVisitPlan(int month, int year) {
+        System.out.println("VisitPlan creation started");
         // TODO: implementare la logica per ottenere il piano di visita
         return List.of(); // restituisce una lista vuota per ora
     }

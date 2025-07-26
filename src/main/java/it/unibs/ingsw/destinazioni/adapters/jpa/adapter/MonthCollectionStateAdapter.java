@@ -4,6 +4,7 @@ import org.springframework.stereotype.Repository;
 import it.unibs.ingsw.destinazioni.adapters.jpa.repository.MonthCollectionStateRepository;
 import it.unibs.ingsw.destinazioni.application.port.out.VisitPlanStatePort;
 import it.unibs.ingsw.destinazioni.application.port.out.VolunteerAvailabilityStatePort;
+import it.unibs.ingsw.destinazioni.adapters.jpa.entity.MonthCollectionStateEntity;
 
 @Repository
 public class MonthCollectionStateAdapter implements VolunteerAvailabilityStatePort, VisitPlanStatePort {
@@ -46,13 +47,12 @@ public class MonthCollectionStateAdapter implements VolunteerAvailabilityStatePo
 
     @Override
     public boolean isVisitPlanCreated(int month, int year) {
-        if (monthCollectionStateRepository.existsByMonthAndYear(month, year)) {
-            return monthCollectionStateRepository.findByMonthAndYear(month, year)
-                    .isVisitPlanCreated();
-        } else {
-            //se non esiste il mese e l'anno, allora assumo che sia stato creato il piano di visita
-            return true;
-        }
+             MonthCollectionStateEntity mcse = monthCollectionStateRepository.findByMonthAndYear(month, year);
+            // mcse = monthCollectionStateRepository.findByMonthAndYear(month, year);
+
+            if(mcse == null)
+                return false;
+            else return mcse.isVisitPlanCreated();
     }
 
 
