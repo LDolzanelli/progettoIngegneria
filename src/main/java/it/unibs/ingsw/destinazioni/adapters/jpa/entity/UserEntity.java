@@ -3,9 +3,13 @@ package it.unibs.ingsw.destinazioni.adapters.jpa.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import jakarta.persistence.OneToMany;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
+
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -33,5 +37,8 @@ public class UserEntity {
     @ColumnDefault("0")
     @Column(name = "first_login")
     private Boolean firstLogin;
+
+    @OneToMany(mappedBy = "id")
+    private Set<UserEntity> visitors = new LinkedHashSet<>();
 
 }

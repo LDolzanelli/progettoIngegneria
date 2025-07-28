@@ -2,7 +2,9 @@ package it.unibs.ingsw.destinazioni.application.service;
 
 import java.time.Clock;
 import java.time.LocalDate;
+import java.time.Month;
 import java.time.YearMonth;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -11,6 +13,18 @@ import it.unibs.ingsw.destinazioni.application.port.in.VisitPlanUseCase;
 import it.unibs.ingsw.destinazioni.application.port.out.VisitPlanStatePort;
 import it.unibs.ingsw.destinazioni.application.port.out.VolunteerAvailabilityStatePort;
 import it.unibs.ingsw.destinazioni.domain.model.Visit;
+import it.unibs.ingsw.destinazioni.domain.model.User;
+import it.unibs.ingsw.destinazioni.domain.model.VisitType;
+import it.unibs.ingsw.destinazioni.domain.model.VolunteerAvailableDate;
+
+import it.unibs.ingsw.destinazioni.application.port.out.VisitTypeRepositoryPort;
+import it.unibs.ingsw.destinazioni.application.port.out.VolunteerAvailableDateRepositoryPort;
+import it.unibs.ingsw.destinazioni.application.port.out.VisitRepositoryPort;
+
+import it.unibs.ingsw.destinazioni.application.service.UserService;
+
+import it.unibs.ingsw.destinazioni.domain.model.enums.Role;
+
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -19,7 +33,12 @@ public class VisitPlanService implements VisitPlanUseCase {
 
     private final VisitPlanStatePort statePort;
     private final VolunteerAvailabilityStatePort availabilityStatePort;
+    private final VisitTypeRepositoryPort visitTypeRepository;
     private final Clock clock;
+
+    private final UserService userService;
+    private final VolunteerAvailableDateRepositoryPort volunteerAvailabilityRepository;
+    private final VisitRepositoryPort visitRepository;
 
     /**
      * controlla se il piano di visita può essere creato.
@@ -59,6 +78,31 @@ public class VisitPlanService implements VisitPlanUseCase {
         int nextYear = nextMonth.getYear();
 
         statePort.setVisitPlanCreated(nextMonthValue, nextYear, true);
+
+        List<User> volunteers = userService.getUsersByRole(Role.VOLUNTEER);
+        List<VisitType> visitTypes = new ArrayList<VisitType>();
+        visitTypes.addAll( visitTypeRepository.findAll() );
+
+        List<VolunteerAvailableDate> monthAvailabilities = new ArrayList<VolunteerAvailableDate>();
+        for(User v : volunteers){
+            // per ogni volontario recupera le sue disponibilitá e seleziona quelle del prossimo mese
+            List<VolunteerAvailableDate> volunteerAvailabilities = new ArrayList<>();
+
+            volunteerAvailabilityRepository.findByVolunteerId(v.getId())
+                    .stream()
+                    .filter( va -> {return va.getAvailableDate().getMonthValue() == nextMonthValue && va.getAvailableDate().getYear() ==nextYear; } )
+                    .forEach(volunteerAvailabilities::add );
+
+            if( !volunteerAvailabilities.isEmpty())
+                monthAvailabilities.addAll(volunteerAvailabilities);
+        }
+
+        List<Visit> monthVisits = new ArrayList<Visit>();
+        visitRepository.findAll()
+                .stream()
+                .filter(visit -> { return visit.getDate().getMonthValue() == nextMonthValue && visit.getDate().getYear() == nextYear; } )
+                .forEach(monthVisits::add);
+
 
         // TODO: implementare la logica per creare il piano di visita
     }

@@ -14,15 +14,17 @@ public class VisitorEntity {
     @EmbeddedId
     private VisitorIdEntity id;
 
-    @MapsId("visitId")
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+
+    @ManyToOne
     @OnDelete(action = OnDeleteAction.CASCADE)
-    @JoinColumn(name = "visit_id", nullable = false)
+    @JoinColumn(name = "visits_id", nullable = false)
+    @MapsId("visitId")
     private VisitEntity visitEntity;
 
+
+    @ManyToOne
+    @JoinColumn(name = "users_id", nullable = false)
     @MapsId("visitorId")
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "visitor_id", nullable = false)
     private UserEntity visitorId;
 
 }

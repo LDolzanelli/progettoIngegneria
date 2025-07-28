@@ -14,8 +14,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -35,8 +35,7 @@ public class VisitEntity {
     @NotNull
     @Column(name = "date", nullable = false)
     private LocalDate date;
-
-
+    
     @ManyToOne(fetch = FetchType.LAZY, optional = true)
     @JoinColumn(name = "volunteer_id", referencedColumnName = "id", nullable = true)
     private UserEntity volunteer;
@@ -52,7 +51,7 @@ public class VisitEntity {
     @JoinColumn(name = "visit_type_id", nullable = false)
     private VisitTypeEntity visitType;
 
-    @ManyToMany
-    private Set<UserEntity> users = new LinkedHashSet<>();
+    @OneToMany(mappedBy = "id" )
+    private Set<UserEntity> visitors = new LinkedHashSet<>();
 
 }

@@ -144,7 +144,8 @@ public class VolunteersAvailabilityService
                 .collect(Collectors.toSet());
     }
 
-
+    // gestisce anni diversi?
+    // valutare se sostituire Month con un YearMonth
     @Override
     public Set<LocalDate> getAvailability(int volunteerId, Month month) {
         return repository.findByVolunteerId(volunteerId).stream().filter(v -> v.getAvailableDate().getMonth() == month)

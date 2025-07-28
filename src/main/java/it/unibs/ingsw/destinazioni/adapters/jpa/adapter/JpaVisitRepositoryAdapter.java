@@ -90,10 +90,15 @@ public class JpaVisitRepositoryAdapter implements VisitRepositoryPort {
 
 
     private Visit toDomain(VisitEntity entity) {
-        User volunteer = JpaUserRepositoryAdapter.toDomain(entity.getVolunteer());
+        //Volunteer potrebbe essere nullo quando la visita non é ancora stata assegnata a un volontario
+        User volunteer;
+        if(entity.getVolunteer() != null)
+            volunteer = JpaUserRepositoryAdapter.toDomain(entity.getVolunteer());
+        else volunteer = null;
+
         VisitType visitType = JpaVisitTypeRepositoryAdapter.toDomain(entity.getVisitType());
         Set<User> participants =
-                entity.getUsers().stream().map(JpaUserRepositoryAdapter::toDomain).collect(Collectors.toSet());
+                entity.getVisitors().stream().map(JpaUserRepositoryAdapter::toDomain).collect(Collectors.toSet());
         VisitStatus status = VisitStatus.fromEnglishString(entity.getStatus());
 
         return new Visit(entity.getId(), entity.getDate(), volunteer, entity.getStatus(), visitType, participants,
@@ -128,7 +133,7 @@ public class JpaVisitRepositoryAdapter implements VisitRepositoryPort {
                 .map(p -> userRepository.findById(p.getId())
                         .orElseThrow(() -> new IllegalArgumentException("User not found: " + p.getId())))
                 .collect(Collectors.toSet());
-        entity.setUsers(participants);
+        entity.setVisitors(participants);
 
         return entity;
     }
