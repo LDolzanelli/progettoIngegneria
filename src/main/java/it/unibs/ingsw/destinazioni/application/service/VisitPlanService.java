@@ -4,11 +4,7 @@ import java.time.Clock;
 import java.time.LocalDate;
 import java.time.Month;
 import java.time.YearMonth;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.Comparator;
+import java.util.*;
 
 import org.springframework.stereotype.Service;
 
@@ -95,11 +91,14 @@ public class VisitPlanService implements VisitPlanUseCase {
         // recupera le visite del prossimo mese e ordinale
         List<Visit> monthVisits = initMonthVisits(nextMonthValue, nextYear);
 
-        List<VolunteerVisitCount> volunteerVisitCounts = new ArrayList<VolunteerVisitCount>();
+        /*
+            Conteggio delle visite assegnate ai volontari nel mese considerato
+            Viene aggiornato ogni volta che viene assegnata una visita a un volontario
+         */
+        List<VolunteerVisitCount> volunteerVisitCounts = initVolunteerVisitCounts(volunteers);
 
         for(Visit visit : monthVisits){
             LocalDate day = visit.getDate();
-            System.out.println("Visita: " +day);
             List<User> availableVolunteers = new ArrayList<User>();
 
             // aggiunge alla lista availableVolunteers tutti i volontari che hanno dato disponibilitá per il giorno 'day'
@@ -110,7 +109,6 @@ public class VisitPlanService implements VisitPlanUseCase {
                     .forEach(availableVolunteers::add);
 
 
-            System.out.println("Volontari disponibili " + availableVolunteers.size());
             if(availableVolunteers.isEmpty()){
                 visit.setVisitStatus(VisitStatus.CANCELLED);
                 visitRepository.save(visit);
@@ -123,15 +121,10 @@ public class VisitPlanService implements VisitPlanUseCase {
                 continue; // passa alla visita successiva
             }
 
-            System.out.println("Visita con più volontari: " + availableVolunteers.size() + "\til giorno: " +day);
-            User test = availableVolunteers.getFirst();
-            System.out.println("Test: " + test.getId());
             // piú di 2 volontari con disponibilitá nel giorno considerato
             User bestVolunteer= selectBestVolunteer(availableVolunteers, volunteerVisitCounts);
-            System.out.println("BestVolunteer: " + bestVolunteer.getId());
             assignVolunteerToVisit(bestVolunteer, visit, monthAvailabilities, volunteerVisitCounts);
         }
-        // tutte le visite sono state esaminate
 
         statePort.setVisitPlanCreated(nextMonthValue, nextYear, true);
     }
@@ -187,9 +180,9 @@ public class VisitPlanService implements VisitPlanUseCase {
         else return false;
     }
 
-    // valutare se crearne una versione diversa o con policy a scelta
+
 //    private User selectBestVolunteer(List<User> volunteers, List<VolunteerVisitCount> volunteerVisitCounts){
-//        User bestVolunteer = volunteers.getFirst();  //PROBLEMA: dá errore quando si recupera un elemento della lista
+//        User bestVolunteer = volunteers.getFirst();
 //        for(User v : volunteers){
 //            int visitCount = volunteerVisitCounts.stream().filter( vvc -> vvc.volunteer.equals(v)).findFirst().get().getVisitCount();
 //
@@ -207,12 +200,13 @@ public class VisitPlanService implements VisitPlanUseCase {
 //        return bestVolunteer;
 //    }
 
+    // valutare se crearne una versione diversa o con policy a scelta es: selectBestVolunteer(volonteers, vvc, comparator)
     private User selectBestVolunteer(List<User> volunteers, List<VolunteerVisitCount> volunteerVisitCounts){
 
         Comparator<User> volunteerComparator =
                 ( v1,  v2) -> Integer.compare(visitCountFromVolunteer(v1, volunteerVisitCounts), visitCountFromVolunteer(v2, volunteerVisitCounts));
 
-        return volunteers.stream().min(volunteerComparator).get();
+        return volunteers.stream().min(volunteerComparator).get(); // ritorna il volontario a cui sono state assegnate meno visite
     }
 
     /*  Assegna un volontario a una visita
@@ -226,7 +220,15 @@ public class VisitPlanService implements VisitPlanUseCase {
         visit.setVolunteer(volunteer);
         visit.setVisitStatus(VisitStatus.PROPOSED);
         volunteerVisitCounts.stream().filter(vvc -> vvc.getVolunteer().getId() == volunteer.getId()).findFirst().get().increment();
-        volunteerAvailabilities.stream().filter(av -> av.getVolunteerId() == volunteer.getId()).forEach(volunteerAvailabilities::remove);
+        VolunteerAvailableDate usedAvailability =
+                volunteerAvailabilities.stream()
+                                        .filter(Objects::nonNull)
+                                        .filter(   av -> av.getVolunteerId() == volunteer.getId() && av.getAvailableDate().equals(visit.getDate())   )
+                                        .findFirst()
+                                        .get();
+
+        volunteerAvailabilities.remove(usedAvailability);
+
         visitRepository.save(visit);
         printVisitDetails(visit);
     }
@@ -261,6 +263,15 @@ public class VisitPlanService implements VisitPlanUseCase {
         monthVisits.sort(visitCompare);
 
         return monthVisits;
+    }
+
+    private List<VolunteerVisitCount> initVolunteerVisitCounts(List<User> volunteers){
+        List<VolunteerVisitCount> volunteerVisitCounts = new ArrayList<>();
+        for(User v : volunteers){
+            volunteerVisitCounts.add(new VolunteerVisitCount(v));
+        }
+
+        return volunteerVisitCounts;
     }
 
     // solo per debug, rimuovere nelle prossime versioni
