@@ -12,5 +12,6 @@ public interface ManageVisitTypeUseCase {
     void updateVisitType(VisitType visitType, int locationId);
     Set<VisitType> listByLocation(int locationId);
     Set<VisitType> listByVolunteerId(int volunteerId);
+    boolean canBeRemoved(int visitTypeId);
 
 }

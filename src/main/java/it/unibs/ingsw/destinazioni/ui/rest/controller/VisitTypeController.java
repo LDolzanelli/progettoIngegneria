@@ -49,12 +49,12 @@ public class VisitTypeController {
     }
 
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<Void> deleteVisitType(@PathVariable int id) {
+    public ResponseEntity<String> deleteVisitType(@PathVariable int id) {
         try {
             manageVisitTypeUseCase.removeVisitType(id);
             return ResponseEntity.ok().build();
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Errore durante la rimozione: " + e.getMessage());
         }
     }
 
@@ -124,7 +124,8 @@ public class VisitTypeController {
                 visitType.getMinParticipants(),
                 visitType.isFree(),
                 days,
-                volunteers
+                volunteers,
+                manageVisitTypeUseCase.canBeRemoved(visitType.getId())
         );
     }
 

@@ -1,6 +1,7 @@
 package it.unibs.ingsw.destinazioni.adapters.jpa.adapter;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -14,12 +15,14 @@ import it.unibs.ingsw.destinazioni.adapters.jpa.entity.VisitDayEntity;
 import it.unibs.ingsw.destinazioni.adapters.jpa.entity.VisitTypeEntity;
 import it.unibs.ingsw.destinazioni.adapters.jpa.entity.VolunteersVisitTypeEntity;
 import it.unibs.ingsw.destinazioni.adapters.jpa.repository.LocationRepository;
+import it.unibs.ingsw.destinazioni.adapters.jpa.repository.VisitTypeRepository;
 import it.unibs.ingsw.destinazioni.application.port.out.LocationRepositoryPort;
 import it.unibs.ingsw.destinazioni.domain.model.Location;
 import it.unibs.ingsw.destinazioni.domain.model.LocationAddress;
 import it.unibs.ingsw.destinazioni.domain.model.User;
 import it.unibs.ingsw.destinazioni.domain.model.VisitType;
 import it.unibs.ingsw.destinazioni.domain.model.enums.DaysOfWeek;
+import lombok.RequiredArgsConstructor;
 
 
 
@@ -31,13 +34,11 @@ import it.unibs.ingsw.destinazioni.domain.model.enums.DaysOfWeek;
  * @version 1.0
  */
 @Repository
+@RequiredArgsConstructor
 public class JpaLocationRepositoryAdapter implements LocationRepositoryPort {
 
     private final LocationRepository locationRepository;
-
-    public JpaLocationRepositoryAdapter(LocationRepository locationRepository) {
-        this.locationRepository = locationRepository;
-    }
+    private final VisitTypeRepository visitTypeRepository;
 
 
     @Override
@@ -66,6 +67,19 @@ public class JpaLocationRepositoryAdapter implements LocationRepositoryPort {
     }
 
 
+    @Override
+    public Optional<Location> findByVisitType(VisitType visitType) {
+
+        return this.findAll().stream()
+                .filter(location -> location.getVisitTypes().stream()
+                        .anyMatch(vt -> Objects.equals(vt.getId(), visitType.getId())))
+                .findFirst();
+
+
+    }
+
+
+
     public LocationEntity toEntity(Location location) {
         LocationEntity locationEntity = new LocationEntity();
         locationEntity.setId(location.getId());
@@ -88,7 +102,15 @@ public class JpaLocationRepositoryAdapter implements LocationRepositoryPort {
         locationEntity.setLocationAddress(addressEntity);
 
         Set<VisitTypeEntity> visitTypeEntities = location.getVisitTypes().stream().map(visitType -> {
-            VisitTypeEntity visitTypeEntity = new VisitTypeEntity();
+
+            VisitTypeEntity visitTypeEntity;
+            if (visitType.getId() == null) {
+
+                visitTypeEntity = new VisitTypeEntity();
+            } else {
+                visitTypeEntity = visitTypeRepository.findById(visitType.getId()).orElse(visitTypeEntity = new VisitTypeEntity());
+            }
+
             visitTypeEntity.setTitle(visitType.getTitle());
             visitTypeEntity.setDescription(visitType.getDescription());
             visitTypeEntity.setMeetingPoint(visitType.getMeetingPoint());
@@ -102,6 +124,7 @@ public class JpaLocationRepositoryAdapter implements LocationRepositoryPort {
 
             // Collegamento bidirezionale
             visitTypeEntity.setLocation(locationEntity);
+
             return visitTypeEntity;
         }).collect(Collectors.toSet());
 

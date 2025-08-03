@@ -15,5 +15,6 @@ public record VisitTypeDTO(
         int minParticipants,
         boolean isFree,
         List<String> daysAvailable,  // list of day names as Strings, e.g. ["Monday", "Wednesday"]
-        List<String> volunteers       // list of volunteer usernames or IDs as Strings (simplified)
+        List<String> volunteers,
+        boolean canBeRemoved 
 ) {}

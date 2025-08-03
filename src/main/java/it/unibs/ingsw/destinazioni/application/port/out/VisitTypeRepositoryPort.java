@@ -11,4 +11,5 @@ public interface VisitTypeRepositoryPort {
     Set<VisitType> findAll();
     Set<VisitType> findByLocationId(int locationId);
     Set<VisitType> findByVolunteerId(int volunteerId);
+    
 }

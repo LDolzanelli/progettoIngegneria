@@ -1,5 +1,6 @@
 package it.unibs.ingsw.destinazioni.domain.model;
 
+import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
@@ -32,4 +33,18 @@ public class Location {
     public Location(String name, String description, LocationAddress address, List<VisitType> visits) {
         this(null, name, description, address, visits);
     }
+
+
+    public void removeVisitType(VisitType visitType) {
+
+         visitTypes = new ArrayList<>(visitTypes);
+
+        for (VisitType vt : visitTypes) {
+            if (vt.getId().equals(visitType.getId())) {
+                visitTypes.remove(vt);
+                break;
+            }
+        }
+    }
+
 }

@@ -7,8 +7,7 @@ import it.unibs.ingsw.destinazioni.domain.model.Location;
 import it.unibs.ingsw.destinazioni.domain.model.LocationAddress;
 import it.unibs.ingsw.destinazioni.domain.model.VisitType;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -71,7 +70,8 @@ public class LocationController {
                         address.getTown(),
                         address.getProvince()
                 ),
-                null // puoi mappare visitTypes se vuoi
+                null, // puoi mappare visitTypes se vuoi
+                manageLocationUseCase.canBeRemoved(location.getId())
         );
     }
 

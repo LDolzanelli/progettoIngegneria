@@ -1,171 +1,253 @@
 <!DOCTYPE html>
 <html lang="it">
-<head>
+  <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Visualizza Tipi di Visita</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
-</head>
-<body>
-<nav class="navbar navbar-expand-lg bg-light shadow-sm mb-4">
-    <div class="container">
-        <a class="navbar-brand text-primary fw-bold fs-4" href="/">Centro Visite</a>
-    </div>
-</nav>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg bg-light shadow-sm mb-4">
+      <div class="container">
+        <a class="navbar-brand text-primary fw-bold fs-4" href="/"
+          >Centro Visite</a
+        >
+      </div>
+    </nav>
 
-<div class="container my-4">
-    <h2>Lista Tipi di Visita</h2>
-    <a id="addVisitTypeBtn" href="#" class="btn btn-success mb-3" th:classappend="${role != 'configurator'} ? ' d-none' : ''">Aggiungi Tipo di Visita</a>
+    <div class="container my-4">
+      <h2>Lista Tipi di Visita</h2>
+      <a
+        id="addVisitTypeBtn"
+        href="#"
+        class="btn btn-success mb-3"
+        th:classappend="${role != 'configurator'} ? ' d-none' : ''"
+        >Aggiungi Tipo di Visita</a
+      >
 
-    <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
-    <div th:if="${visitTypes.isEmpty()}" id="noVisitTypesMessage" class="alert alert-info">
+      <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+      <div
+        th:if="${visitTypes.isEmpty()}"
+        id="noVisitTypesMessage"
+        class="alert alert-info"
+      >
         Nessun tipo di visita disponibile.
-    </div>
+      </div>
 
-    <div class="row" id="visitTypesGrid">
+      <div class="row" id="visitTypesGrid">
         <div class="col-md-4 mb-3" th:each="vt : ${visitTypes}">
-            <div class="card h-100 shadow-sm">
-                <div class="card-body">
-                    <h5 class="card-title" th:text="${vt.title}">Titolo</h5>
-                    <p class="card-text" th:text="${vt.description}">Descrizione</p>
-                    <p class="card-text">
-                        <small class="text-muted">
-                            Dal <span th:text="${vt.startDate}"></span> al <span th:text="${vt.endDate}"></span><br/>
-                            Punto d'incontro: <span th:text="${vt.meetingPoint}"></span><br/>
-                            Inizio: <span th:text="${vt.startTime}"></span><br/>
-                            Durata: <span th:text="${vt.duration}"></span> minuti<br/>
-                            Min partecipanti: <span th:text="${vt.minParticipants}"></span><br/>
-                            Max partecipanti: <span th:text="${vt.maxParticipants}"></span><br/>
-                            La visita è <span th:text="${vt.free} ? 'gratuita' : 'a pagamento'"></span><br/>
-                            Giorni disponibili: <span class="days-available" th:text="${vt.daysAvailable}"></span><br/>
-                            Volontari: <span th:text="${#strings.arrayJoin(vt.volunteers, ', ')}"></span>
-                        </small>
-                    </p>
-                </div>
+          <div class="card h-100 shadow-sm">
+            <div class="card-body">
+              <h5 class="card-title" th:text="${vt.title}">Titolo</h5>
+              <p class="card-text" th:text="${vt.description}">Descrizione</p>
+              <p class="card-text">
+                <small class="text-muted">
+                  <!-- Altri dettagli... -->
+                  La visita è
+                  <span th:text="${vt.free} ? 'gratuita' : 'a pagamento'"></span
+                  ><br />
+                  Giorni disponibili:
+                  <span
+                    class="days-available"
+                    th:text="${vt.daysAvailable}"
+                  ></span
+                  ><br />
+                  Volontari:
+                  <span
+                    th:text="${#strings.arrayJoin(vt.volunteers, ', ')}"
+                  ></span>
+                </small>
+              </p>
+
+              <div th:if="${vt.canBeRemoved}">
+                <button
+                  type="button"
+                  class="btn btn-danger btn-sm mt-2"
+                  th:attr="onclick=|deleteVisitType(${vt.id})|"
+                >
+                  Rimuovi
+                </button>
+              </div>
+              <div th:unless="${vt.canBeRemoved}">
+                <button
+                  type="button"
+                  class="btn btn-secondary btn-sm mt-2"
+                  disabled
+                >
+                  Non rimovibile
+                </button>
+              </div>
             </div>
+          </div>
         </div>
+      </div>
     </div>
-</div>
 
-<input type="hidden" id="thymeleafDataPresent" th:value="${visitTypes != null}" />
+    <input
+      type="hidden"
+      id="thymeleafDataPresent"
+      th:value="${visitTypes != null}"
+    />
 
-<script>
-    function getParamFromUrl(name) {
+    <script>
+      function getParamFromUrl(name) {
         const params = new URLSearchParams(window.location.search);
         return params.get(name);
-    }
+      }
 
-    async function loadVisitTypes() {
+      async function loadVisitTypes() {
         const locationId = getParamFromUrl("locationId");
         const volunteerId = getParamFromUrl("volunteerId");
 
         let endpoint = null;
 
         if (locationId) {
-            endpoint = `/api/visit-type/list/${locationId}`;
+          endpoint = `/api/visit-type/list/${locationId}`;
         } else if (volunteerId) {
-            endpoint = `/api/visit-type/volunteer/${volunteerId}`;
+          endpoint = `/api/visit-type/volunteer/${volunteerId}`;
         } else {
-            console.warn("Nessun locationId o volunteerId fornito nell'URL.");
-            return;
+          console.warn("Nessun locationId o volunteerId fornito nell'URL.");
+          return;
         }
 
         try {
-            const resp = await fetch(endpoint);
-            if (!resp.ok) throw new Error("HTTP error");
+          const resp = await fetch(endpoint);
+          if (!resp.ok) throw new Error("HTTP error");
 
-            const visitTypes = await resp.json();
-            const grid = document.getElementById("visitTypesGrid");
-            const noVisitTypesMessage = document.getElementById("noVisitTypesMessage");
-            grid.innerHTML = "";
+          const visitTypes = await resp.json();
+          const grid = document.getElementById("visitTypesGrid");
+          const noVisitTypesMessage = document.getElementById(
+            "noVisitTypesMessage"
+          );
+          grid.innerHTML = "";
 
-            if (visitTypes.length === 0) {
-                noVisitTypesMessage.style.display = "block";
-                return;
-            } else {
-                noVisitTypesMessage.style.display = "none";
-            }
+          if (visitTypes.length === 0) {
+            noVisitTypesMessage.style.display = "block";
+            return;
+          } else {
+            noVisitTypesMessage.style.display = "none";
+          }
 
-            visitTypes.forEach(vt => {
-                const cardCol = document.createElement('div');
-                cardCol.className = 'col-md-4 mb-3';
+          visitTypes.forEach((vt) => {
+            const cardCol = document.createElement("div");
+            cardCol.className = "col-md-4 mb-3";
 
-                const period = `Dal ${vt.startDate} al ${vt.endDate}`;
-                const details = `
+            const period = `Dal ${vt.startDate} al ${vt.endDate}`;
+            const details = `
                     <strong>Punto d'incontro:</strong> ${vt.meetingPoint}<br/>
                     <strong>Durata:</strong> ${vt.duration} minuti<br/>
                     <strong>Ora inizio:</strong> ${vt.startTime}<br/>
-                    <strong>Min partecipanti:</strong> ${vt.minParticipants}<br/>
-                    <strong>Max partecipanti:</strong> ${vt.maxParticipants}<br/>
-                    <strong>Gratuita:</strong> ${vt.free ? 'Sì' : 'No'}<br/>
-                    <strong>Giorni disponibili:</strong> ${vt.daysAvailable}<br/>
+                    <strong>Min partecipanti:</strong> ${
+                      vt.minParticipants
+                    }<br/>
+                    <strong>Max partecipanti:</strong> ${
+                      vt.maxParticipants
+                    }<br/>
+                    <strong>Gratuita:</strong> ${vt.free ? "Sì" : "No"}<br/>
+                    <strong>Giorni disponibili:</strong> ${
+                      vt.daysAvailable
+                    }<br/>
                     <strong>Volontari:</strong> ${vt.volunteers}<br/>
                 `;
 
-                cardCol.innerHTML = `
+            cardCol.innerHTML = `
                     <div class="card h-100 shadow-sm">
                         <div class="card-body">
                             <h5 class="card-title">${vt.title}</h5>
-                            <p class="card-text">${vt.description ?? ''}</p>
+                            <p class="card-text">${vt.description ?? ""}</p>
                             <p class="card-text"><small class="text-muted">${period}</small></p>
                             <p class="card-text"><small class="text-muted">${details}</small></p>
                         </div>
                     </div>
                 `;
-                grid.appendChild(cardCol);
-            });
-
+            grid.appendChild(cardCol);
+          });
         } catch (error) {
-            console.error("Errore caricamento dati:", error);
-            alert("Errore nel caricamento dei tipi di visita");
+          console.error("Errore caricamento dati:", error);
+          alert("Errore nel caricamento dei tipi di visita");
         }
-    }
+      }
 
-    document.addEventListener('DOMContentLoaded', () => {
-        const daysElements = document.querySelectorAll('.days-available');
+      document.addEventListener("DOMContentLoaded", () => {
+        const daysElements = document.querySelectorAll(".days-available");
         const dayMap = {
-            'MONDAY': 'Lunedì',
-            'TUESDAY': 'Martedì',
-            'WEDNESDAY': 'Mercoledì',
-            'THURSDAY': 'Giovedì',
-            'FRIDAY': 'Venerdì',
-            'SATURDAY': 'Sabato',
-            'SUNDAY': 'Domenica'
+          MONDAY: "Lunedì",
+          TUESDAY: "Martedì",
+          WEDNESDAY: "Mercoledì",
+          THURSDAY: "Giovedì",
+          FRIDAY: "Venerdì",
+          SATURDAY: "Sabato",
+          SUNDAY: "Domenica",
         };
         const orderedDays = Object.keys(dayMap);
 
-        daysElements.forEach(element => {
-            try {
-                const daysText = element.textContent;
-                const daysArray = daysText.replace(/[\[\]]/g, '').split(/\s*,\s*/);
+        daysElements.forEach((element) => {
+          try {
+            const daysText = element.textContent;
+            const daysArray = daysText.replace(/[\[\]]/g, "").split(/\s*,\s*/);
 
-                if (daysArray.length && daysArray[0] !== '') {
-                    daysArray.sort((a, b) => orderedDays.indexOf(a) - orderedDays.indexOf(b));
-                    element.textContent = daysArray.map(d => dayMap[d.trim().toUpperCase()] || d).join(', ');
-                } else {
-                    element.textContent = 'Nessun giorno selezionato';
-                }
-            } catch (e) {
-                element.textContent = 'Giorni non disponibili';
+            if (daysArray.length && daysArray[0] !== "") {
+              daysArray.sort(
+                (a, b) => orderedDays.indexOf(a) - orderedDays.indexOf(b)
+              );
+              element.textContent = daysArray
+                .map((d) => dayMap[d.trim().toUpperCase()] || d)
+                .join(", ");
+            } else {
+              element.textContent = "Nessun giorno selezionato";
             }
+          } catch (e) {
+            element.textContent = "Giorni non disponibili";
+          }
         });
 
         const locationId = getParamFromUrl("locationId");
         const addBtn = document.getElementById("addVisitTypeBtn");
 
         if (addBtn) {
-            if (locationId) {
-                addBtn.href = `/add-visittype?locationId=${encodeURIComponent(locationId)}`;
-            } else {
-                addBtn.addEventListener('click', e => e.preventDefault());
-            }
+          if (locationId) {
+            addBtn.href = `/add-visittype?locationId=${encodeURIComponent(
+              locationId
+            )}`;
+          } else {
+            addBtn.addEventListener("click", (e) => e.preventDefault());
+          }
         }
 
-        const isThymeleafDataPresent = document.getElementById("thymeleafDataPresent")?.value === "true";
+        const isThymeleafDataPresent =
+          document.getElementById("thymeleafDataPresent")?.value === "true";
         if (!isThymeleafDataPresent) {
-            loadVisitTypes();
+          loadVisitTypes();
         }
-    });
-</script>
-</body>
+      });
+    </script>
+
+    <script>
+      async function deleteVisitType(id) {
+        if (!confirm("Sei sicuro di voler eliminare questo tipo di visita?"))
+          return;
+
+        try {
+          const resp = await fetch(`/api/visit-type/delete/${id}`, {
+            method: "DELETE",
+          });
+
+          if (resp.ok) {
+            alert("Tipo di visita eliminato con successo!");
+            location.reload(); // Ricarica la pagina per aggiornare la lista
+          } else {
+            const errorText = await resp.text();
+            alert("Errore durante l'eliminazione: " + errorText);
+          }
+        } catch (error) {
+          console.error("Errore:", error);
+          alert("Errore di rete durante l'eliminazione");
+        }
+      }
+    </script>
+    
+  </body>
 </html>

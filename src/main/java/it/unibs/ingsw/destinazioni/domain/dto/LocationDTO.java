@@ -7,5 +7,6 @@ public record LocationDTO(
     String name,
     String description,
     LocationAddressDTO address,
-    List<VisitTypeDTO> visitTypes
+    List<VisitTypeDTO> visitTypes,
+    boolean canBeRemoved
 ) {}
