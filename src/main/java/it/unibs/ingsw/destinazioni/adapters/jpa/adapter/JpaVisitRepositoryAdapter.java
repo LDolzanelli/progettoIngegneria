@@ -14,7 +14,6 @@ import it.unibs.ingsw.destinazioni.adapters.jpa.entity.VisitTypeEntity;
 import it.unibs.ingsw.destinazioni.adapters.jpa.repository.UserRepository;
 import it.unibs.ingsw.destinazioni.adapters.jpa.repository.VisitRepository;
 import it.unibs.ingsw.destinazioni.adapters.jpa.repository.VisitTypeRepository;
-import it.unibs.ingsw.destinazioni.application.port.out.VisitRepositoryPort;
 import it.unibs.ingsw.destinazioni.domain.model.User;
 import it.unibs.ingsw.destinazioni.domain.model.Visit;
 import it.unibs.ingsw.destinazioni.domain.model.VisitType;
@@ -29,7 +28,8 @@ import it.unibs.ingsw.destinazioni.domain.model.enums.VisitStatus;
  * @version 1.0
  */
 @Repository
-public class JpaVisitRepositoryAdapter implements VisitRepositoryPort {
+public class JpaVisitRepositoryAdapter implements it.unibs.ingsw.destinazioni.application.port.out.VisitRepositoryPort
+{
 
     private final VisitRepository visitRepository;
     private final VisitTypeRepository visitTypeRepository;
