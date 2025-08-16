@@ -16,4 +16,8 @@ public class AreaOfInterestEntity {
     @Column(name = "town", nullable = false, length = 100)
     private String town;
 
+    @Size(max = 100)
+    @Column(name = "province", nullable = false, length = 50)
+    private String province;
+
 }
