@@ -83,7 +83,7 @@ public class VisitPlanService implements VisitPlanUseCase {
         List<User> volunteers = userService.getUsersByRole(Role.VOLUNTEER);
 
 
-        List<VisitType> visitTypes = new ArrayList<VisitType>();
+        List<VisitType> visitTypes = new ArrayList();
         visitTypes.addAll( visitTypeRepository.findAll() );
 
         List<VolunteerAvailableDate>  monthAvailabilities = initMonthAvailabilities(volunteers, nextMonthValue, nextYear);
@@ -99,7 +99,7 @@ public class VisitPlanService implements VisitPlanUseCase {
 
         for(Visit visit : monthVisits){
             LocalDate day = visit.getDate();
-            List<User> availableVolunteers = new ArrayList<User>();
+            List<User> availableVolunteers = new ArrayList<>();
 
             // aggiunge alla lista availableVolunteers tutti i volontari che hanno dato disponibilitá per il giorno 'day'
             monthAvailabilities
@@ -252,7 +252,7 @@ public class VisitPlanService implements VisitPlanUseCase {
     }
 
     private List<Visit> initMonthVisits(int month, int year){
-        List<Visit> monthVisits = new ArrayList<Visit>();
+        List<Visit> monthVisits = new ArrayList<>();
 
         visitRepository.findAll()
                 .stream()

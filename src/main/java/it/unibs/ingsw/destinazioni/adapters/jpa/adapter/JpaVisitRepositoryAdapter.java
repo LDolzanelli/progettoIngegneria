@@ -97,8 +97,9 @@ public class JpaVisitRepositoryAdapter implements it.unibs.ingsw.destinazioni.ap
         else volunteer = null;
 
         VisitType visitType = JpaVisitTypeRepositoryAdapter.toDomain(entity.getVisitType());
-        Set<User> participants =
-                entity.getVisitors().stream().map(JpaUserRepositoryAdapter::toDomain).collect(Collectors.toSet());
+        Set<User> participants = entity.getVisitors().stream() //
+                        .map(JpaUserRepositoryAdapter::toDomain) //
+                        .collect(Collectors.toSet());
         VisitStatus status = VisitStatus.fromEnglishString(entity.getStatus());
 
         return new Visit(entity.getId(), entity.getDate(), volunteer, visitType, participants,

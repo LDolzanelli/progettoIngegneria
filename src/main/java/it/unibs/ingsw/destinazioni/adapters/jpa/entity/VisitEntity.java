@@ -4,6 +4,8 @@ import java.time.LocalDate;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
@@ -51,7 +53,8 @@ public class VisitEntity {
     @JoinColumn(name = "visit_type_id", nullable = false)
     private VisitTypeEntity visitType;
 
-    @OneToMany(mappedBy = "id" )
+    @ManyToMany
+    @JoinTable(name = "visitors", joinColumns = @JoinColumn(name = "visit_id"), inverseJoinColumns = @JoinColumn(name = "visitor_id"))
     private Set<UserEntity> visitors = new LinkedHashSet<>();
 
 }
