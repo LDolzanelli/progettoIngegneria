@@ -9,8 +9,10 @@ import org.springframework.stereotype.Service;
 
 import it.unibs.ingsw.destinazioni.application.port.in.ManageVisitTypeUseCase;
 import it.unibs.ingsw.destinazioni.application.port.out.LocationRepositoryPort;
-import it.unibs.ingsw.destinazioni.application.port.out.VisitTypeRepositoryPort;
 import it.unibs.ingsw.destinazioni.application.port.out.UserRepositoryPort;
+import it.unibs.ingsw.destinazioni.application.port.out.VisitPlanStatePort;
+import it.unibs.ingsw.destinazioni.application.port.out.VisitTypeRepositoryPort;
+import it.unibs.ingsw.destinazioni.application.port.out.VolunteerAvailabilityStatePort;
 import it.unibs.ingsw.destinazioni.domain.model.Location;
 import it.unibs.ingsw.destinazioni.domain.model.VisitType;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +24,8 @@ public class VisitTypeService implements ManageVisitTypeUseCase {
     private final VisitTypeRepositoryPort repository;
     private final LocationRepositoryPort locationRepository;
     private final UserRepositoryPort userRepository;
+    private final VolunteerAvailabilityStatePort volunteerAvailabilityStateRepo;
+    private final VisitPlanStatePort visitPlanStateRepo;
 
     private final Clock clock;
 
@@ -99,7 +103,7 @@ public class VisitTypeService implements ManageVisitTypeUseCase {
 
 
     @Override
-    public void updateVisitType(VisitType visitType, int locationId) {
+    public void updateVisitType(VisitType visitType) {
         if (visitType == null || visitType.getId() == null) {
             throw new IllegalArgumentException("VisitType o ID non valido");
         }
@@ -109,28 +113,44 @@ public class VisitTypeService implements ManageVisitTypeUseCase {
             throw new IllegalArgumentException("Visit Type con id " + visitType.getId() + " non trovata");
         }
 
-        repository.save(visitType, locationId);
+        Location location = locationRepository.findByVisitType(visitType)
+                .orElseThrow(() -> new IllegalArgumentException("Location associata al tipo di visita non trovata"));
+
+        repository.save(visitType, location.getId());
     }
 
 
     @Override
     public boolean canBeRemoved(int visitTypeId) {
         LocalDate today = LocalDate.now(clock);
-
         VisitType visitType = repository.findById(visitTypeId)
-                .orElseThrow(() -> new IllegalArgumentException("Visit Type con id " + visitTypeId + " non trovata"));
+                .orElseThrow(() -> new IllegalArgumentException("Visit Type non trovata"));
 
         LocalDate startDate = visitType.getStartDate();
         LocalDate endDate = visitType.getEndDate();
 
-        // Se la visita inizia nel mese i, allora si può cancellare entro il 15 del mese i - 2
-        LocalDate removalDeadline =
-                LocalDate.of(startDate.getYear(), startDate.getMonth(), 1).minusMonths(2).withDayOfMonth(15);
 
-        // Condizione alternativa: oggi è dopo il mese della data di fine
-        boolean isAfterEndMonth = today.isAfter(endDate.withDayOfMonth(endDate.lengthOfMonth()));
 
-        return today.isBefore(removalDeadline.plusDays(1)) || isAfterEndMonth;
+        //verifica se siamo dopo il 15 del mese corrente (i)
+        boolean isAfter15th = today.getDayOfMonth() > 15;
+
+        //verifica se è stato prodotto il piano visite per i+1
+        LocalDate nextMonth = today.plusMonths(1);
+        boolean isVisitPlanCreated =
+                visitPlanStateRepo.isVisitPlanCreated(nextMonth.getMonthValue(), nextMonth.getYear());
+
+        //verifica se non è stata aperta la raccolta disponibilità per i+2
+        LocalDate twoMonthsLater = today.plusMonths(2);
+        boolean isAvailabilityOpen = volunteerAvailabilityStateRepo
+                .isVolunteerAvailabilityOpen(twoMonthsLater.getMonthValue(), twoMonthsLater.getYear());
+
+        //verifica se la data di inizio è nel futuro rispetto al mese corrente (i+2) o se la data di fine è nel passato rispetto al mese corrente (i)
+        boolean isStartDateInFuture = startDate.isAfter(today.withDayOfMonth(1).plusMonths(1)); 
+        boolean isEndDateInPast = endDate.isBefore(today.withDayOfMonth(1));
+
+        return isAfter15th && isVisitPlanCreated && !isAvailabilityOpen && (isStartDateInFuture || isEndDateInPast);
     }
+
+
 
 }

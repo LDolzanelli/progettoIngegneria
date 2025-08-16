@@ -9,7 +9,7 @@ public interface ManageVisitTypeUseCase {
     void removeVisitType(int visitTypeId);
     Set<VisitType> listAll();
     Optional<VisitType> findById(int id);
-    void updateVisitType(VisitType visitType, int locationId);
+    void updateVisitType(VisitType visitType);
     Set<VisitType> listByLocation(int locationId);
     Set<VisitType> listByVolunteerId(int volunteerId);
     boolean canBeRemoved(int visitTypeId);

@@ -1,57 +1,113 @@
 <!DOCTYPE html>
 <html lang="it" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
+  <head>
+    <meta charset="UTF-8" />
     <title>Volontari e Visite</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
     <style>
-        body {
-            background-color: #f8f9fa;
-        }
-        .card-volunteer {
-            border-radius: 1rem;
-            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-        }
-        .btn-add {
-            border-radius: 2rem;
-        }
+      body {
+        background-color: #f8f9fa;
+      }
+      .card-volunteer {
+        border-radius: 1rem;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+      }
+      .btn-add {
+        border-radius: 2rem;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg bg-white shadow-sm mb-4">
+      <div class="container">
+        <a class="navbar-brand text-primary fw-bold fs-4" href="/"
+          >Centro Visite</a
+        >
+      </div>
+    </nav>
 
-<nav class="navbar navbar-expand-lg bg-white shadow-sm mb-4">
-    <div class="container">
-        <a class="navbar-brand text-primary fw-bold fs-4" href="/">Centro Visite</a>
-    </div>
-</nav>
-
-<div class="container mt-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="container mt-5">
+      <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="fw-bold">Volontari e Tipi di Visita</h1>
-        <a href="/register-user" class="btn btn-primary btn-add px-4 py-2">+ Aggiungi Volontario</a>
-    </div>
+        <a href="/register-user" class="btn btn-primary btn-add px-4 py-2"
+          >+ Aggiungi Volontario</a
+        >
+      </div>
 
-    <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+      <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
 
-    <div th:each="volunteer : ${volunteers}" class="card card-volunteer mb-4">
-        <div class="card-header bg-primary text-white fw-semibold">
+      <div th:each="volunteer : ${volunteers}" class="card card-volunteer mb-4">
+        <div
+          class="card-header bg-primary text-white fw-semibold d-flex justify-content-between align-items-center"
+        >
+          <div>
             <i class="bi bi-person-fill"></i>
             <span th:text="${volunteer.nickname}">Nickname</span>
+          </div>
+          <button
+            type="button"
+            class="btn btn-danger btn-sm"
+            th:if="${volunteer.canBeRemoved}"
+            th:attr="onclick=|removeVolunteer('${volunteer.nickname}')|"
+          >
+            Rimuovi
+          </button>
+
+          <button
+            type="button"
+            class="btn btn-danger btn-sm"
+            disabled
+            th:if="${!volunteer.canBeRemoved}"
+          >
+            Non rimovibile
+          </button>
         </div>
         <div class="card-body">
-            <p th:if="${#lists.isEmpty(volunteer.visitTitles)}" class="text-muted fst-italic">
-                Nessuna visita associata.
-            </p>
-            <ul th:if="${!#lists.isEmpty(volunteer.visitTitles)}" class="mb-0">
-                <li th:each="visit : ${volunteer.visitTitles}" th:text="${visit}"></li>
-            </ul>
+          <p
+            th:if="${#lists.isEmpty(volunteer.visitTitles)}"
+            class="text-muted fst-italic"
+          >
+            Nessuna visita associata.
+          </p>
+          <ul th:if="${!#lists.isEmpty(volunteer.visitTitles)}" class="mb-0">
+            <li
+              th:each="visit : ${volunteer.visitTitles}"
+              th:text="${visit}"
+            ></li>
+          </ul>
         </div>
+      </div>
     </div>
 
-</div>
+    <!-- Optional Bootstrap Icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"
+    />
 
-<!-- Optional Bootstrap Icons -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <script>
+      function removeVolunteer(nickname) {
+        if (!confirm("Sei sicuro di voler rimuovere " + nickname + "?")) return;
 
-</body>
+        fetch("/api/users/remove-volunteer/" + nickname, {
+          method: "DELETE",
+        })
+          .then((response) => {
+            if (response.ok) {
+              location.reload(); // ricarica la pagina
+            } else {
+              return response.text().then((text) => {
+                alert("Errore: " + text);
+              });
+            }
+          })
+          .catch((err) => {
+            alert("Errore di rete: " + err);
+          });
+      }
+    </script>
+  </body>
 </html>
