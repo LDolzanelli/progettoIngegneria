@@ -48,10 +48,11 @@ public class MonthCollectionStateAdapter implements VolunteerAvailabilityStatePo
     @Override
     public boolean isVisitPlanCreated(int month, int year) {
              MonthCollectionStateEntity mcse = monthCollectionStateRepository.findByMonthAndYear(month, year);
-            // mcse = monthCollectionStateRepository.findByMonthAndYear(month, year);
 
+            //se non esiste il mese e l'anno, allora assumo che il piano visite non sia stato creato perché la raccolta di disponibilità non è stata mai aperta è quindi non è stato possibile creare il piano visite
             if(mcse == null)
-                return false;
+                return true;
+                
             else return mcse.isVisitPlanCreated();
     }
 
