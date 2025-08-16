@@ -26,7 +26,7 @@ public class LocationController {
     private final ManageLocationUseCase manageLocationUseCase;
 
     @PostMapping("/add")
-    public ResponseEntity<Void> addLocation(@RequestBody LocationDTO locationDTO) {
+    public ResponseEntity<String> addLocation(@RequestBody LocationDTO locationDTO) {
         try {
             var location = mapToDomain(locationDTO);
             manageLocationUseCase.addLocation(location);
@@ -70,7 +70,7 @@ public class LocationController {
                         address.getTown(),
                         address.getProvince()
                 ),
-                null, // puoi mappare visitTypes se vuoi
+                null,
                 manageLocationUseCase.canBeRemoved(location.getId())
         );
     }

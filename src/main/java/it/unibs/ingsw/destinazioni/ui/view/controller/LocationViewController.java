@@ -31,6 +31,13 @@ public class LocationViewController {
         return "view-locations";
     }
 
+    @GetMapping("/townProvinceMap")
+    @ResponseBody
+    public Object townProvinceMap() {
+        RestTemplate restTemplate = new RestTemplate();
+        return restTemplate.getForObject("http://localhost:8080/api/area-of-interest/townProvinceMap", Object.class);
+    }
+
     //controller per la pagina di aggiunta luogo interesse
     @GetMapping("/add-location")
     public String addLocationForm(@AuthenticationPrincipal UserDetails principal, Model model) {
@@ -50,15 +57,19 @@ public class LocationViewController {
     //gestione del post per aggiungere un luogo
     @PostMapping("/add-location")
     public String addLocationSubmit(@AuthenticationPrincipal UserDetails principal,
-                                    @RequestParam String name,
-                                    @RequestParam String description,
-                                    @RequestParam String street,
-                                    @RequestParam String streetNumber,
-                                    @RequestParam String town,
-                                    @RequestParam String province,
-                                    Model model) {
+            @RequestParam String name,
+            @RequestParam String description,
+            @RequestParam String street,
+            @RequestParam String streetNumber,
+            @RequestParam String town,
+            Model model) {
 
-        //mappa i dati ricevuti in JSON DTO da inviare al backend
+        RestTemplate restTemplate = new RestTemplate();
+
+        // la provincia viene recuperata dalla map
+        var townProvinceMap = restTemplate.getForObject("http://localhost:8080/api/area-of-interest/townProvinceMap", java.util.Map.class);
+        String province = (String) townProvinceMap.get(town);
+
         var locationDto = new java.util.HashMap<String, Object>();
         locationDto.put("name", name);
         locationDto.put("description", description);

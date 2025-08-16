@@ -3,9 +3,14 @@ package it.unibs.ingsw.destinazioni.ui.rest.controller;
 import it.unibs.ingsw.destinazioni.application.port.in.ManageAreaOfInterestUseCase;
 import it.unibs.ingsw.destinazioni.application.port.in.QueryAreaOfInterestUseCase;
 import it.unibs.ingsw.destinazioni.domain.dto.AreasOfInterestDTO;
+import it.unibs.ingsw.destinazioni.domain.dto.TownProvinceDTO;
+import it.unibs.ingsw.destinazioni.domain.model.AreaOfInterest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/area-of-interest")
@@ -25,16 +30,14 @@ public class AreaOfInterestController {
         return ResponseEntity.ok(dto);
     }
 
-    @PostMapping("/addTown")
-    public ResponseEntity<Void> addTown(@RequestBody String town) {
-        manageAreaOfInterest.addTown(town);
+    @PostMapping("/addArea")
+    public ResponseEntity<Void> addArea(@RequestBody TownProvinceDTO dto) {
+        manageAreaOfInterest.addArea(dto.town(), dto.province());
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/removeTown")
-    public ResponseEntity<Void> removeTown(@RequestBody String town) {
-        manageAreaOfInterest.removeTown(town);
-        return ResponseEntity.ok().build();
+    @GetMapping("/townProvinceMap")
+    public ResponseEntity<Map<String, String>> townProvinceMap() {
+        return ResponseEntity.ok(queryAreaOfInterest.townProvinceMap());
     }
-
 }
