@@ -45,7 +45,16 @@
               <p class="card-text" th:text="${vt.description}">Descrizione</p>
               <p class="card-text">
                 <small class="text-muted">
-                  <!-- Altri dettagli... -->
+                  Dal <span th:text="${vt.startDate}"></span> al
+                  <span th:text="${vt.endDate}"></span><br />
+                  Punto d'incontro: <span th:text="${vt.meetingPoint}"></span
+                  ><br />
+                  Inizio: <span th:text="${vt.startTime}"></span><br />
+                  Durata: <span th:text="${vt.duration}"></span> minuti<br />
+                  Min partecipanti: <span th:text="${vt.minParticipants}"></span
+                  ><br />
+                  Max partecipanti: <span th:text="${vt.maxParticipants}"></span
+                  ><br />
                   La visita è
                   <span th:text="${vt.free} ? 'gratuita' : 'a pagamento'"></span
                   ><br />
@@ -248,6 +257,5 @@
         }
       }
     </script>
-    
   </body>
 </html>
