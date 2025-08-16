@@ -5,6 +5,7 @@ import it.unibs.ingsw.destinazioni.adapters.jpa.repository.UserRepository;
 import it.unibs.ingsw.destinazioni.application.port.out.UserRepositoryPort;
 import it.unibs.ingsw.destinazioni.domain.model.User;
 import it.unibs.ingsw.destinazioni.domain.model.enums.Role;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -36,6 +37,7 @@ public class JpaUserRepositoryAdapter implements UserRepositoryPort {
         return jpaRepo.findByNickname(nickname).map(JpaUserRepositoryAdapter::toDomain);
     }
     
+    @Transactional
     @Override
     public void deleteByNickname(String nickname) {
         jpaRepo.deleteByNickname(nickname);

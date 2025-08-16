@@ -103,7 +103,7 @@ public class VisitTypeService implements ManageVisitTypeUseCase {
 
 
     @Override
-    public void updateVisitType(VisitType visitType, int locationId) {
+    public void updateVisitType(VisitType visitType) {
         if (visitType == null || visitType.getId() == null) {
             throw new IllegalArgumentException("VisitType o ID non valido");
         }
@@ -113,7 +113,10 @@ public class VisitTypeService implements ManageVisitTypeUseCase {
             throw new IllegalArgumentException("Visit Type con id " + visitType.getId() + " non trovata");
         }
 
-        repository.save(visitType, locationId);
+        Location location = locationRepository.findByVisitType(visitType)
+                .orElseThrow(() -> new IllegalArgumentException("Location associata al tipo di visita non trovata"));
+
+        repository.save(visitType, location.getId());
     }
 
 

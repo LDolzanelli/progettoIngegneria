@@ -25,6 +25,7 @@ public class UserController {
     private final GetUserInfoUseCase userInfoService;
     private final RegisterUserUseCase registerUserService;
     private final ManageVisitTypeUseCase manageVisitTypeUseCase;
+    private final ManageVolunteersUseCase manageVolunteersUseCase;
 
 
     @PostMapping("/login")
@@ -115,9 +116,9 @@ public class UserController {
             String nickname = volunteer.getNickname();
             List<String> visitTitles = allVisitTypes.stream()
                     .filter(visit -> visit.getVolunteers().stream()
-                            .anyMatch(v -> v.getNickname().equals(volunteer.getNickname()))) // <-- confronto sicuro
+                            .anyMatch(v -> v.getNickname().equals(volunteer.getNickname()))) 
                     .map(VisitType::getTitle).toList();
-            return new VolunteerWithVisitsDTO(nickname, visitTitles);
+            return new VolunteerWithVisitsDTO(nickname, visitTitles, manageVolunteersUseCase.canBeRemoved(volunteer));
         }).toList();
     }
 
@@ -132,6 +133,20 @@ public class UserController {
         Optional<User> user = userInfoService.findByNickname(username);
         String role = user.get().getRole().toString();
         return ResponseEntity.ok(role);
+    }
+
+    @DeleteMapping("/remove-volunteer/{nickname}")
+    public ResponseEntity<String> removeVolunteer(@PathVariable String nickname) {
+        try {
+            User volunteer = userInfoService.findByNickname(nickname).get();
+
+            manageVolunteersUseCase.removeVolunteer(volunteer);
+            return ResponseEntity.ok("Volontario rimosso con successo");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Errore durante la rimozione: " + e.getMessage());
+        }
     }
 
 }

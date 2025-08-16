@@ -36,7 +36,8 @@ public class JpaVisitTypeRepositoryAdapter implements VisitTypeRepositoryPort {
     private final LocationRepository locationRepository;
     private final UserRepository userRepository;
 
-    public JpaVisitTypeRepositoryAdapter(VisitTypeRepository visitTypeRepository, LocationRepository locationRepository, UserRepository userRepository) {
+    public JpaVisitTypeRepositoryAdapter(VisitTypeRepository visitTypeRepository, LocationRepository locationRepository,
+            UserRepository userRepository) {
         this.locationRepository = locationRepository;
         this.visitTypeRepository = visitTypeRepository;
         this.userRepository = userRepository;
@@ -80,14 +81,13 @@ public class JpaVisitTypeRepositoryAdapter implements VisitTypeRepositoryPort {
                 .collect(Collectors.toSet());
     }
 
+
     @Override
     public Set<VisitType> findByVolunteerId(int volunteerId) {
-        return visitTypeRepository
-                .findDistinctByVolunteersVisitTypeEntities_Id_VolunteerId(volunteerId)
-                .stream()
-                .map(JpaVisitTypeRepositoryAdapter::toDomain)
-                .collect(Collectors.toSet());
+        return visitTypeRepository.findDistinctByVolunteersVisitTypeEntities_Id_VolunteerId(volunteerId).stream()
+                .map(JpaVisitTypeRepositoryAdapter::toDomain).collect(Collectors.toSet());
     }
+
 
     protected static VisitType toDomain(VisitTypeEntity entity) {
         List<DaysOfWeek> days = entity.getVisitDayEntities().stream().map(VisitDayEntity::getId)
@@ -101,8 +101,15 @@ public class JpaVisitTypeRepositoryAdapter implements VisitTypeRepositoryPort {
                 entity.getMaxNumParticipants(), entity.getMinNumParticipants(), entity.getIsFree(), days, volunteers);
     }
 
+
     protected VisitTypeEntity toEntity(VisitType visitType, LocationEntity locationEntity) {
-        VisitTypeEntity entity = new VisitTypeEntity();
+        VisitTypeEntity entity;
+        if (visitType.getId() != null) {
+            entity = visitTypeRepository.findById(visitType.getId())
+                    .orElseThrow(() -> new IllegalArgumentException("Visit Type entity not found"));
+        } else {
+            entity = new VisitTypeEntity();
+        }
         entity.setTitle(visitType.getTitle());
         entity.setDescription(visitType.getDescription());
         entity.setMeetingPoint(visitType.getMeetingPoint());
@@ -115,33 +122,42 @@ public class JpaVisitTypeRepositoryAdapter implements VisitTypeRepositoryPort {
         entity.setMinNumParticipants(visitType.getMinParticipants());
         entity.setLocation(locationEntity);
 
-        Set<VisitDayEntity> days = visitType.getDaysAvailable().stream().map(day -> {
+
+
+        entity.getVisitDayEntities().clear();
+
+        for (var day : visitType.getDaysAvailable()) {
             VisitDayEntity dayEntity = new VisitDayEntity();
             VisitDayIdEntity id = new VisitDayIdEntity();
             id.setDayOfWeek(day.toString());
+            id.setVisitTypeId(entity.getId());
             dayEntity.setId(id);
             dayEntity.setVisitTypeEntity(entity);
-            return dayEntity;
-        }).collect(Collectors.toSet());
-        entity.setVisitDayEntities(days);
+
+            entity.getVisitDayEntities().add(dayEntity);
+        }
 
 
-        Set<VolunteersVisitTypeEntity> volunteerLinks = visitType.getVolunteers().stream().map(user -> {
+
+        // Svuota la collezione per evitare conflitti con gli oggetti già in sessione
+        entity.getVolunteersVisitTypeEntities().clear();
+
+        for (var user : visitType.getVolunteers()) {
             VolunteersVisitTypeEntity link = new VolunteersVisitTypeEntity();
             VolunteersVisitTypeEntityId id = new VolunteersVisitTypeEntityId();
             id.setVolunteerId(user.getId());
+            id.setVisitTypeId(entity.getId()); // assicurati che l'ID composto sia completo!
             link.setId(id);
 
-            // CARICA L'ENTITÀ GESTITA DAL DB
             UserEntity volunteerEntity = userRepository.findById(user.getId())
                     .orElseThrow(() -> new IllegalArgumentException("Volunteer not found"));
 
             link.setVolunteer(volunteerEntity);
             link.setVisitType(entity);
-            return link;
-        }).collect(Collectors.toSet());
 
-        entity.setVolunteersVisitTypeEntities(volunteerLinks);
+            entity.getVolunteersVisitTypeEntities().add(link);
+        }
+
 
         return entity;
     }

@@ -77,7 +77,7 @@ public class VisitTypeController {
         try {
             List<User> resolvedVolunteers = getUserInfoUseCase.findAllByNicknames(dto.volunteers());
             var visitType = mapToDomain(dto, resolvedVolunteers);
-            manageVisitTypeUseCase.updateVisitType(visitType, locationId);
+            manageVisitTypeUseCase.updateVisitType(visitType);
             return ResponseEntity.ok().build();
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().build();
