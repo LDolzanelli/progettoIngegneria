@@ -28,13 +28,21 @@ public class VisitSchedulerService {
         LocalDate today = LocalDate.now(clock);
 
         Set<Visit> visits = visitRepository.findAll();
+        if (visits == null) return;
 
         for (Visit visit : visits) {
+            if (visit == null) continue;
+
             LocalDate visitDate = visit.getDate();
             VisitStatus status = visit.getVisitStatus();
+            Set<?> participants = visit.getParticipants();
+            var visitType = visit.getVisitType();
 
-            if (checkIfVisitIsBeforeToday(visit, visitDate, today, status))
-                continue;
+            if (visitDate == null || status == null || participants == null || visitType == null) continue;
+
+            if (visitDate.isBefore(today)) {
+                handleOldVisitStatus(visit, status);
+            }
 
             setStatusToFullIfProposedVisitFull(visit, status);
 
@@ -46,17 +54,14 @@ public class VisitSchedulerService {
         }
     }
 
-    private boolean checkIfVisitIsBeforeToday(Visit visit, LocalDate visitDate, LocalDate today, VisitStatus status)
-    {
-        if (visitDate.isBefore(today)) {
-            if (status == VisitStatus.CONFIRMED) {
-                visit.setVisitStatus(VisitStatus.COMPLETED);
-            } else if (status == VisitStatus.CANCELLED) {
-                //visitRepository.delete(visit);
-                return true;
-            }
+    private static void handleOldVisitStatus(Visit visit, VisitStatus status) {
+        if (status == VisitStatus.CONFIRMED) {
+            visit.setVisitStatus(VisitStatus.COMPLETED);
+        } else if (status == VisitStatus.CANCELLED) {
+            //TODO: gestire visite "cancellate" (probabilmente non fare niente nel db)
+            //visitRepository.delete(visit);
+            System.out.println("visita cancellata");
         }
-        return false;
     }
 
     private static void setStatusToFullIfProposedVisitFull(Visit visit, VisitStatus status)
@@ -79,7 +84,7 @@ public class VisitSchedulerService {
     {
         long daysUntilVisit = ChronoUnit.DAYS.between(today, visitDate);
 
-        if (daysUntilVisit == 3) {
+        if (daysUntilVisit <= 3 && daysUntilVisit > 0) {
             if (visit.getParticipants().size() >= visit.getVisitType().getMinParticipants()) {
                 visit.setVisitStatus(VisitStatus.CONFIRMED);
             } else {

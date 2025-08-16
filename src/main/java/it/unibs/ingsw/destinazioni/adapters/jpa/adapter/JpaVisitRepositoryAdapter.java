@@ -101,7 +101,7 @@ public class JpaVisitRepositoryAdapter implements it.unibs.ingsw.destinazioni.ap
                 entity.getVisitors().stream().map(JpaUserRepositoryAdapter::toDomain).collect(Collectors.toSet());
         VisitStatus status = VisitStatus.fromEnglishString(entity.getStatus());
 
-        return new Visit(entity.getId(), entity.getDate(), volunteer, entity.getStatus(), visitType, participants,
+        return new Visit(entity.getId(), entity.getDate(), volunteer, visitType, participants,
                 status);
     }
 

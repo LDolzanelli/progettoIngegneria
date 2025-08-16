@@ -1,4 +1,4 @@
-package it.unibs.ingsw.destinazioni.application.util;
+package it.unibs.ingsw.destinazioni.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
