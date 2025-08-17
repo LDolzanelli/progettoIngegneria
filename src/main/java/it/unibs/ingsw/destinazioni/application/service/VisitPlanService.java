@@ -59,8 +59,8 @@ public class VisitPlanService implements VisitPlanUseCase {
         int nextYear = nextMonth.getYear();
 
         //possibile fix !statePort.isVisitPlanCreated && !availabilityStatePort.siVolunteerAvailabilityOpen
-        return statePort.isVisitPlanCreated(nextMonthValue, nextYear)
-                || availabilityStatePort.isVolunteerAvailabilityOpen(nextMonthValue, nextYear);
+        return !statePort.isVisitPlanCreated(nextMonthValue, nextYear)
+                && !availabilityStatePort.isVolunteerAvailabilityOpen(nextMonthValue, nextYear);
     }
 
     @Transactional // per poter rimuovere le blockedDates
