@@ -149,7 +149,7 @@ public class VisitTypeService implements ManageVisitTypeUseCase {
 
         // verifica se la data di inizio è nel futuro rispetto al mese corrente (i+2) o se la data di fine è
         // nel passato rispetto al mese corrente (i)
-        boolean isStartDateInFuture = startDate.isAfter(today.withDayOfMonth(1).plusMonths(1));
+        boolean isStartDateInFuture = startDate.isAfter(today.withDayOfMonth(1).plusMonths(2));
         boolean isEndDateInPast = endDate.isBefore(today.withDayOfMonth(1));
 
         return isAfter15th && isVisitPlanCreated && !isAvailabilityOpen && (isStartDateInFuture || isEndDateInPast);

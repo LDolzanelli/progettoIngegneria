@@ -53,8 +53,8 @@ public class VisitPlanService implements VisitPlanUseCase {
         int nextYear = nextMonth.getYear();
 
 
-        return statePort.isVisitPlanCreated(nextMonthValue, nextYear)
-                || availabilityStatePort.isVolunteerAvailabilityOpen(nextMonthValue, nextYear);
+        return !statePort.isVisitPlanCreated(nextMonthValue, nextYear)
+                && !availabilityStatePort.isVolunteerAvailabilityOpen(nextMonthValue, nextYear);
     }
 
 

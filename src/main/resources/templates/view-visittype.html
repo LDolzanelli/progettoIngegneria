@@ -75,29 +75,31 @@
                 <a
                   th:href="@{|/add-volunteers?visitTypeId=${vt.id}|}"
                   class="btn btn-primary btn-sm mt-2"
+                  th:if="${role == 'configurator'}"
                   th:classappend="${!vt.canBeModified} ? ' disabled' : ''"
                 >
                   Aggiungi volontari
                 </a>
               </div>
-
-              <div th:if="${vt.canBeRemoved}">
-                <button
-                  type="button"
-                  class="btn btn-danger btn-sm mt-2"
-                  th:attr="onclick=|deleteVisitType(${vt.id})|"
-                >
-                  Rimuovi
-                </button>
-              </div>
-              <div th:unless="${vt.canBeRemoved}">
-                <button
-                  type="button"
-                  class="btn btn-secondary btn-sm mt-2"
-                  disabled
-                >
-                  Non rimovibile
-                </button>
+              <div th:if="${role == 'configurator'}">
+                <div th:if="${vt.canBeRemoved}">
+                  <button
+                    type="button"
+                    class="btn btn-danger btn-sm mt-2"
+                    th:attr="onclick=|deleteVisitType(${vt.id})|"
+                  >
+                    Rimuovi
+                  </button>
+                </div>
+                <div th:unless="${vt.canBeRemoved}">
+                  <button
+                    type="button"
+                    class="btn btn-secondary btn-sm mt-2"
+                    disabled
+                  >
+                    Non rimovibile
+                  </button>
+                </div>
               </div>
             </div>
           </div>
