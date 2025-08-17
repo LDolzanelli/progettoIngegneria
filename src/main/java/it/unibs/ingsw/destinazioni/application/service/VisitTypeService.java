@@ -119,17 +119,9 @@ public class VisitTypeService implements ManageVisitTypeUseCase {
         repository.save(visitType, location.getId());
     }
 
-
     @Override
-    public boolean canBeRemoved(int visitTypeId) {
+    public boolean isAddOrRemovalStateActive() {
         LocalDate today = LocalDate.now(clock);
-        VisitType visitType = repository.findById(visitTypeId)
-                .orElseThrow(() -> new IllegalArgumentException("Visit Type non trovata"));
-
-        LocalDate startDate = visitType.getStartDate();
-        LocalDate endDate = visitType.getEndDate();
-
-
 
         //verifica se siamo dopo il 15 del mese corrente (i)
         boolean isAfter15th = today.getDayOfMonth() > 15;
@@ -144,11 +136,26 @@ public class VisitTypeService implements ManageVisitTypeUseCase {
         boolean isAvailabilityOpen = volunteerAvailabilityStateRepo
                 .isVolunteerAvailabilityOpen(twoMonthsLater.getMonthValue(), twoMonthsLater.getYear());
 
+        return isAfter15th && isVisitPlanCreated && !isAvailabilityOpen;
+    }
+
+
+    @Override
+    public boolean canBeRemoved(int visitTypeId) {
+        LocalDate today = LocalDate.now(clock);
+        VisitType visitType = repository.findById(visitTypeId)
+                .orElseThrow(() -> new IllegalArgumentException("Visit Type non trovata"));
+
+        LocalDate startDate = visitType.getStartDate();
+        LocalDate endDate = visitType.getEndDate();
+
+
+
         //verifica se la data di inizio è nel futuro rispetto al mese corrente (i+2) o se la data di fine è nel passato rispetto al mese corrente (i)
         boolean isStartDateInFuture = startDate.isAfter(today.withDayOfMonth(1).plusMonths(1)); 
         boolean isEndDateInPast = endDate.isBefore(today.withDayOfMonth(1));
 
-        return isAfter15th && isVisitPlanCreated && !isAvailabilityOpen && (isStartDateInFuture || isEndDateInPast);
+        return isAddOrRemovalStateActive() && (isStartDateInFuture || isEndDateInPast);
     }
 
 

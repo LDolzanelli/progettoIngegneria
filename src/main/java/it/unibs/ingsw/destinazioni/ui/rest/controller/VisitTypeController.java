@@ -100,6 +100,11 @@ public class VisitTypeController {
         }
     }
 
+    @GetMapping("/modification-state-active")
+    public ResponseEntity<Boolean> canAddOrRemoveEntities() {
+        return ResponseEntity.ok(manageVisitTypeUseCase.isAddOrRemovalStateActive());
+    }
+
     // ======= mappers ==========
 
     private VisitTypeDTO mapToDTO(VisitType visitType) {
