@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="it">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Aggiungi Volontari</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg bg-light shadow-sm mb-4">
+      <div class="container">
+        <a class="navbar-brand text-primary fw-bold fs-4" href="/"
+          >Centro Visite</a
+        >
+      </div>
+    </nav>
+
+    <div class="container my-4">
+      <h2>Gestione volontari per il tipo di visita</h2>
+
+      <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+      <div
+        th:if="${success}"
+        class="alert alert-success"
+        th:text="${success}"
+      ></div>
+
+      <!-- Volontari già associati -->
+      <h4>Volontari associati</h4>
+      <ul class="list-group mb-4">
+        <li
+          class="list-group-item"
+          th:each="v : ${assignedVolunteers}"
+          th:text="${v}"
+        >
+          MarioRossi
+        </li>
+        <li class="list-group-item" th:if="${assignedVolunteers.isEmpty()}">
+          Nessun volontario assegnato
+        </li>
+      </ul>
+
+      <!-- Form per aggiungerne di nuovi -->
+      <h4>Aggiungi volontario</h4>
+      <form
+        method="post"
+        th:action="@{|/add-volunteers?visitTypeId=${visitTypeId}|}"
+      >
+        <div class="mb-3">
+          <label for="volunteerNickname" class="form-label"
+            >Seleziona volontario</label
+          >
+
+          <select
+            id="volunteerNickname"
+            name="volunteerNickname"
+            class="form-select"
+          >
+            <option
+              th:each="vol : ${allVolunteers}"
+              th:value="${vol.nickname}"
+              th:text="${vol.nickname}"
+            ></option>
+          </select>
+          <a href="/register-user" class="btn btn-link p-0 mt-2"
+            >+ Aggiungi nuovo volontario</a
+          >
+        </div>
+
+        <button type="submit" class="btn btn-primary">Aggiungi</button>
+        <a href="/view-visittype" class="btn btn-secondary">Torna indietro</a>
+      </form>
+    </div>
+  </body>
+</html>

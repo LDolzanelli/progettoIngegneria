@@ -1,15 +1,14 @@
 package it.unibs.ingsw.destinazioni.domain.model;
 
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
 import java.util.Set;
 import it.unibs.ingsw.destinazioni.domain.model.enums.VisitStatus;
 
-@Getter
 @Setter
+@Getter
 public class Visit {
     private Integer id;
     private LocalDate date;
