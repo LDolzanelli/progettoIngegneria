@@ -16,5 +16,6 @@ public record VisitTypeDTO(
         boolean isFree,
         List<String> daysAvailable,  // list of day names as Strings, e.g. ["Monday", "Wednesday"]
         List<String> volunteers,
-        boolean canBeRemoved 
+        boolean canBeRemoved,
+        boolean canBeModified
 ) {}

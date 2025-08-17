@@ -12,7 +12,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
-
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -25,10 +25,8 @@ public class VisitTypeViewController {
     private final RestTemplate restTemplate = new RestTemplate();
 
     @GetMapping("/view-visittype")
-    public String viewVisitTypes(
-            @RequestParam(required = false) Long locationId,
-            @RequestParam(required = false) Integer volunteerId,
-            @AuthenticationPrincipal UserDetails principal,
+    public String viewVisitTypes(@RequestParam(required = false) Long locationId,
+            @RequestParam(required = false) Integer volunteerId, @AuthenticationPrincipal UserDetails principal,
             Model model) {
 
         model.addAttribute("username", principal.getUsername());
@@ -74,6 +72,7 @@ public class VisitTypeViewController {
         return "view-visittype";
     }
 
+
     @GetMapping("/add-visittype")
     public String addVisitTypeForm(@AuthenticationPrincipal UserDetails principal, Model model) {
         model.addAttribute("username", principal.getUsername());
@@ -92,22 +91,17 @@ public class VisitTypeViewController {
         return "add-visittype";
     }
 
+
     // Gestione POST per l'aggiunta
     @PostMapping("/add-visittype")
-    public String addVisitTypeSubmit(@AuthenticationPrincipal UserDetails principal,
-                                     @RequestParam String title,
-                                     @RequestParam String description,
-                                     @RequestParam String meetingPoint,
-                                     @RequestParam String startDate,     // Formato ISO: "2025-06-01"
-                                     @RequestParam String endDate,
-                                     @RequestParam String startTime,     // Formato ISO: "14:00:00"
-                                     @RequestParam int duration,
-                                     @RequestParam int minParticipants,
-                                     @RequestParam int maxParticipants,
-                                     @RequestParam boolean isFree,
-                                     @RequestParam List<String> daysOfWeek,
-                                     @RequestParam List<String> volunteers,
-                                     Model model) {
+    public String addVisitTypeSubmit(@AuthenticationPrincipal UserDetails principal, @RequestParam String title,
+            @RequestParam String description, @RequestParam String meetingPoint, @RequestParam String startDate,     // Formato
+                                                                                                                     // ISO:
+                                                                                                                     // "2025-06-01"
+            @RequestParam String endDate, @RequestParam String startTime,     // Formato ISO: "14:00:00"
+            @RequestParam int duration, @RequestParam int minParticipants, @RequestParam int maxParticipants,
+            @RequestParam boolean isFree, @RequestParam List<String> daysOfWeek, @RequestParam List<String> volunteers,
+            Model model) {
 
         model.addAttribute("username", principal.getUsername());
 
@@ -135,6 +129,58 @@ public class VisitTypeViewController {
 
         return "add-visittype";
     }
+
+
+    @GetMapping("/add-volunteers")
+    public String addVolunteersPage(@RequestParam int visitTypeId, Model model) {
+        try {
+            // Recupero visitType e i volontari già associati
+            String urlAssigned = "http://localhost:8080/api/visit-type/" + visitTypeId;
+            ResponseEntity<VisitTypeDTO> response = restTemplate.getForEntity(urlAssigned, VisitTypeDTO.class);
+            VisitTypeDTO visitType = response.getBody();
+
+            model.addAttribute("visitTypeId", visitTypeId);
+            model.addAttribute("assignedVolunteers", visitType.volunteers());
+
+            // Recupero tutti i volontari disponibili
+            String urlAll = "http://localhost:8080/api/users/list_volunteers";
+            ResponseEntity<VolunteerDTO[]> allResponse = restTemplate.getForEntity(urlAll, VolunteerDTO[].class);
+            List<VolunteerDTO> allVolunteers = Arrays.asList(allResponse.getBody());
+
+            // Rimuovo quelli già associati
+            List<VolunteerDTO> availableVolunteers =
+                    allVolunteers.stream().filter(v -> !visitType.volunteers().contains(v.nickname())).toList();
+
+            model.addAttribute("allVolunteers", availableVolunteers);
+
+        } catch (Exception e) {
+            model.addAttribute("error", "Errore nel recupero dei volontari");
+            model.addAttribute("assignedVolunteers", List.of());
+            model.addAttribute("allVolunteers", List.of());
+        }
+        return "add-volunteers";
+    }
+
+
+
+    @PostMapping("/add-volunteers")
+    public String addVolunteerSubmit(@RequestParam int visitTypeId, @RequestParam String volunteerNickname,
+            RedirectAttributes redirectAttributes) {
+        try {
+            String url = "http://localhost:8080/api/visit-type/add-volunteer/" + visitTypeId + "/" + volunteerNickname;
+            restTemplate.postForEntity(url, null, Void.class);
+
+            // messaggio di successo
+            redirectAttributes.addFlashAttribute("success",
+                    "Volontario '" + volunteerNickname + "' aggiunto con successo!");
+        } catch (Exception e) {
+            // messaggio di errore
+            redirectAttributes.addFlashAttribute("error",
+                    "Errore durante l'aggiunta del volontario: " + e.getMessage());
+        }
+        return "redirect:/add-volunteers?visitTypeId=" + visitTypeId;
+    }
+
 
 
 }

@@ -13,5 +13,8 @@ public interface ManageVisitTypeUseCase {
     Set<VisitType> listByLocation(int locationId);
     Set<VisitType> listByVolunteerId(int volunteerId);
     boolean canBeRemoved(int visitTypeId);
+    void addVolunteerToVisitType(int visitTypeId, String nickname);
+    boolean canBeModified(int visitTypeId);
+    
 
 }

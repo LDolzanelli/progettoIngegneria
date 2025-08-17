@@ -11,7 +11,6 @@ import it.unibs.ingsw.destinazioni.application.port.out.UserRepositoryPort;
 import it.unibs.ingsw.destinazioni.domain.model.User;
 import it.unibs.ingsw.destinazioni.domain.model.VisitType;
 import it.unibs.ingsw.destinazioni.domain.model.enums.Role;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -52,9 +51,9 @@ public class VolunteerService implements ManageVolunteersUseCase {
 
         for (VisitType visitType : visitTypes) {
             
-            List<User> modifiableVolunteers = new ArrayList<>(visitType.getVolunteers());
-            modifiableVolunteers.removeIf(v -> v.getNickname().equals(volunteer.getNickname()));
-            visitType.setVolunteers(modifiableVolunteers);
+            List<User> volunteers = new ArrayList<>(visitType.getVolunteers());
+            volunteers.removeIf(v -> v.getNickname().equals(volunteer.getNickname()));
+            visitType.setVolunteers(volunteers);
 
 
             if (visitType.getVolunteers().isEmpty()) {

@@ -7,13 +7,14 @@ import it.unibs.ingsw.destinazioni.domain.dto.TownProvinceDTO;
 import it.unibs.ingsw.destinazioni.domain.model.AreaOfInterest;
 import org.springframework.stereotype.Service;
 
-import java.awt.geom.Area;
 import java.util.ArrayList;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
 
 @Service
 public class AreaOfInterestService implements ManageAreaOfInterestUseCase, QueryAreaOfInterestUseCase {

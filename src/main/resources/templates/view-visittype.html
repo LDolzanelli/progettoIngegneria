@@ -71,6 +71,16 @@
                 </small>
               </p>
 
+              <div>
+                <a
+                  th:href="@{|/add-volunteers?visitTypeId=${vt.id}|}"
+                  class="btn btn-primary btn-sm mt-2"
+                  th:classappend="${!vt.canBeModified} ? ' disabled' : ''"
+                >
+                  Aggiungi volontari
+                </a>
+              </div>
+
               <div th:if="${vt.canBeRemoved}">
                 <button
                   type="button"
@@ -89,7 +99,6 @@
                   Non rimovibile
                 </button>
               </div>
-              
             </div>
           </div>
         </div>
