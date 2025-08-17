@@ -151,7 +151,6 @@ public class VisitTypeService implements ManageVisitTypeUseCase {
         LocalDate startDate = visitType.getStartDate();
         LocalDate endDate = visitType.getEndDate();
 
-
         // verifica se la data di inizio è nel futuro rispetto al mese corrente (i+2) o se la data di fine è
         // nel passato rispetto al mese corrente (i)
         boolean isStartDateInFuture = startDate.isAfter(today.withDayOfMonth(1).plusMonths(2));
@@ -170,7 +169,6 @@ public class VisitTypeService implements ManageVisitTypeUseCase {
         boolean isVisitPlanCreated = visitPlanStateRepo.isVisitPlanCreated(visitType.getStartDate().getMonthValue(),
                 visitType.getStartDate().getYear());
 
-
         // NB: se il tipo di visita non può essere rimosso, non può essere modificato perché non siamo nel
         // periodo corretto
         boolean canBeRemoved = canBeRemoved(visitTypeId);
@@ -180,7 +178,6 @@ public class VisitTypeService implements ManageVisitTypeUseCase {
 
     @Override
     public void addVolunteerToVisitType(int visitTypeId, String nickname) {
-
 
         if (!this.canBeModified(visitTypeId)) {
             throw new IllegalArgumentException("Il tipo di visita non può essere modificato.");
@@ -192,23 +189,17 @@ public class VisitTypeService implements ManageVisitTypeUseCase {
         User volunteer = userRepository.findByNickname(nickname).orElseThrow(
                 () -> new IllegalArgumentException("Volontario con nickname " + nickname + " non trovato"));
 
-
         boolean alreadyPresent = visitType.getVolunteers().stream().anyMatch(v -> v.getNickname().equals(nickname));
 
         if (alreadyPresent) {
             throw new IllegalArgumentException("Il volontario è già associato a questo tipo di visita.");
         }
 
-
         List<User> volunteers = new ArrayList<>(visitType.getVolunteers());
         volunteers.add(volunteer);
         visitType.setVolunteers(volunteers);
 
-
         this.updateVisitType(visitType);
-
     }
-
-
 
 }

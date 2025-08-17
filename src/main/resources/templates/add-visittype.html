@@ -157,24 +157,46 @@
         endInput.disabled = !enabled;
     }
 
-    function isDateDisabled(date) {
-        const iso = date.toISOString().split('T')[0];
-        const weekday = date.getDay();
-        return blockedDates.has(iso) || !allowedWeekdays.includes(weekday);
+    function formatDateLocal(date) {
+        const y = date.getFullYear();
+        const m = String(date.getMonth() + 1).padStart(2, '0');
+        const d = String(date.getDate()).padStart(2, '0');
+        return `${y}-${m}-${d}`;
     }
 
+    function isDateDisabled(date) {
+        const iso = formatDateLocal(date);
+        const weekday = date.getDay();
+
+        const today = new Date();
+        const minDate = new Date(today.getFullYear(), today.getMonth() + 2, 1);
+
+        return blockedDates.has(iso) || !allowedWeekdays.includes(weekday) || date < minDate;
+    }
+
+    let startDatePicker, endDatePicker;
+
     function initFlatpickr(id) {
-        flatpickr(`#${id}`, {
+        const today = new Date();
+        const minDate = new Date(today.getFullYear(), today.getMonth() + 2, 1);
+
+        const instance = flatpickr(`#${id}`, {
             dateFormat: "Y-m-d",
             disable: [date => isDateDisabled(date)],
-            locale: "it"
+            locale: "it",
+            minDate: minDate,
+            defaultDate: minDate
         });
+
+        if(id === "startDate") startDatePicker = instance;
+        if(id === "endDate") endDatePicker = instance;
     }
 
     function updateFlatpickrInstances() {
-        flatpickr("#startDate").set("disable", [date => isDateDisabled(date)]);
-        flatpickr("#endDate").set("disable", [date => isDateDisabled(date)]);
+        if (startDatePicker) startDatePicker.set("disable", [date => isDateDisabled(date)]);
+        if (endDatePicker) endDatePicker.set("disable", [date => isDateDisabled(date)]);
     }
+
 
     function resetInvalidDates() {
         ['startDate', 'endDate'].forEach(id => {

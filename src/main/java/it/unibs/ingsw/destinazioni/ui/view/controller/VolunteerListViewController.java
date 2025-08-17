@@ -30,6 +30,11 @@ public class VolunteerListViewController {
             List<VolunteerWithVisitsDTO> volunteers = Arrays.asList(response.getBody());
 
             model.addAttribute("volunteers", volunteers);
+
+            boolean canAddVisitTypes = Boolean.TRUE.equals(
+                    restTemplate.getForObject("http://localhost:8080/api/visit-type/modification-state-active", Boolean.class));
+            model.addAttribute("canAddVisits", canAddVisitTypes);
+
         } catch (HttpClientErrorException e) {
             model.addAttribute("error", "Errore nel recupero dei volontari con visite");
             model.addAttribute("volunteers", List.of());

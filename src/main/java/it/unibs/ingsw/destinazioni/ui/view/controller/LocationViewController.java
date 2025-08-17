@@ -7,6 +7,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 @Controller
@@ -27,6 +28,11 @@ public class LocationViewController {
         } catch (HttpClientErrorException e) {
             model.addAttribute("error", "Errore nel recupero delle locations");
         }
+
+        boolean canAddVisitTypes = Boolean.TRUE.equals(
+                restTemplate.getForObject("http://localhost:8080/api/visit-type/modification-state-active", Boolean.class));
+        model.addAttribute("canAddVisits", canAddVisitTypes);
+
 
         return "view-locations";
     }
@@ -67,10 +73,17 @@ public class LocationViewController {
         RestTemplate restTemplate = new RestTemplate();
 
         // la provincia viene recuperata dalla map
-        var townProvinceMap = restTemplate.getForObject("http://localhost:8080/api/area-of-interest/townProvinceMap", java.util.Map.class);
-        String province = (String) townProvinceMap.get(town);
+		String province;
+		try {
+			var townProvinceMap = restTemplate.getForObject(
+                    "http://localhost:8080/api/area-of-interest/townProvinceMap", java.util.Map.class);
+			province = (String) townProvinceMap.get(town);
+		} catch (NullPointerException e) {
+			throw new RuntimeException(e);
+		}
 
-        var locationDto = new java.util.HashMap<String, Object>();
+
+		var locationDto = new java.util.HashMap<String, Object>();
         locationDto.put("name", name);
         locationDto.put("description", description);
         locationDto.put("address", java.util.Map.of(

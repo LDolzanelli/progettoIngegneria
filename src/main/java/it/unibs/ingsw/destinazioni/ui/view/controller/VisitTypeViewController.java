@@ -42,6 +42,10 @@ public class VisitTypeViewController {
 
         model.addAttribute("role", userRole);
 
+        boolean canAddVisitTypes = Boolean.TRUE.equals(
+                restTemplate.getForObject("http://localhost:8080/api/visit-type/modification-state-active", Boolean.class));
+        model.addAttribute("canAddVisits", canAddVisitTypes);
+
         try {
             VisitTypeDTO[] visitTypes;
 

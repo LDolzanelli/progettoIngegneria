@@ -20,13 +20,14 @@
 
     <div class="container my-4">
       <h2>Lista Tipi di Visita</h2>
-      <a
-        id="addVisitTypeBtn"
-        href="#"
-        class="btn btn-success mb-3"
-        th:classappend="${role != 'configurator'} ? ' d-none' : ''"
-        >Aggiungi Tipo di Visita</a
-      >
+      <button
+              id="addVisitTypeBtn"
+              type="button"
+              class="btn btn-success mb-3"
+              th:disabled="${!canAddVisits}"
+              th:classappend="${role != 'configurator'} ? ' d-none' : ''">
+        Aggiungi Tipo di Visita
+      </button>
 
       <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
       <div
@@ -227,15 +228,14 @@
 
         const locationId = getParamFromUrl("locationId");
         const addBtn = document.getElementById("addVisitTypeBtn");
-
         if (addBtn) {
-          if (locationId) {
-            addBtn.href = `/add-visittype?locationId=${encodeURIComponent(
-              locationId
-            )}`;
-          } else {
-            addBtn.addEventListener("click", (e) => e.preventDefault());
-          }
+          const locationId = getParamFromUrl("locationId");
+
+          addBtn.addEventListener("click", () => {
+            if (!addBtn.disabled) {
+              window.location.href = `/add-visittype?locationId=${encodeURIComponent(locationId)}`;
+            }
+          });
         }
 
         const isThymeleafDataPresent =
