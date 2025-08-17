@@ -15,7 +15,10 @@ import it.unibs.ingsw.destinazioni.application.port.out.VisitTypeRepositoryPort;
 import it.unibs.ingsw.destinazioni.application.port.out.VolunteerAvailabilityStatePort;
 import it.unibs.ingsw.destinazioni.domain.model.Location;
 import it.unibs.ingsw.destinazioni.domain.model.VisitType;
+import it.unibs.ingsw.destinazioni.domain.model.User;
 import lombok.RequiredArgsConstructor;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -119,26 +122,25 @@ public class VisitTypeService implements ManageVisitTypeUseCase {
         repository.save(visitType, location.getId());
     }
 
-    @Override
-    public boolean isAddOrRemovalStateActive() {
-        LocalDate today = LocalDate.now(clock);
+	@Override
+	public boolean isAddOrRemovalStateActive() {
+		LocalDate today = LocalDate.now(clock);
 
-        //verifica se siamo dopo il 15 del mese corrente (i)
-        boolean isAfter15th = today.getDayOfMonth() > 15;
+		//verifica se siamo dopo il 15 del mese corrente (i)
+		boolean isAfter15th = today.getDayOfMonth() > 15;
 
-        //verifica se è stato prodotto il piano visite per i+1
-        LocalDate nextMonth = today.plusMonths(1);
-        boolean isVisitPlanCreated =
-                visitPlanStateRepo.isVisitPlanCreated(nextMonth.getMonthValue(), nextMonth.getYear());
+		//verifica se è stato prodotto il piano visite per i+1
+		LocalDate nextMonth = today.plusMonths(1);
+		boolean isVisitPlanCreated =
+				visitPlanStateRepo.isVisitPlanCreated(nextMonth.getMonthValue(), nextMonth.getYear());
 
-        //verifica se non è stata aperta la raccolta disponibilità per i+2
-        LocalDate twoMonthsLater = today.plusMonths(2);
-        boolean isAvailabilityOpen = volunteerAvailabilityStateRepo
-                .isVolunteerAvailabilityOpen(twoMonthsLater.getMonthValue(), twoMonthsLater.getYear());
+		//verifica se non è stata aperta la raccolta disponibilità per i+2
+		LocalDate twoMonthsLater = today.plusMonths(2);
+		boolean isAvailabilityOpen = volunteerAvailabilityStateRepo
+				.isVolunteerAvailabilityOpen(twoMonthsLater.getMonthValue(), twoMonthsLater.getYear());
 
-        return isAfter15th && isVisitPlanCreated && !isAvailabilityOpen;
-    }
-
+		return isAfter15th && isVisitPlanCreated && !isAvailabilityOpen;
+	}
 
     @Override
     public boolean canBeRemoved(int visitTypeId) {
@@ -150,12 +152,61 @@ public class VisitTypeService implements ManageVisitTypeUseCase {
         LocalDate endDate = visitType.getEndDate();
 
 
-
-        //verifica se la data di inizio è nel futuro rispetto al mese corrente (i+2) o se la data di fine è nel passato rispetto al mese corrente (i)
-        boolean isStartDateInFuture = startDate.isAfter(today.withDayOfMonth(1).plusMonths(1)); 
+        // verifica se la data di inizio è nel futuro rispetto al mese corrente (i+2) o se la data di fine è
+        // nel passato rispetto al mese corrente (i)
+        boolean isStartDateInFuture = startDate.isAfter(today.withDayOfMonth(1).plusMonths(2));
         boolean isEndDateInPast = endDate.isBefore(today.withDayOfMonth(1));
 
         return isAddOrRemovalStateActive() && (isStartDateInFuture || isEndDateInPast);
+    }
+
+
+    @Override
+    public boolean canBeModified(int visitTypeId) {
+
+        VisitType visitType = repository.findById(visitTypeId)
+                .orElseThrow(() -> new IllegalArgumentException("Visit Type con id " + visitTypeId + " non trovata"));
+
+        boolean isVisitPlanCreated = visitPlanStateRepo.isVisitPlanCreated(visitType.getStartDate().getMonthValue(),
+                visitType.getStartDate().getYear());
+
+
+        // NB: se il tipo di visita non può essere rimosso, non può essere modificato perché non siamo nel
+        // periodo corretto
+        boolean canBeRemoved = canBeRemoved(visitTypeId);
+        return canBeRemoved && !isVisitPlanCreated;
+    }
+
+
+    @Override
+    public void addVolunteerToVisitType(int visitTypeId, String nickname) {
+
+
+        if (!this.canBeModified(visitTypeId)) {
+            throw new IllegalArgumentException("Il tipo di visita non può essere modificato.");
+        }
+
+        VisitType visitType = repository.findById(visitTypeId)
+                .orElseThrow(() -> new IllegalArgumentException("Visit Type con id " + visitTypeId + " non trovata"));
+
+        User volunteer = userRepository.findByNickname(nickname).orElseThrow(
+                () -> new IllegalArgumentException("Volontario con nickname " + nickname + " non trovato"));
+
+
+        boolean alreadyPresent = visitType.getVolunteers().stream().anyMatch(v -> v.getNickname().equals(nickname));
+
+        if (alreadyPresent) {
+            throw new IllegalArgumentException("Il volontario è già associato a questo tipo di visita.");
+        }
+
+
+        List<User> volunteers = new ArrayList<>(visitType.getVolunteers());
+        volunteers.add(volunteer);
+        visitType.setVolunteers(volunteers);
+
+
+        this.updateVisitType(visitType);
+
     }
 
 

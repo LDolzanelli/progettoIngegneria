@@ -52,7 +52,7 @@ public class UserService implements LoginUseCase, GetUserInfoUseCase, ChangeCred
 
     @Override
     public void changeUsername(String oldNickname, String newNickname) {
-        if (oldNickname != newNickname && userRepository.findByNickname(newNickname).isPresent()) {
+        if (oldNickname.equals(newNickname) && userRepository.findByNickname(newNickname).isPresent()) {
             throw new IllegalArgumentException("Nickname \"" + newNickname + "\" già esistente. Riprovare.");
         }
 
@@ -110,22 +110,23 @@ public class UserService implements LoginUseCase, GetUserInfoUseCase, ChangeCred
         return new LoginResponseDTO(user.getNickname(), user.getRole().getName(), user.isFirstLogin());
     }
 
+
     @Override
     public List<User> getUsersByRole(Role role) {
         return userRepository.findAllByRole(role);
     }
 
+
     @Override
     public List<User> findAllByNicknames(List<String> nicknames) {
-        return nicknames.stream()
-                .map(nick -> userRepository.findByNickname(nick)
-                        .orElseThrow(() -> new IllegalArgumentException("Utente non trovato: " + nick)))
-                .toList();
+        return nicknames.stream().map(nick -> userRepository.findByNickname(nick)
+                .orElseThrow(() -> new IllegalArgumentException("Utente non trovato: " + nick))).toList();
     }
+
 
     @Override
     public int getIdByNickname(String nickname) {
         Optional<User> user = findByNickname(nickname);
-        return user.get().getId();
+        return user.orElseThrow(() -> new IllegalArgumentException("Utente non trovato")).getId();
     }
 }

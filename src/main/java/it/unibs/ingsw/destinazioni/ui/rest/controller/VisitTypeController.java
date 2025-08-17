@@ -40,10 +40,10 @@ public class VisitTypeController {
             manageVisitTypeUseCase.addVisitType(visitType, locationId);
             return ResponseEntity.ok().build();
         } catch (IllegalArgumentException e) {
-            e.printStackTrace(); // useful for backend logs
+            e.printStackTrace();
             return ResponseEntity.badRequest().body("Dati non validi: " + e.getMessage());
         } catch (Exception e) {
-            e.printStackTrace(); // for debugging
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Errore interno: " + e.getMessage());
         }
     }
@@ -100,6 +100,18 @@ public class VisitTypeController {
         }
     }
 
+    @PostMapping("/add-volunteer/{visitTypeId}/{nickname}")
+    public ResponseEntity<String> addVolunteerToVisitType(@PathVariable int visitTypeId, @PathVariable String nickname) {
+        try {
+            manageVisitTypeUseCase.addVolunteerToVisitType(visitTypeId, nickname);
+            return ResponseEntity.ok().build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body("Dati non validi: " + e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Errore interno: " + e.getMessage());
+        }
+    }
+
     @GetMapping("/modification-state-active")
     public ResponseEntity<Boolean> canAddOrRemoveEntities() {
         return ResponseEntity.ok(manageVisitTypeUseCase.isAddOrRemovalStateActive());
@@ -130,7 +142,8 @@ public class VisitTypeController {
                 visitType.isFree(),
                 days,
                 volunteers,
-                manageVisitTypeUseCase.canBeRemoved(visitType.getId())
+                manageVisitTypeUseCase.canBeRemoved(visitType.getId()),
+                manageVisitTypeUseCase.canBeModified(visitType.getId())
         );
     }
 
