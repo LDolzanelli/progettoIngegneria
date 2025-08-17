@@ -1,5 +1,6 @@
 package it.unibs.ingsw.destinazioni.ui.view.controller;
 
+import it.unibs.ingsw.destinazioni.domain.dto.TownProvinceDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -26,17 +27,20 @@ public class InsertAreasController {
 
     @PostMapping
     public String insertAreas(@AuthenticationPrincipal UserDetails principal,
-                              @RequestParam List<String> towns,
-                              Model model) {
+            @RequestParam List<String> towns,
+            @RequestParam List<String> provinces,
+            Model model) {
 
-        if (towns == null || towns.isEmpty() || towns.stream().anyMatch(String::isBlank)) {
-            model.addAttribute("error", "Inserire almeno una località valida");
+        if (towns == null || towns.isEmpty() || towns.stream().anyMatch(String::isBlank) ||
+                provinces == null || provinces.size() != towns.size() || provinces.stream().anyMatch(String::isBlank)) {
+            model.addAttribute("error", "Inserire almeno una località e la relativa provincia");
             return "insert-areas-of-interest";
         }
 
         try {
-            for (String town : towns) {
-                restTemplate.postForEntity("http://localhost:8080/api/area-of-interest/addTown", town, Void.class);
+            for (int i = 0; i < towns.size(); i++) {
+                TownProvinceDTO dto = new TownProvinceDTO(towns.get(i), provinces.get(i));
+                restTemplate.postForEntity("http://localhost:8080/api/area-of-interest/addArea", dto, Void.class);
             }
         } catch (HttpClientErrorException e) {
             model.addAttribute("error", "Errore durante l'inserimento: " + e.getResponseBodyAsString());
@@ -47,3 +51,4 @@ public class InsertAreasController {
         return "insert-areas-of-interest";
     }
 }
+

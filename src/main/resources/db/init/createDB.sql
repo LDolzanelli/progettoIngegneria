@@ -2,6 +2,7 @@ USE destinazioni;
 
 CREATE TABLE area_of_interest (
   town VARCHAR(100) NOT NULL,
+  province VARCHAR(50) NOT NULL,
   PRIMARY KEY (town)
 );
 

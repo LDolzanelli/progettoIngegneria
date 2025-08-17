@@ -21,26 +21,38 @@
 </nav>
 <div class="container">
     <div class="row justify-content-center mt-5">
-        <div class="col-12 col-md-6 col-lg-5">
+        <div class="col-12 col-md-6 col-lg-6">
             <div class="card shadow-sm">
                 <div class="card-body p-4">
                     <h1 class="card-title mb-3 text-center">
                         Aggiunta corpo dati
                     </h1>
                     <p class="text-center mb-4">
-                        Inserisci uno o più comuni da aggiungere all'elenco della zona di interesse
+                        Inserisci uno o più comuni e relative province da aggiungere all'elenco della zona di interesse
                     </p>
 
                     <form method="post" th:action="@{/insert-areas-of-interest}">
                         <div id="towns-container">
-                            <div class="mb-3 town-group d-flex align-items-center">
-                                <input
-                                        type="text"
-                                        class="form-control"
-                                        name="towns"
-                                        placeholder="Località"
-                                        required
-                                />
+                            <div class="row g-2 mb-3 town-group align-items-center">
+                                <div class="col-7">
+                                    <input
+                                            type="text"
+                                            class="form-control"
+                                            name="towns"
+                                            placeholder="Località"
+                                            required
+                                    />
+                                </div>
+                                <div class="col-5">
+                                    <input
+                                            type="text"
+                                            class="form-control"
+                                            name="provinces"
+                                            placeholder="Provincia"
+                                            maxlength="2"
+                                            required
+                                    />
+                                </div>
                             </div>
                         </div>
 
@@ -79,16 +91,23 @@
     function addTownInput() {
         const container = document.getElementById('towns-container');
         const newGroup = document.createElement('div');
-        newGroup.classList.add('mb-3', 'town-group', 'd-flex', 'align-items-center');
+        newGroup.classList.add('row', 'g-2', 'mb-3', 'town-group', 'align-items-center');
         newGroup.innerHTML = `
-        <input type="text" class="form-control me-2" name="towns" placeholder="Località" required />
-        <button type="button" class="btn btn-danger btn-sm" onclick="removeTownInput(this)">–</button>
-      `;
+            <div class="col-6">
+                <input type="text" class="form-control" name="towns" placeholder="Località" required />
+            </div>
+            <div class="col-4">
+                <input type="text" class="form-control" name="provinces" placeholder="Provincia" maxlength="2" required />
+            </div>
+            <div class="col-2 d-flex align-items-center">
+                <button type="button" class="btn btn-danger btn-sm w-100" onclick="removeTownInput(this)">–</button>
+            </div>
+        `;
         container.appendChild(newGroup);
     }
 
     function removeTownInput(button) {
-        const group = button.parentElement;
+        const group = button.closest('.town-group');
         group.remove();
     }
 </script>
