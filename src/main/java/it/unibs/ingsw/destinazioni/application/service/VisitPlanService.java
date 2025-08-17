@@ -6,6 +6,8 @@ import java.time.YearMonth;
 import java.util.*;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import it.unibs.ingsw.destinazioni.application.port.in.GetUserInfoUseCase;
 import it.unibs.ingsw.destinazioni.application.port.in.VisitPlanUseCase;
 import it.unibs.ingsw.destinazioni.application.port.out.VisitPlanStatePort;
@@ -15,10 +17,12 @@ import it.unibs.ingsw.destinazioni.domain.model.enums.VisitStatus;
 import it.unibs.ingsw.destinazioni.domain.model.User;
 import it.unibs.ingsw.destinazioni.domain.model.VisitType;
 import it.unibs.ingsw.destinazioni.domain.model.VolunteerAvailableDate;
+import it.unibs.ingsw.destinazioni.domain.model.BlockedDates;
 
 import it.unibs.ingsw.destinazioni.application.port.out.VisitTypeRepositoryPort;
 import it.unibs.ingsw.destinazioni.application.port.out.VolunteerAvailableDateRepositoryPort;
 import it.unibs.ingsw.destinazioni.application.port.out.VisitRepositoryPort;
+import it.unibs.ingsw.destinazioni.application.port.out.BlockedDatesRepositoryPort;
 
 import it.unibs.ingsw.destinazioni.domain.model.enums.Role;
 
@@ -38,6 +42,7 @@ public class VisitPlanService implements VisitPlanUseCase {
     private final GetUserInfoUseCase userService;
     private final VolunteerAvailableDateRepositoryPort volunteerAvailabilityRepository;
     private final VisitRepositoryPort visitRepository;
+    private final BlockedDatesRepositoryPort blockedDatesRepository;
 
     /**
      * controlla se il piano di visita può essere creato.
@@ -52,12 +57,11 @@ public class VisitPlanService implements VisitPlanUseCase {
         int nextMonthValue = nextMonth.getMonthValue();
         int nextYear = nextMonth.getYear();
 
-
         return !statePort.isVisitPlanCreated(nextMonthValue, nextYear)
                 && !availabilityStatePort.isVolunteerAvailabilityOpen(nextMonthValue, nextYear);
     }
 
-
+    @Transactional // per poter rimuovere le blockedDates
     @Override
     public void createVisitPlan() {
         if (!canCreateVisitPlan()) {
@@ -118,6 +122,9 @@ public class VisitPlanService implements VisitPlanUseCase {
             User bestVolunteer = selectBestVolunteer(availableVolunteers, volunteerVisitCounts);
             assignVolunteerToVisit(bestVolunteer, visit, monthAvailabilities, volunteerVisitCounts);
         }
+
+        //rimuove le blockedDates del mese considerato
+        removeBlockedDates(nextMonthValue, nextYear);
 
         statePort.setVisitPlanCreated(nextMonthValue, nextYear, true);
     }
@@ -182,30 +189,6 @@ public class VisitPlanService implements VisitPlanUseCase {
         else
             return false;
     }
-
-
-    // private User selectBestVolunteer(List<User> volunteers, List<VolunteerVisitCount>
-    // volunteerVisitCounts){
-    // User bestVolunteer = volunteers.getFirst();
-    // for(User v : volunteers){
-    // int visitCount = volunteerVisitCounts.stream().filter( vvc ->
-    // vvc.volunteer.equals(v)).findFirst().get().getVisitCount();
-    //
-    // // cerca il punteggio del volontario migliore
-    // for(VolunteerVisitCount vvc : volunteerVisitCounts){
-    // // se il conteggio visite del volontario considerato é minore di quello migliore, diventa il
-    // migliore
-    // if(vvc.getVolunteer().equals(bestVolunteer))
-    // if(visitCount < vvc.getVisitCount()) {
-    // bestVolunteer = v;
-    // break;
-    // }
-    // }
-    // }
-    //
-    // return bestVolunteer;
-    // }
-
 
     // valutare se crearne una versione diversa o con policy a scelta es:
     // selectBestVolunteer(volonteers, vvc, comparator)
@@ -284,6 +267,10 @@ public class VisitPlanService implements VisitPlanUseCase {
         }
 
         return volunteerVisitCounts;
+    }
+
+    private void removeBlockedDates(int month, int year){
+        blockedDatesRepository.loadByMonth(month, year).getDates().stream().forEach(blockedDatesRepository::delete);
     }
 
 

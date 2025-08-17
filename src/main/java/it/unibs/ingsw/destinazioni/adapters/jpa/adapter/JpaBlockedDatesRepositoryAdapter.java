@@ -48,19 +48,19 @@ public class JpaBlockedDatesRepositoryAdapter implements BlockedDatesRepositoryP
     }
 
     @Override
-    public BlockedDates loadByMonth(Month month) {
+    public BlockedDates loadByMonth(int month, int year) {
         Set<LocalDate> dates = repository.findAll()
                 .stream()
                 .map(BlockedDatesEntity::getDate)
-                .filter(date -> month.equals(date.getMonth()))
+                .filter(date -> month == date.getMonth().getValue() && year == date.getYear() )
                 .collect(Collectors.toSet());
         return new BlockedDates(dates);
     }
 
     @Override
     @Transactional
-    public void updateByMonth(BlockedDates dates, Month month) {
-        BlockedDates toBeRemoved = loadByMonth(month);
+    public void updateByMonth(BlockedDates dates, int month, int year) {
+        BlockedDates toBeRemoved = loadByMonth(month, year);
         toBeRemoved.getDates().forEach(this::delete);
         dates.getDates().forEach(this::save);
     }

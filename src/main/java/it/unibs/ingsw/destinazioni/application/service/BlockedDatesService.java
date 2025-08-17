@@ -23,7 +23,7 @@ public class BlockedDatesService implements BlockedDatesUseCase {
     @Override
     public void updateBlockedDates(Set<LocalDate> blockedDates) {
         BlockedDates dates = new BlockedDates(blockedDates);
-        repository.updateByMonth(dates, this.getMonthToUpdate());
+        repository.updateByMonth(dates, this.getMonthToUpdate().getValue(), this.getYearToUpdate());
     }
 
     @Override
@@ -46,5 +46,10 @@ public class BlockedDatesService implements BlockedDatesUseCase {
         //il risultato del modulo può essere 0. si fa +1 alla fine per garantire di avere il mese desiderato
         int targetMonth = ((baseMonth + 2) % 12) + 1;
         return Month.of(targetMonth);
+    }
+
+    public int getYearToUpdate(){
+        LocalDate today = LocalDate.now(clock);
+        return today.getYear();
     }
 }

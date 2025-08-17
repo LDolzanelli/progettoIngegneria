@@ -10,6 +10,6 @@ public interface BlockedDatesRepositoryPort {
     void delete(LocalDate date);
     boolean isBlocked(LocalDate date);
     BlockedDates loadAll();
-    BlockedDates loadByMonth(Month month);
-    void updateByMonth(BlockedDates blockedDates, Month month);
+    BlockedDates loadByMonth(int month, int year);
+    void updateByMonth(BlockedDates blockedDates, int month, int year);
 }
