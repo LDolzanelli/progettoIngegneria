@@ -63,7 +63,7 @@ public class VisitSchedulerService {
         }
     }
 
-    private void setStatusToFullIfProposedVisitFull(Visit visit)
+    public static void setStatusToFullIfProposedVisitFull(Visit visit)
     {
         if (visit.getVisitStatus() == VisitStatus.PROPOSED &&
                 visit.getParticipants().size() == visit.getVisitType().getMaxParticipants()) {
@@ -71,7 +71,7 @@ public class VisitSchedulerService {
         }
     }
 
-    private void setStatusToProposedIfFullVisitNoLongerFull(Visit visit)
+    public static void setStatusToProposedIfFullVisitNoLongerFull(Visit visit)
     {
         if (visit.getVisitStatus() == VisitStatus.FULL &&
                 visit.getParticipants().size() < visit.getVisitType().getMaxParticipants()) {
@@ -79,7 +79,7 @@ public class VisitSchedulerService {
         }
     }
 
-    private void closeVisitStatusThreeDaysBeforeItTakesPlace(Visit visit, LocalDate today)
+    private static void closeVisitStatusThreeDaysBeforeItTakesPlace(Visit visit, LocalDate today)
     {
         long daysUntilVisit = ChronoUnit.DAYS.between(today, visit.getDate());
 
