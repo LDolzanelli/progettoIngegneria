@@ -41,48 +41,47 @@ public class VisitSchedulerService {
             if (visitDate == null || status == null || participants == null || visitType == null) continue;
 
             if (visitDate.isBefore(today)) {
-                handleOldVisitStatus(visit, status);
+                handleOldVisitStatus(visit);
             }
 
-            setStatusToFullIfProposedVisitFull(visit, status);
+            setStatusToFullIfProposedVisitFull(visit);
 
-            setStatusToProposedIfFullVisitNoLongerFull(visit, status);
+            setStatusToProposedIfFullVisitNoLongerFull(visit);
 
-            closeVisitStatusThreeDaysBeforeTakesPlace(visit, today, visitDate);
+            closeVisitStatusThreeDaysBeforeItTakesPlace(visit, today);
 
             visitRepository.save(visit);
         }
     }
 
-    private static void handleOldVisitStatus(Visit visit, VisitStatus status) {
-        if (status == VisitStatus.CONFIRMED) {
+    private void handleOldVisitStatus(Visit visit) {
+        if (visit.getVisitStatus() == VisitStatus.CONFIRMED) {
             visit.setVisitStatus(VisitStatus.COMPLETED);
-        } else if (status == VisitStatus.CANCELLED) {
-            //TODO: gestire visite "cancellate" (probabilmente non fare niente nel db)
-            //visitRepository.delete(visit);
+        } else if (visit.getVisitStatus() == VisitStatus.CANCELLED) {
+            visitRepository.deleteById(visit.getId());
             System.out.println("visita cancellata");
         }
     }
 
-    private static void setStatusToFullIfProposedVisitFull(Visit visit, VisitStatus status)
+    private void setStatusToFullIfProposedVisitFull(Visit visit)
     {
-        if (status == VisitStatus.PROPOSED &&
+        if (visit.getVisitStatus() == VisitStatus.PROPOSED &&
                 visit.getParticipants().size() == visit.getVisitType().getMaxParticipants()) {
             visit.setVisitStatus(VisitStatus.FULL);
         }
     }
 
-    private static void setStatusToProposedIfFullVisitNoLongerFull(Visit visit, VisitStatus status)
+    private void setStatusToProposedIfFullVisitNoLongerFull(Visit visit)
     {
-        if (status == VisitStatus.FULL &&
+        if (visit.getVisitStatus() == VisitStatus.FULL &&
                 visit.getParticipants().size() < visit.getVisitType().getMaxParticipants()) {
             visit.setVisitStatus(VisitStatus.PROPOSED);
         }
     }
 
-    private static void closeVisitStatusThreeDaysBeforeTakesPlace(Visit visit, LocalDate today, LocalDate visitDate)
+    private void closeVisitStatusThreeDaysBeforeItTakesPlace(Visit visit, LocalDate today)
     {
-        long daysUntilVisit = ChronoUnit.DAYS.between(today, visitDate);
+        long daysUntilVisit = ChronoUnit.DAYS.between(today, visit.getDate());
 
         if (daysUntilVisit <= 3 && daysUntilVisit > 0) {
             if (visit.getParticipants().size() >= visit.getVisitType().getMinParticipants()) {

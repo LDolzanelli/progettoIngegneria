@@ -13,6 +13,7 @@ public class Visit {
     private Integer id;
     private LocalDate date;
     private User volunteer;
+    
     private VisitType visitType;
     private Set<User> participants;
     private VisitStatus visitStatus;
