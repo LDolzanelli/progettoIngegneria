@@ -1,3 +1,5 @@
+
+
 package it.unibs.ingsw.destinazioni.adapters.jpa.entity;
 
 import jakarta.persistence.*;

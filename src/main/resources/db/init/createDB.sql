@@ -71,15 +71,18 @@ CREATE TABLE visits (
 );
 
 
-CREATE TABLE visitors (
+CREATE TABLE bookings (
+  booking_code VARCHAR(8) NOT NULL,
+  visitor_name VARCHAR(100) NOT NULL,
   visit_id INT NOT NULL,
-  visitor_id INT NOT NULL,
-  PRIMARY KEY (visit_id, visitor_id),
+  user_id INT NOT NULL,
+  PRIMARY KEY (booking_code, visitor_name),
   FOREIGN KEY (visit_id) REFERENCES visits(id)
     ON DELETE CASCADE ON UPDATE CASCADE,
-  FOREIGN KEY (visitor_id) REFERENCES users(id)
-    ON DELETE RESTRICT ON UPDATE CASCADE
+  FOREIGN KEY (user_id) REFERENCES users(id)
+    ON DELETE CASCADE ON UPDATE CASCADE
 );
+
 
 CREATE TABLE visit_days (
   visit_type_id INT NOT NULL,

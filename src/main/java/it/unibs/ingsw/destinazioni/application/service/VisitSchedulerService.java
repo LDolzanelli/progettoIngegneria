@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 import java.util.Set;
 
 @Service
@@ -31,14 +32,15 @@ public class VisitSchedulerService {
         if (visits == null) return;
 
         for (Visit visit : visits) {
+            
             if (visit == null) continue;
 
             LocalDate visitDate = visit.getDate();
             VisitStatus status = visit.getVisitStatus();
-            Set<?> participants = visit.getParticipants();
+            List<?> bookings = visit.getBookings();
             var visitType = visit.getVisitType();
 
-            if (visitDate == null || status == null || participants == null || visitType == null) continue;
+            if (visitDate == null || status == null || bookings == null || visitType == null) continue;
 
             if (visitDate.isBefore(today)) {
                 handleOldVisitStatus(visit);
@@ -65,8 +67,9 @@ public class VisitSchedulerService {
 
     public static void setStatusToFullIfProposedVisitFull(Visit visit)
     {
+
         if (visit.getVisitStatus() == VisitStatus.PROPOSED &&
-                visit.getParticipants().size() == visit.getVisitType().getMaxParticipants()) {
+                visit.visitorsNumber() == visit.getVisitType().getMaxParticipants()) {
             visit.setVisitStatus(VisitStatus.FULL);
         }
     }
@@ -74,7 +77,7 @@ public class VisitSchedulerService {
     public static void setStatusToProposedIfFullVisitNoLongerFull(Visit visit)
     {
         if (visit.getVisitStatus() == VisitStatus.FULL &&
-                visit.getParticipants().size() < visit.getVisitType().getMaxParticipants()) {
+                visit.visitorsNumber() < visit.getVisitType().getMaxParticipants()) {
             visit.setVisitStatus(VisitStatus.PROPOSED);
         }
     }
@@ -84,7 +87,7 @@ public class VisitSchedulerService {
         long daysUntilVisit = ChronoUnit.DAYS.between(today, visit.getDate());
 
         if (daysUntilVisit <= 3 && daysUntilVisit > 0) {
-            if (visit.getParticipants().size() >= visit.getVisitType().getMinParticipants()) {
+            if (visit.visitorsNumber() >= visit.getVisitType().getMinParticipants()) {
                 visit.setVisitStatus(VisitStatus.CONFIRMED);
             } else {
                 visit.setVisitStatus(VisitStatus.CANCELLED);

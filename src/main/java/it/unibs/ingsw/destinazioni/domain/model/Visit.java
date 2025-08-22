@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDate;
-import java.util.Set;
+import java.util.List;
 import it.unibs.ingsw.destinazioni.domain.model.enums.VisitStatus;
 
 @Setter
@@ -15,20 +15,28 @@ public class Visit {
     private User volunteer;
     
     private VisitType visitType;
-    private Set<User> participants;
+    private List<Booking> bookings;
     private VisitStatus visitStatus;
 
 
-    public Visit(Integer id, LocalDate date, User volunteer, VisitType visitType, Set<User> participants, VisitStatus visitStatus) {
+    public Visit(Integer id, LocalDate date, User volunteer, VisitType visitType, List<Booking> booking ,VisitStatus visitStatus) {
         this.id = id;
         this.date = date;
         this.volunteer = volunteer;
         this.visitType = visitType;
-        this.participants = participants;
         this.visitStatus = visitStatus;
+        this.bookings = booking;
     }
 
-    public Visit(LocalDate date, User volunteer, VisitType visitType, Set<User> participants, VisitStatus visitStatus) {
-        this(null, date, volunteer, visitType, participants, visitStatus);
+    public Visit(LocalDate date, User volunteer, VisitType visitType, List<Booking> booking, VisitStatus visitStatus) {
+        this(null, date, volunteer, visitType, booking, visitStatus);
+    }
+
+    public int visitorsNumber() {
+        return bookings.stream().mapToInt(Booking::getNumberOfVisitors).sum();
+    }
+
+    public int getAvailableSeats() {
+        return visitType.getMaxParticipants() - visitorsNumber();
     }
 }

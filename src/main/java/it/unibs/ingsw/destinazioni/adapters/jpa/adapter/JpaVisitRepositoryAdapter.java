@@ -2,22 +2,28 @@ package it.unibs.ingsw.destinazioni.adapters.jpa.adapter;
 
 
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Repository;
-
+import it.unibs.ingsw.destinazioni.adapters.jpa.entity.BookingEntity;
+import it.unibs.ingsw.destinazioni.adapters.jpa.entity.BookingId;
 import it.unibs.ingsw.destinazioni.adapters.jpa.entity.UserEntity;
 import it.unibs.ingsw.destinazioni.adapters.jpa.entity.VisitEntity;
 import it.unibs.ingsw.destinazioni.adapters.jpa.entity.VisitTypeEntity;
+import it.unibs.ingsw.destinazioni.adapters.jpa.repository.BookingRepository;
 import it.unibs.ingsw.destinazioni.adapters.jpa.repository.UserRepository;
 import it.unibs.ingsw.destinazioni.adapters.jpa.repository.VisitRepository;
 import it.unibs.ingsw.destinazioni.adapters.jpa.repository.VisitTypeRepository;
+import it.unibs.ingsw.destinazioni.domain.model.Booking;
 import it.unibs.ingsw.destinazioni.domain.model.User;
 import it.unibs.ingsw.destinazioni.domain.model.Visit;
 import it.unibs.ingsw.destinazioni.domain.model.VisitType;
 import it.unibs.ingsw.destinazioni.domain.model.enums.VisitStatus;
+import lombok.RequiredArgsConstructor;
 
 
 /**
@@ -28,20 +34,14 @@ import it.unibs.ingsw.destinazioni.domain.model.enums.VisitStatus;
  * @version 1.0
  */
 @Repository
-public class JpaVisitRepositoryAdapter implements it.unibs.ingsw.destinazioni.application.port.out.VisitRepositoryPort
-{
+@RequiredArgsConstructor
+public class JpaVisitRepositoryAdapter implements it.unibs.ingsw.destinazioni.application.port.out.VisitRepositoryPort {
 
     private final VisitRepository visitRepository;
     private final VisitTypeRepository visitTypeRepository;
     private final UserRepository userRepository;
+    private final BookingRepository bookingRepository;
 
-
-    public JpaVisitRepositoryAdapter(VisitRepository visitRepository, VisitTypeRepository visitTypeRepository,
-            UserRepository userRepository) {
-        this.userRepository = userRepository;
-        this.visitRepository = visitRepository;
-        this.visitTypeRepository = visitTypeRepository;
-    }
 
 
     @Override
@@ -90,20 +90,22 @@ public class JpaVisitRepositoryAdapter implements it.unibs.ingsw.destinazioni.ap
 
 
     private Visit toDomain(VisitEntity entity) {
-        //Volunteer potrebbe essere nullo quando la visita non é ancora stata assegnata a un volontario
-        User volunteer;
-        if(entity.getVolunteer() != null)
-            volunteer = JpaUserRepositoryAdapter.toDomain(entity.getVolunteer());
-        else volunteer = null;
+        User volunteer =
+                entity.getVolunteer() != null ? JpaUserRepositoryAdapter.toDomain(entity.getVolunteer()) : null;
 
         VisitType visitType = JpaVisitTypeRepositoryAdapter.toDomain(entity.getVisitType());
-        Set<User> participants = entity.getVisitors().stream() //
-                        .map(JpaUserRepositoryAdapter::toDomain) //
-                        .collect(Collectors.toSet());
+
+        List<Booking> bookings = entity.getBookings().stream()
+                .collect(Collectors.groupingBy(b -> b.getId().getBookingCode())).entrySet().stream().map(entry -> {
+                    var bookingEntities = entry.getValue();
+                    User user = JpaUserRepositoryAdapter.toDomain(bookingEntities.get(0).getUser());
+                    List<String> visitors = bookingEntities.stream().map(b -> b.getId().getVisitorName()).toList();
+                    return new Booking(entry.getKey(), user, visitors);
+                }).toList();
+
         VisitStatus status = VisitStatus.fromEnglishString(entity.getStatus());
 
-        return new Visit(entity.getId(), entity.getDate(), volunteer, visitType, participants,
-                status);
+        return new Visit(entity.getId(), entity.getDate(), volunteer, visitType, bookings, status);
     }
 
 
@@ -130,13 +132,30 @@ public class JpaVisitRepositoryAdapter implements it.unibs.ingsw.destinazioni.ap
 
         entity.setStatus(visit.getVisitStatus().name());
 
-        Set<UserEntity> participants = visit.getParticipants().stream()
-                .map(p -> userRepository.findById(p.getId())
-                        .orElseThrow(() -> new IllegalArgumentException("User not found: " + p.getId())))
-                .collect(Collectors.toSet());
-        entity.setVisitors(participants);
+        List<BookingEntity> bookingEntities = new ArrayList<>();
+        for (Booking booking : visit.getBookings()) {
+            bookingEntities.addAll(bookingToEntity(booking, entity));
+        }
+        entity.setBookings(bookingEntities);
 
         return entity;
     }
+
+
+
+    private List<BookingEntity> bookingToEntity(Booking booking, VisitEntity visitEntity) {
+        UserEntity userEntity = userRepository.findById(booking.getUser().getId())
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        return booking.getVisitorsNames().stream().map(name -> {
+            BookingEntity bookingEntity = new BookingEntity();
+            BookingId bookingId = new BookingId(booking.getBookingCode(), name);
+            bookingEntity.setId(bookingId);
+            bookingEntity.setUser(userEntity);
+            bookingEntity.setVisit(visitEntity);
+            return bookingEntity;
+        }).toList();
+    }
+
 
 }

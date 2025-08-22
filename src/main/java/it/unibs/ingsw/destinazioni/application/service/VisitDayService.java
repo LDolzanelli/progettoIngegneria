@@ -65,7 +65,7 @@ public class VisitDayService implements VisitDaysUseCase {
             if (!current.isBefore(visitType.getStartDate()) && !current.isAfter(visitType.getEndDate())) {
                 DaysOfWeek day = DaysOfWeek.valueOf(current.getDayOfWeek().name());
                 if (visitType.getDaysAvailable().contains(day)) {
-                    Visit visit = new Visit(current, null, visitType, Set.of(), VisitStatus.PROPOSED);
+                    Visit visit = new Visit(current, null, visitType, List.of(), VisitStatus.PROPOSED);
                     visitRepository.save(visit);
                 }
             }

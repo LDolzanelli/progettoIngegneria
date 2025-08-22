@@ -1,15 +1,22 @@
 package it.unibs.ingsw.destinazioni.adapters.jpa.entity;
 
-import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
-import jakarta.persistence.OneToMany;
-import lombok.Getter;
-import lombok.Setter;
-import org.hibernate.annotations.ColumnDefault;
-
 import java.util.LinkedHashSet;
 import java.util.Set;
+
+import org.hibernate.annotations.ColumnDefault;
+
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+import lombok.Getter;
+import lombok.Setter;
 
 @Getter
 @Setter
@@ -38,7 +45,7 @@ public class UserEntity {
     @Column(name = "first_login")
     private Boolean firstLogin;
 
-    @OneToMany(mappedBy = "id")
-    private Set<UserEntity> visitors = new LinkedHashSet<>();
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<BookingEntity> bookings = new LinkedHashSet<>();
 
 }
