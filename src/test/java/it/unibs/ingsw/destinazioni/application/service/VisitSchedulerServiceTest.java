@@ -1,6 +1,7 @@
 package it.unibs.ingsw.destinazioni.application.service;
 
 import it.unibs.ingsw.destinazioni.application.port.out.VisitRepositoryPort;
+import it.unibs.ingsw.destinazioni.domain.model.Booking;
 import it.unibs.ingsw.destinazioni.domain.model.User;
 import it.unibs.ingsw.destinazioni.domain.model.Visit;
 import it.unibs.ingsw.destinazioni.domain.model.VisitType;
@@ -9,7 +10,9 @@ import it.unibs.ingsw.destinazioni.domain.model.enums.VisitStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import java.time.*;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import static org.mockito.Mockito.*;
@@ -21,118 +24,123 @@ import static org.junit.jupiter.api.Assertions.*;
 @ExtendWith(MockitoExtension.class)
 class VisitSchedulerServiceTest {
 
-    // private VisitSchedulerService schedulerService;
-    // private Visit visit;
-    // private VisitRepositoryPort visitRepository;
-    // private LocalDate today;
+    private VisitSchedulerService schedulerService;
+    private Visit visit;
+    private VisitRepositoryPort visitRepository;
+    private LocalDate today;
 
-    // @BeforeEach
-    // void setUp() {
-    //     visitRepository = mock(VisitRepositoryPort.class);
-    //     Clock fixedClock = Clock.fixed(
-    //             Instant.parse("2025-08-01T00:00:00Z"),
-    //             ZoneId.systemDefault()
-    //     );
-    //     today = LocalDate.now(fixedClock);
+    @BeforeEach
+    void setUp() {
+        visitRepository = mock(VisitRepositoryPort.class);
+        Clock fixedClock = Clock.fixed(Instant.parse("2025-08-01T00:00:00Z"), ZoneId.systemDefault());
+        today = LocalDate.now(fixedClock);
 
-    //     //Setup di un visitType generico con minimo partecipanti = 1, massimo = 5.
-    //     VisitType visitType = new VisitType("visitType", "description", "meetingPoint", LocalDate.parse("2025-01-01"),
-    //             LocalDate.parse("2026-12-31"), LocalTime.parse("20:00"), 20, 5,
-    //             1, true, null, null);
-    //     //setup di visita da manipolare per ogni test case (caso base: visita tra un mese)
-    //     visit = new Visit(today.plusDays(30), null, visitType, new HashSet<>(), VisitStatus.PROPOSED);
+        // Setup di un visitType generico con minimo partecipanti = 1, massimo = 5.
+        VisitType visitType = new VisitType("visitType", "description", "meetingPoint", LocalDate.parse("2025-01-01"),
+                LocalDate.parse("2026-12-31"), LocalTime.parse("20:00"), 20, 5, 1, true, null, null);
+        // setup di visita da manipolare per ogni test case (caso base: visita tra un mese)
+        visit = new Visit(today.plusDays(30), null, visitType, null, VisitStatus.PROPOSED);
 
-    //     schedulerService = new VisitSchedulerService(visitRepository, fixedClock);
 
-    //     //mock comune della repo che ritorna la visit definita
-    //     when(visitRepository.findAll()).thenReturn(Set.of(visit));
-    // }
+        schedulerService = new VisitSchedulerService(visitRepository, fixedClock);
 
-    // @Test
-    // void updateVisitsStatus_checkIfOldVisitTurnsIntoCompletedIfConfirmed() {
-    //     //10gg prima
-    //     visit.setDate(today.minusDays(10));
-    //     visit.setVisitStatus(VisitStatus.CONFIRMED);
+        // mock comune della repo che ritorna la visit definita
+        when(visitRepository.findAll()).thenReturn(Set.of(visit));
+    }
 
-    //     schedulerService.updateVisitsStatus();
 
-    //     ArgumentCaptor<Visit> captor = ArgumentCaptor.forClass(Visit.class);
-    //     verify(visitRepository).save(captor.capture());
+    @Test
+    void updateVisitsStatus_checkIfOldVisitTurnsIntoCompletedIfConfirmed() {
+        // 10gg prima
+        visit.setDate(today.minusDays(10));
+        visit.setVisitStatus(VisitStatus.CONFIRMED);
 
-    //     assertEquals(VisitStatus.COMPLETED, captor.getValue().getVisitStatus());
-    // }
+        schedulerService.updateVisitsStatus();
 
-    // @Test
-    // void updateVisitsStatus_checkIfProposedVisitTurnsIntoFull() {
-    //     visit.setVisitStatus(VisitStatus.PROPOSED);
-    //     Set<User> participants = new HashSet<>();
-    //     participants.add(new User("user1", "", Role.FINAL_USER));
-    //     participants.add(new User("user2", "", Role.FINAL_USER));
-    //     participants.add(new User("user3", "", Role.FINAL_USER));
-    //     participants.add(new User("user4", "", Role.FINAL_USER));
-    //     participants.add(new User("user5", "", Role.FINAL_USER));
+        ArgumentCaptor<Visit> captor = ArgumentCaptor.forClass(Visit.class);
+        verify(visitRepository).save(captor.capture());
 
-    //     visit.setParticipants(participants);
+        assertEquals(VisitStatus.COMPLETED, captor.getValue().getVisitStatus());
+    }
 
-    //     schedulerService.updateVisitsStatus();
 
-    //     ArgumentCaptor<Visit> captor = ArgumentCaptor.forClass(Visit.class);
-    //     verify(visitRepository).save(captor.capture());
+    @Test
+    void updateVisitsStatus_checkIfProposedVisitTurnsIntoFull() {
+        visit.setVisitStatus(VisitStatus.PROPOSED);
 
-    //     assertEquals(5, captor.getValue().getParticipants().size());
-    //     assertEquals(VisitStatus.FULL, captor.getValue().getVisitStatus());
-    // }
 
-    // @Test
-    // void updateVisitsStatus_checkIfFullVisitTurnsIntoProposedWhenNoLongerFull() {
-    //     visit.setVisitStatus(VisitStatus.FULL);
-    //     Set<User> participants = new HashSet<>();
-    //     participants.add(new User("user1", "", Role.FINAL_USER));
-    //     participants.add(new User("user2", "", Role.FINAL_USER));
-    //     participants.add(new User("user3", "", Role.FINAL_USER));
-    //     participants.add(new User("user4", "", Role.FINAL_USER));
+        List<Booking> bookings = new ArrayList<>();
+        bookings.add(new Booking("code1", new User("user1", "", Role.FINAL_USER), List.of("visitor1")));
+        bookings.add(new Booking("code2", new User("user2", "", Role.FINAL_USER), List.of("visitor2")));
+        bookings.add(new Booking("code3", new User("user3", "", Role.FINAL_USER), List.of("visitor3")));
+        bookings.add(new Booking("code4", new User("user4", "", Role.FINAL_USER), List.of("visitor4")));
+        bookings.add(new Booking("code5", new User("user5", "", Role.FINAL_USER), List.of("visitor5")));
 
-    //     visit.setParticipants(participants);
 
-    //     schedulerService.updateVisitsStatus();
+        visit.setBookings(bookings);
 
-    //     ArgumentCaptor<Visit> captor = ArgumentCaptor.forClass(Visit.class);
-    //     verify(visitRepository).save(captor.capture());
+        schedulerService.updateVisitsStatus();
 
-    //     assertNotEquals(5, captor.getValue().getParticipants().size());
-    //     assertEquals(VisitStatus.PROPOSED, captor.getValue().getVisitStatus());
-    // }
+        ArgumentCaptor<Visit> captor = ArgumentCaptor.forClass(Visit.class);
+        verify(visitRepository).save(captor.capture());
 
-    // @Test
-    // void updateVisitsStatus_checkIfVisitStatusChangedThreeDaysBeforeToConfirmedIfMinNumberReached() {
-    //     Set<User> participants = new HashSet<>();
-    //     participants.add(new User("user1", "", Role.FINAL_USER));
+        assertEquals(5, captor.getValue().visitorsNumber());
+        assertEquals(VisitStatus.FULL, captor.getValue().getVisitStatus());
+    }
 
-    //     visit.setParticipants(participants);
-    //     visit.setDate(today.plusDays(2));
 
-    //     schedulerService.updateVisitsStatus();
+    @Test
+    void updateVisitsStatus_checkIfFullVisitTurnsIntoProposedWhenNoLongerFull() {
+        visit.setVisitStatus(VisitStatus.FULL);
+        List<Booking> bookings = new ArrayList<>();
+        bookings.add(new Booking("code1", new User("user1", "", Role.FINAL_USER), List.of("visitor1")));
+        bookings.add(new Booking("code2", new User("user2", "", Role.FINAL_USER), List.of("visitor2")));
+        bookings.add(new Booking("code3", new User("user3", "", Role.FINAL_USER), List.of("visitor3")));
+        bookings.add(new Booking("code4", new User("user4", "", Role.FINAL_USER), List.of("visitor4")));
 
-    //     ArgumentCaptor<Visit> captor = ArgumentCaptor.forClass(Visit.class);
-    //     verify(visitRepository).save(captor.capture());
+        visit.setBookings(bookings);
 
-    //     assertEquals(1, captor.getValue().getParticipants().size());
-    //     assertEquals(VisitStatus.CONFIRMED, captor.getValue().getVisitStatus());
-    // }
+        schedulerService.updateVisitsStatus();
 
-    // @Test
-    // void updateVisitsStatus_checkIfVisitStatusChangedThreeDaysBeforeToCancelledIfMinNumberNotReached() {
-    //     Set<User> participants = new HashSet<>();
+        ArgumentCaptor<Visit> captor = ArgumentCaptor.forClass(Visit.class);
+        verify(visitRepository).save(captor.capture());
 
-    //     visit.setParticipants(participants);
-    //     visit.setDate(today.plusDays(2));
+        assertNotEquals(5, captor.getValue().visitorsNumber());
+        assertEquals(VisitStatus.PROPOSED, captor.getValue().getVisitStatus());
+    }
 
-    //     schedulerService.updateVisitsStatus();
 
-    //     ArgumentCaptor<Visit> captor = ArgumentCaptor.forClass(Visit.class);
-    //     verify(visitRepository).save(captor.capture());
+    @Test
+    void updateVisitsStatus_checkIfVisitStatusChangedThreeDaysBeforeToConfirmedIfMinNumberReached() {
+        List<Booking> bookings = new ArrayList<>();
+        bookings.add(new Booking("code1", new User("user1", "", Role.FINAL_USER), List.of("visitor1")));
 
-    //     assertEquals(0, captor.getValue().getParticipants().size());
-    //     assertEquals(VisitStatus.CANCELLED, captor.getValue().getVisitStatus());
-    // }
+        visit.setBookings(bookings);
+        visit.setDate(today.plusDays(2));
+
+        schedulerService.updateVisitsStatus();
+
+        ArgumentCaptor<Visit> captor = ArgumentCaptor.forClass(Visit.class);
+        verify(visitRepository).save(captor.capture());
+
+        assertEquals(1, captor.getValue().visitorsNumber());
+        assertEquals(VisitStatus.CONFIRMED, captor.getValue().getVisitStatus());
+    }
+
+
+    @Test
+    void updateVisitsStatus_checkIfVisitStatusChangedThreeDaysBeforeToCancelledIfMinNumberNotReached() {
+        List<Booking> bookings = new ArrayList<>();
+
+        visit.setBookings(bookings);
+        visit.setDate(today.plusDays(2));
+
+        schedulerService.updateVisitsStatus();
+
+        ArgumentCaptor<Visit> captor = ArgumentCaptor.forClass(Visit.class);
+        verify(visitRepository).save(captor.capture());
+
+        assertEquals(0, captor.getValue().visitorsNumber());
+        assertEquals(VisitStatus.CANCELLED, captor.getValue().getVisitStatus());
+    }
 }

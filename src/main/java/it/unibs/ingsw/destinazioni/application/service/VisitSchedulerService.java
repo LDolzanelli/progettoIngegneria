@@ -40,7 +40,7 @@ public class VisitSchedulerService {
             List<?> bookings = visit.getBookings();
             var visitType = visit.getVisitType();
 
-            if (visitDate == null || status == null || bookings == null || visitType == null) continue;
+            if (visitDate == null || status == null || /*bookings == null||*/ visitType == null) continue;
 
             if (visitDate.isBefore(today)) {
                 handleOldVisitStatus(visit);

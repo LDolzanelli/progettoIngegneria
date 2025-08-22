@@ -19,17 +19,17 @@ public class Visit {
     private VisitStatus visitStatus;
 
 
-    public Visit(Integer id, LocalDate date, User volunteer, VisitType visitType, List<Booking> booking ,VisitStatus visitStatus) {
+    public Visit(Integer id, LocalDate date, User volunteer, VisitType visitType, List<Booking> bookings ,VisitStatus visitStatus) {
         this.id = id;
         this.date = date;
         this.volunteer = volunteer;
         this.visitType = visitType;
         this.visitStatus = visitStatus;
-        this.bookings = booking;
+        this.bookings = bookings;
     }
 
-    public Visit(LocalDate date, User volunteer, VisitType visitType, List<Booking> booking, VisitStatus visitStatus) {
-        this(null, date, volunteer, visitType, booking, visitStatus);
+    public Visit(LocalDate date, User volunteer, VisitType visitType, List<Booking> bookings, VisitStatus visitStatus) {
+        this(null, date, volunteer, visitType, bookings, visitStatus);
     }
 
     public int visitorsNumber() {
