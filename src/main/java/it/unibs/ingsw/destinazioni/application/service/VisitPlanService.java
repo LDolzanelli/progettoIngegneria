@@ -17,7 +17,6 @@ import it.unibs.ingsw.destinazioni.domain.model.enums.VisitStatus;
 import it.unibs.ingsw.destinazioni.domain.model.User;
 import it.unibs.ingsw.destinazioni.domain.model.VisitType;
 import it.unibs.ingsw.destinazioni.domain.model.VolunteerAvailableDate;
-import it.unibs.ingsw.destinazioni.domain.model.BlockedDates;
 
 import it.unibs.ingsw.destinazioni.application.port.out.VisitTypeRepositoryPort;
 import it.unibs.ingsw.destinazioni.application.port.out.VolunteerAvailableDateRepositoryPort;

@@ -10,7 +10,7 @@ public class BookingCodeGenerator {
 
     public static String generateBookingCode() {
         StringBuilder code = new StringBuilder(CODE_LENGTH);
-        for (int i = 0; i < 8; i++) {
+        for (int i = 0; i < CODE_LENGTH; i++) {
             code.append(CHARACTERS.charAt(RANDOM.nextInt(CHARACTERS.length())));
         }
         return code.toString();
