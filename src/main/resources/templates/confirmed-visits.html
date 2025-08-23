@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Le tue visite confermate</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body class="bg-light">
+    <div class="container py-5">
+      <h1 class="mb-4 text-center">Le tue visite confermate</h1>
+      <div class="table-responsive">
+        <table class="table table-striped table-hover shadow-sm">
+          <thead>
+            <tr>
+              <th>Data</th>
+              <th>Ora</th>
+              <th>Tipo Visita</th>
+              <th>Luogo</th>
+              <th>Stato</th>
+              <th>Partecipanti</th>
+              <th>Dettagli</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr th:each="visit : ${visits}">
+              <td th:text="${visit.date}"></td>
+              <td th:text="${visit.startTime}"></td>
+              <td th:text="${visit.visitTypeTitle}"></td>
+              <td th:text="${visit.locationName}"></td>
+              <td th:text="${visit.status}"></td>
+              <td th:text="${visit.numberOfParticipants}"></td>
+              <td>
+                <a
+                  th:href="@{/visit-details/{id}(id=${visit.id})}"
+                  class="btn btn-primary btn-sm"
+                >
+                  Visualizza
+                </a>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <a th:href="@{/}" class="btn btn-secondary mt-3">Torna alla Home</a>
+    </div>
+  </body>
+</html>

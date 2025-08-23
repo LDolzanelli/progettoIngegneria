@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Dettagli Visita</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+</head>
+<body class="bg-light">
+<div class="container py-5">
+    <h1 class="mb-4 text-center" th:text="${visit.visitTypeTitle}"></h1>
+
+    <div class="row mb-4">
+        <!-- Card info principali -->
+        <div class="col-md-6">
+            <div class="card shadow p-4 h-100">
+                <h4 class="mb-3">Informazioni Visita</h4>
+                <p><strong>Data:</strong> <span th:text="${visit.date}"></span></p>
+                <p><strong>Ora:</strong> <span th:text="${visit.startTime}"></span></p>
+                <p><strong>Durata:</strong> <span th:text="${visit.duration}"></span> minuti</p>
+                <p><strong>Luogo:</strong> <span th:text="${visit.locationName}"></span></p>
+                <p><strong>indirizzo:</strong> <span th:text="${visit.locationAddress}"></span></p>
+                <p><strong>Punto di Ritrovo:</strong> <span th:text="${visit.meetingPoint}"></span></p>
+                <p><strong>Stato:</strong> <span th:text="${visit.status}"></span></p>
+                <p><strong>Partecipanti:</strong> 
+                    <span th:text="${visit.numberOfParticipants}"></span> /
+                    <span th:text="${visit.maxParticipants}"></span>
+                </p>
+            </div>
+        </div>
+
+        <!-- Card descrizione -->
+        <div class="col-md-6">
+            <div class="card shadow p-4 h-100">
+                <h4 class="mb-3">Descrizione</h4>
+                <p th:text="${visit.visitTypeDescription}"></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Card partecipanti -->
+    <div class="card shadow p-4">
+        <h4 class="mb-3">Partecipanti per Prenotazione</h4>
+        <table class="table table-bordered">
+            <thead class="table-light">
+            <tr>
+                <th>Codice Prenotazione</th>
+                <th>Nomi</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="entry : ${visit.visitorsPerBookingCode}">
+                <td th:text="${entry.key}"></td>
+                <td>
+                    <ul class="mb-0">
+                        <li th:each="name : ${entry.value}" th:text="${name}"></li>
+                    </ul>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pulsante torna -->
+    <a th:href="@{/confirmed-visits(volunteerNickname=${visit.volunteerNickname})}" 
+       class="btn btn-secondary mt-3">
+        Torna alla lista
+    </a>
+</div>
+</body>
+</html>

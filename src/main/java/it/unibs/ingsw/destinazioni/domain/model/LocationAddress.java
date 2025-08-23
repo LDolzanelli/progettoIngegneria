@@ -18,4 +18,8 @@ public class LocationAddress {
         this.town = town;
         this.province = province;
     }
+
+    public String getFullAddress() {
+        return String.format("Via %s, %s, %s, %s)", street, streetNumber, town, province);
+    }
 }

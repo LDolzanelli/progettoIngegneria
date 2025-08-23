@@ -4,6 +4,7 @@ import it.unibs.ingsw.destinazioni.application.port.in.ManageLocationUseCase;
 import it.unibs.ingsw.destinazioni.application.port.out.LocationRepositoryPort;
 import it.unibs.ingsw.destinazioni.application.port.in.ManageVisitTypeUseCase;
 import it.unibs.ingsw.destinazioni.domain.model.Location;
+import it.unibs.ingsw.destinazioni.domain.model.VisitType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -38,7 +39,8 @@ public class LocationService implements ManageLocationUseCase {
         if (location.getVisitTypes().isEmpty()) {
             repository.deleteById(location.getId());
         } else {
-            // Rimuovo i tipi di visita associati alla location per eliminare anche eventuali volontari associati
+            // Rimuovo i tipi di visita associati alla location per eliminare anche eventuali volontari
+            // associati
             // La location verrà eliminata dopo la rimozione dei tipi di visita
             location.getVisitTypes().forEach(visitType -> visitTypeService.removeVisitType(visitType.getId()));
         }
@@ -86,5 +88,12 @@ public class LocationService implements ManageLocationUseCase {
                 .allMatch(visitType -> visitTypeService.canBeRemoved(visitType.getId()));
 
 
+    }
+
+
+    @Override
+    public Location getLocationForVisitType(VisitType visitType) {
+        return repository.findByVisitType(visitType).orElseThrow(() -> new IllegalArgumentException(
+                "Nessuna location associata al tipo di visita con id: " + visitType.getId()));
     }
 }

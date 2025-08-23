@@ -4,17 +4,20 @@ import java.time.Clock;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.List;
-import java.util.Set;
+
 import org.springframework.stereotype.Service;
 
+import it.unibs.ingsw.destinazioni.application.port.in.GetUserInfoUseCase;
 import it.unibs.ingsw.destinazioni.application.port.in.VisitDaysUseCase;
 import it.unibs.ingsw.destinazioni.application.port.out.BlockedDatesRepositoryPort;
 import it.unibs.ingsw.destinazioni.application.port.out.VisitRepositoryPort;
 import it.unibs.ingsw.destinazioni.application.port.out.VisitTypeRepositoryPort;
 import it.unibs.ingsw.destinazioni.domain.model.BlockedDates;
+import it.unibs.ingsw.destinazioni.domain.model.User;
 import it.unibs.ingsw.destinazioni.domain.model.Visit;
 import it.unibs.ingsw.destinazioni.domain.model.VisitType;
 import it.unibs.ingsw.destinazioni.domain.model.enums.DaysOfWeek;
+import it.unibs.ingsw.destinazioni.domain.model.enums.Role;
 import it.unibs.ingsw.destinazioni.domain.model.enums.VisitStatus;
 import lombok.RequiredArgsConstructor;
 
@@ -27,6 +30,7 @@ public class VisitDayService implements VisitDaysUseCase {
     private final VisitRepositoryPort visitRepository;
     private final VisitTypeRepositoryPort visitTypeRepository;
     private final BlockedDatesRepositoryPort blockedDatesRepository;
+    private final GetUserInfoUseCase userInfoService;
     private final Clock clock;
 
     @Override
@@ -55,7 +59,9 @@ public class VisitDayService implements VisitDaysUseCase {
         }
     }
 
-    private void createVisitsForType(VisitType visitType, LocalDate startOfMonth, LocalDate endOfMonth, BlockedDates blockedDates) {
+
+    private void createVisitsForType(VisitType visitType, LocalDate startOfMonth, LocalDate endOfMonth,
+            BlockedDates blockedDates) {
         LocalDate current = startOfMonth;
         while (!current.isAfter(endOfMonth)) {
             if (blockedDates.isBlocked(current)) {
@@ -78,5 +84,35 @@ public class VisitDayService implements VisitDaysUseCase {
     public void updateVisitDays(int month) {
         // TODO: implementare la logica per aggiornare i giorni di visita (con il piano di visita)
     }
+
+
+    @Override
+    public List<Visit> getConfirmedVisitsPerVolunteer(String volunteerNickname) {
+
+        User volunteer = userInfoService.findByNickname(volunteerNickname)
+                .orElseThrow(() -> new IllegalArgumentException("Volontario non trovato: " + volunteerNickname));
+
+
+        if (volunteer.getRole() != Role.VOLUNTEER)
+            throw new IllegalArgumentException("L'utente non è un volontario: " + volunteerNickname);
+
+
+        return visitRepository.findByVolunteer(volunteerNickname).stream()
+                .filter(visit -> visit.getVisitStatus() == VisitStatus.CONFIRMED).toList();
+
+    }
+
+
+    @Override
+    public Visit getVisitById(int visitId) {
+        return visitRepository.findById(visitId)
+                .orElseThrow(() -> new IllegalArgumentException("Visita non trovata con id: " + visitId));
+    }
+
+
+
+
+
+
 
 }

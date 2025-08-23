@@ -112,16 +112,22 @@
                 >
                   Dai le tue disponibilità per il mese successivo
                 </a>
+
+                <a
+                  th:href="@{/confirmed-visits(volunteerNickname=${username})}"
+                  class="btn btn-success btn-lg shadow-sm"
+                >
+                  Le tue visite confermate
+                </a>
               </div>
             </div>
 
             <div
-                    class="d-grid gap-3 col-6 mx-auto"
-                    th:if="${role == 'finalUser'}"
+              class="d-grid gap-3 col-6 mx-auto"
+              th:if="${role == 'finalUser'}"
             >
               <!-- TODO: NUOVI PULSANTI -->
             </div>
-            
           </div>
         </div>
       </div>
