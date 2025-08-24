@@ -88,6 +88,15 @@ public class JpaVisitRepositoryAdapter implements it.unibs.ingsw.destinazioni.ap
     }
 
 
+    @Override
+    public Optional<Visit> findByBookingCode(String bookingCode) {
+
+        BookingEntity bookingEntity = bookingRepository.findByIdBookingCode(bookingCode).get(0);
+
+        return visitRepository.findById(bookingEntity.getVisit().getId()).map(this::toDomain);
+
+    }
+
 
     private Visit toDomain(VisitEntity entity) {
         User volunteer =

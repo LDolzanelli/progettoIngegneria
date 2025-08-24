@@ -14,9 +14,12 @@ public interface BookingVisitsUseCase {
     public List<Booking> getBookingsByVisit(Visit visit);
     public List<Booking> getBookingsByUser(User user);
 
-    public void cancelBooking(String bookingCode);
+    public void cancelBooking(String bookingCode, int userId);
 
     public boolean isThisBookingCancellable(String bookingCode);
+
+    public Booking getBookingByCode(String bookingCode);
+    public Visit getVisitByBookingCode(String bookingCode);
     
     
 }

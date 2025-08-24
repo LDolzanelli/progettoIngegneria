@@ -2,7 +2,6 @@ package it.unibs.ingsw.destinazioni.domain.model;
 
 import lombok.Getter;
 import lombok.Setter;
-
 import java.time.LocalDate;
 import java.util.List;
 import it.unibs.ingsw.destinazioni.domain.model.enums.VisitStatus;
@@ -39,4 +38,9 @@ public class Visit {
     public int getAvailableSeats() {
         return visitType.getMaxParticipants() - visitorsNumber();
     }
+
+    public int daysUntilVisit(LocalDate today) {
+        return date.compareTo(today);
+    }
+
 }

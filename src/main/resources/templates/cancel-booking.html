@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="it">
+<head>
+    <meta charset="UTF-8">
+    <title>Disdici Prenotazione</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+</head>
+<body class="bg-light">
+
+<div class="container py-5">
+    <!-- Titolo -->
+    <h1 class="mb-4 text-center">Disdici una Prenotazione</h1>
+
+    <!-- Messaggi -->
+    <div id="message" class="alert d-none text-center"></div>
+
+    <!-- Card Inserimento Codice -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <h5 class="card-title mb-3">Inserisci il Codice</h5>
+            <div class="mb-3">
+                <input type="text" id="bookingCode" class="form-control" placeholder="Es. ABC123">
+            </div>
+            <button id="loadDetailsBtn" class="btn btn-primary w-100">Carica Dettagli</button>
+        </div>
+    </div>
+
+    <!-- Card Dettagli Prenotazione -->
+    <div id="bookingDetails" class="card shadow-sm d-none">
+        <div class="card-body">
+            <h5 class="card-title text-primary mb-3">Dettagli Prenotazione</h5>
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <tbody>
+                        <tr>
+                            <th scope="row">Utente</th>
+                            <td id="userName"></td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Visitatori</th>
+                            <td id="visitors"></td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Tipo Visita</th>
+                            <td id="visitType"></td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Luogo</th>
+                            <td id="location"></td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Data</th>
+                            <td id="visitDate"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <button id="cancelBtn" class="btn btn-danger w-100 mt-3">Disdici Prenotazione</button>
+        </div>
+    </div>
+
+    <a th:href="@{/}" class="btn btn-secondary mt-4 w-100">Torna alla Home</a>
+</div>
+
+<script th:inline="javascript">
+    const userId = /*[[${userId}]]*/ 0;
+    const username = /*[[${username}]]*/ "";
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const loadDetailsBtn = document.getElementById("loadDetailsBtn");
+        const cancelBtn = document.getElementById("cancelBtn");
+        const bookingDetailsDiv = document.getElementById("bookingDetails");
+        const messageDiv = document.getElementById("message");
+
+        function showMessage(message, type) {
+            messageDiv.textContent = message;
+            messageDiv.className = `alert alert-${type} text-center`;
+            messageDiv.classList.remove("d-none");
+        }
+
+        loadDetailsBtn.addEventListener("click", function () {
+            const bookingCode = document.getElementById("bookingCode").value.trim();
+            if (!bookingCode) {
+                showMessage("Inserisci un codice di prenotazione.", "danger");
+                bookingDetailsDiv.classList.add("d-none");
+                return;
+            }
+
+            fetch(`/api/booking/booking-details/${bookingCode}`)
+                .then(response => {
+                    if (!response.ok) throw new Error("Prenotazione non trovata.");
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.userId !== userId) {
+                        bookingDetailsDiv.classList.add("d-none");
+                        throw new Error("Non puoi annullare questa prenotazione: non sei il proprietario.");
+                    }
+
+                    document.getElementById("userName").textContent = data.userName;
+                    document.getElementById("visitors").textContent = data.visitorsNames.join(", ");
+                    document.getElementById("visitType").textContent = data.visitTypeName;
+                    document.getElementById("location").textContent = data.locationName;
+                    document.getElementById("visitDate").textContent = data.visitDate;
+
+                    bookingDetailsDiv.classList.remove("d-none");
+                    showMessage("Dettagli caricati con successo.", "info");
+                })
+                .catch(error => {
+                    showMessage(error.message, "danger");
+                });
+        });
+
+        cancelBtn.addEventListener("click", function () {
+            const bookingCode = document.getElementById("bookingCode").value.trim();
+
+            fetch("/api/booking/cancel", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ bookingCode: bookingCode, userId: userId })
+            })
+            .then(response => {
+                if (!response.ok) return response.text().then(text => { throw new Error(text); });
+                return response.text();
+            })
+            .then(successMsg => {
+                showMessage(successMsg, "success");
+                bookingDetailsDiv.classList.add("d-none");
+                document.getElementById("bookingCode").value = "";
+            })
+            .catch(error => {
+                showMessage(error.message, "danger");
+            });
+        });
+    });
+</script>
+
+</body>
+</html>

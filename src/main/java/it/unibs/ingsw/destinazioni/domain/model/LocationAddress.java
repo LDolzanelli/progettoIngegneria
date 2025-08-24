@@ -20,6 +20,6 @@ public class LocationAddress {
     }
 
     public String getFullAddress() {
-        return String.format("Via %s, %s, %s, %s)", street, streetNumber, town, province);
+        return String.format("Via %s, %s, %s, %s", street, streetNumber, town, province);
     }
 }
