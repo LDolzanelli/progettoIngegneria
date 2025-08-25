@@ -16,7 +16,6 @@ public class LocationViewController {
 
     private final RestTemplate restTemplate = new RestTemplate();
 
-    //controller per la pagina che mostra tutte le visite già presenti
     @GetMapping("/view-locations")
     public String viewLocations(@AuthenticationPrincipal UserDetails principal, Model model) {
         model.addAttribute("username", principal.getUsername());
@@ -44,7 +43,6 @@ public class LocationViewController {
         return restTemplate.getForObject("http://localhost:8080/api/area-of-interest/townProvinceMap", Object.class);
     }
 
-    //controller per la pagina di aggiunta luogo interesse
     @GetMapping("/add-location")
     public String addLocationForm(@AuthenticationPrincipal UserDetails principal, Model model) {
         model.addAttribute("username", principal.getUsername());
@@ -60,7 +58,6 @@ public class LocationViewController {
         return "add-location";
     }
 
-    //gestione del post per aggiungere un luogo
     @PostMapping("/add-location")
     public String addLocationSubmit(@AuthenticationPrincipal UserDetails principal,
             @RequestParam String name,

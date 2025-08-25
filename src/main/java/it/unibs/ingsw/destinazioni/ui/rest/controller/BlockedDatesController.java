@@ -46,7 +46,7 @@ public class BlockedDatesController {
         Set<String> dates = blockedDates.getDates().stream()
                 .sorted()
                 .map(LocalDate::toString)
-                .collect(Collectors.toCollection(LinkedHashSet::new)); // ordine cronologico
+                .collect(Collectors.toCollection(LinkedHashSet::new));
         return ResponseEntity.ok(dates);
     }
 

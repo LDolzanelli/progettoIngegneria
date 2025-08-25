@@ -144,8 +144,6 @@ public class VisitPlanService implements VisitPlanUseCase {
         return YearMonth.from(today).plusMonths(1).getMonthValue();
     }
 
-    // valutare se inserirla in una classe separata (viene utilizzata solo per la creazione del piano
-    // visite)
     @Getter
     @Setter
     private class VolunteerVisitCount {
@@ -172,7 +170,6 @@ public class VisitPlanService implements VisitPlanUseCase {
     }
 
 
-    // usare questo o lo UserRepository
     private User volunteerById(int id, List<User> volunteers) {
         Optional<User> volunteer = volunteers.stream().filter(v -> v.getId() == id).findAny();
         if (volunteer.isPresent())
@@ -190,8 +187,6 @@ public class VisitPlanService implements VisitPlanUseCase {
             return false;
     }
 
-    // valutare se crearne una versione diversa o con policy a scelta es:
-    // selectBestVolunteer(volonteers, vvc, comparator)
     private User selectBestVolunteer(List<User> volunteers, List<VolunteerVisitCount> volunteerVisitCounts) {
 
         Comparator<User> volunteerComparator =
@@ -224,7 +219,6 @@ public class VisitPlanService implements VisitPlanUseCase {
         volunteerAvailabilities.remove(usedAvailability);
 
         visitRepository.save(visit);
-        printVisitDetails(visit);
     }
 
 
@@ -273,11 +267,4 @@ public class VisitPlanService implements VisitPlanUseCase {
         blockedDatesRepository.loadByMonth(month, year).getDates().stream().forEach(blockedDatesRepository::delete);
     }
 
-
-    // solo per debug, rimuovere nelle prossime versioni
-    private void printVisitDetails(Visit visit) {
-        System.out.println("Dettagli visita: ");
-        System.out.println("Giorno: " + visit.getDate() + " di tipo: " + visit.getVisitType().getId());
-        System.out.println("Volontario: " + visit.getVolunteer().getId());
-    }
 }

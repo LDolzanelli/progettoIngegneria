@@ -19,7 +19,6 @@
     />
 
     <style>
-      /* Your existing styles unchanged */
       .datepicker-inline {
         font-size: 1.2rem;
         width: 100%;
@@ -224,8 +223,6 @@
 
           $("#blocked-dates-form").on("submit", async function (e) {
             e.preventDefault();
-            
-            //if (mode === "available" && isReadOnly) return;
 
             const payload = { dateList: selectedDates };
 

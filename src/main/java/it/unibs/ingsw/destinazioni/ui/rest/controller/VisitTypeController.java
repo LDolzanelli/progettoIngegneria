@@ -117,8 +117,6 @@ public class VisitTypeController {
         return ResponseEntity.ok(manageVisitTypeUseCase.isAddOrRemovalStateActive());
     }
 
-    // ======= mappers ==========
-
     private VisitTypeDTO mapToDTO(VisitType visitType) {
         List<String> days = visitType.getDaysAvailable() != null
                 ? visitType.getDaysAvailable().stream().map(Enum::name).toList()

@@ -37,7 +37,6 @@
       </div>
 
       <div class="row" id="locationsGrid">
-        <!-- Card generate da JS -->
       </div>
     </div>
 
@@ -52,7 +51,7 @@
         const grid = document.getElementById("locationsGrid");
         const noLocationsMessage =
           document.getElementById("noLocationsMessage");
-        grid.innerHTML = ""; // pulisci
+        grid.innerHTML = "";
 
         if (locations.length === 0) {
           noLocationsMessage.style.display = "block";
@@ -103,7 +102,7 @@
 
         if (resp.ok) {
           alert("Luogo eliminato con successo.");
-          await loadLocations(); // ricarica lista
+          await loadLocations();
         } else {
           alert("Errore durante l'eliminazione del luogo.");
         }
