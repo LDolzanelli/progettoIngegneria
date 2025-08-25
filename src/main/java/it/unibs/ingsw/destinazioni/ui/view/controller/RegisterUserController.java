@@ -25,7 +25,7 @@ public class RegisterUserController {
 
         model.addAttribute("isConfigurator", isConfigurator);
         model.addAttribute("username", principal != null ? principal.getUsername() : null);
-        return "register-user"; // Thymeleaf page
+        return "register-user";
     }
 
     @PostMapping
@@ -34,7 +34,6 @@ public class RegisterUserController {
                            @RequestParam String password,
                            Model model) {
         String authNickname = principal.getUsername();
-        System.out.println("USERNAMEEEE " + authNickname);
         LoginResponseDTO userInfo;
 
         try {

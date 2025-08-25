@@ -7,13 +7,13 @@ public record VisitTypeDTO(
         String title,
         String description,
         String meetingPoint,
-        String startDate,      // ISO date e.g. "2025-05-22"
-        String endDate,        // ISO date
-        String startTime,      // ISO time e.g. "14:30:00"
+        String startDate,
+        String endDate,
+        String startTime,
         int duration,
         int maxParticipants,
         int minParticipants,
         boolean isFree,
-        List<String> daysAvailable,  // list of day names as Strings, e.g. ["Monday", "Wednesday"]
-        List<String> volunteers       // list of volunteer usernames or IDs as Strings (simplified)
+        List<String> daysAvailable,
+        List<String> volunteers
 ) {}

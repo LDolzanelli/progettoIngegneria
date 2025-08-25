@@ -154,12 +154,10 @@
         const locationId = getParamFromUrl("locationId");
         const addBtn = document.getElementById("addVisitTypeBtn");
 
-        // Update href if possible
         if (addBtn) {
             if (locationId) {
                 addBtn.href = `/add-visittype?locationId=${encodeURIComponent(locationId)}`;
             } else {
-                // prevent default if href is "#"
                 addBtn.addEventListener('click', e => e.preventDefault());
             }
         }

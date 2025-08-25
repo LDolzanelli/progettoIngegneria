@@ -92,7 +92,6 @@ public class VisitTypeViewController {
         return "add-visittype";
     }
 
-    // Gestione POST per l'aggiunta
     @PostMapping("/add-visittype")
     public String addVisitTypeSubmit(@AuthenticationPrincipal UserDetails principal,
                                      @RequestParam String title,

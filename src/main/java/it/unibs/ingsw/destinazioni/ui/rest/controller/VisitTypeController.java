@@ -100,8 +100,6 @@ public class VisitTypeController {
         }
     }
 
-    // ======= mappers ==========
-
     private VisitTypeDTO mapToDTO(VisitType visitType) {
         List<String> days = visitType.getDaysAvailable() != null
                 ? visitType.getDaysAvailable().stream().map(Enum::name).toList()

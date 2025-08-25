@@ -25,7 +25,6 @@
     </div>
 
     <div class="row" id="locationsGrid">
-        <!-- Card generate da JS -->
     </div>
 </div>
 
@@ -39,7 +38,7 @@
         const locations = await resp.json();
         const grid = document.getElementById('locationsGrid');
         const noLocationsMessage = document.getElementById('noLocationsMessage');
-        grid.innerHTML = ''; // pulisci
+        grid.innerHTML = '';
 
         if (locations.length === 0) {
             noLocationsMessage.style.display = 'block';

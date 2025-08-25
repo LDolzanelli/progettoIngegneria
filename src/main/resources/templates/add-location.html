@@ -61,7 +61,7 @@
 
 <script>
     async function submitLocation(event) {
-        event.preventDefault();  // ferma submit tradizionale
+        event.preventDefault();
 
         const form = event.target;
         if (!form.checkValidity()) {
@@ -69,7 +69,6 @@
             return;
         }
 
-        // Prepara i dati in JSON da inviare
         const data = {
             name: form.name.value,
             description: form.description.value,
@@ -79,7 +78,7 @@
                 town: form.town.value,
                 province: form.province.value
             },
-            visitTypes: []  // puoi modificarlo se vuoi aggiungere visite
+            visitTypes: []
         };
 
         try {
@@ -96,7 +95,6 @@
             } else {
                 const errorText = await response.text();
                 alert('Errore nell\'aggiunta della location: ' + errorText);
-                //TODO: aggiungere perchè non è stato aggiunto (esempio: indirizzo già presente)
             }
         } catch (error) {
             alert('Errore di rete o server: ' + error.message);
@@ -105,7 +103,6 @@
     (() => {
         'use strict'
 
-        // Bootstrap form validation
         const forms = document.querySelectorAll('.needs-validation');
         Array.from(forms).forEach(form => {
             form.addEventListener('submit', event => {
@@ -117,12 +114,10 @@
             }, false);
         });
 
-        // Fetch towns from API and populate dropdown
         fetch('/api/area-of-interest/townList')
             .then(response => response.json())
             .then(data => {
-                // assuming data structure: { towns: ["Town1", "Town2", ...] }
-                const towns = data.towns || data; // adatta in base al DTO che restituisce la lista
+                const towns = data.towns || data;
                 const townSelect = document.getElementById('town');
                 towns.forEach(town => {
                     const option = document.createElement('option');
