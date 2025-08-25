@@ -69,7 +69,6 @@ public class JpaLocationRepositoryAdapter implements LocationRepositoryPort {
         locationEntity.setName(location.getName());
         locationEntity.setDescription(location.getDescription());
 
-        // Costruzione dell’indirizzo
         LocationAddressEntity addressEntity = new LocationAddressEntity();
 
         LocationAddressIdEntity addressId = new LocationAddressIdEntity();
@@ -80,7 +79,6 @@ public class JpaLocationRepositoryAdapter implements LocationRepositoryPort {
         addressEntity.setId(addressId);
         addressEntity.setProvince(location.getAddress().getProvince());
 
-        // Collegamento bidirezionale
         addressEntity.setLocation(locationEntity);
         locationEntity.setLocationAddress(addressEntity);
 

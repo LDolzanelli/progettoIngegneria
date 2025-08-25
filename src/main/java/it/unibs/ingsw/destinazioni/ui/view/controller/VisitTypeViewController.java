@@ -24,7 +24,6 @@ public class VisitTypeViewController {
 
     private final RestTemplate restTemplate = new RestTemplate();
 
-    // Pagina per visualizzare i tipi di visita
     @GetMapping("/view-visittype")
     public String viewVisitTypes(@RequestParam Long locationId,
                                  @AuthenticationPrincipal UserDetails principal,
@@ -43,7 +42,6 @@ public class VisitTypeViewController {
         return "view-visittype";
     }
 
-    // Pagina per mostrare il form di aggiunta
     @GetMapping("/add-visittype")
     public String addVisitTypeForm(@AuthenticationPrincipal UserDetails principal, Model model) {
         model.addAttribute("username", principal.getUsername());
@@ -62,15 +60,14 @@ public class VisitTypeViewController {
         return "add-visittype";
     }
 
-    // Gestione POST per l'aggiunta
     @PostMapping("/add-visittype")
     public String addVisitTypeSubmit(@AuthenticationPrincipal UserDetails principal,
                                      @RequestParam String title,
                                      @RequestParam String description,
                                      @RequestParam String meetingPoint,
-                                     @RequestParam String startDate,     // Formato ISO: "2025-06-01"
+                                     @RequestParam String startDate,
                                      @RequestParam String endDate,
-                                     @RequestParam String startTime,     // Formato ISO: "14:00:00"
+                                     @RequestParam String startTime,
                                      @RequestParam int duration,
                                      @RequestParam int minParticipants,
                                      @RequestParam int maxParticipants,

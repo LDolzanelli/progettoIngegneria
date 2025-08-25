@@ -36,7 +36,7 @@ public class SecurityConfiguration {
                 )
                 .formLogin(form -> form
                         .loginPage("/login")
-                        .successHandler(successHandler)      // <-- usa il nostro handler
+                        .successHandler(successHandler)
                         .failureUrl("/login?error=true")
                         .permitAll()
                 )
@@ -51,7 +51,7 @@ public class SecurityConfiguration {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder(); // Assicurati che le password siano codificate nel DB
+        return new BCryptPasswordEncoder();
     }
 
     @Bean

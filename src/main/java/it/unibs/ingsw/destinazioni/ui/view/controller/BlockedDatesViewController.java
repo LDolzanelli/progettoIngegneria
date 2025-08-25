@@ -27,7 +27,6 @@ public class BlockedDatesViewController {
             RedirectAttributes redirectAttributes
     ) {
         try {
-            // Splitta le date su virgola e rimuove spazi vuoti
             var dateList = Arrays.stream(blockedDatesString.split(","))
                     .map(String::trim)
                     .filter(s -> !s.isEmpty())
@@ -35,7 +34,6 @@ public class BlockedDatesViewController {
 
             System.out.printf("Date ricevute: {}", dateList);
 
-            // Prepara DTO
             BlockedDatesDTO dto = new BlockedDatesDTO(dateList);
 
             restTemplate.postForObject("http://localhost:8080/api/blocked-dates/set", dto, Void.class);

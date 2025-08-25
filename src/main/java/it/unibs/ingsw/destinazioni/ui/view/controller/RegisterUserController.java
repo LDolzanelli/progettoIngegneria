@@ -25,7 +25,7 @@ public class RegisterUserController {
 
         model.addAttribute("isConfigurator", isConfigurator);
         model.addAttribute("username", principal != null ? principal.getUsername() : null);
-        return "register-user"; // Thymeleaf page
+        return "register-user";
     }
 
     @PostMapping

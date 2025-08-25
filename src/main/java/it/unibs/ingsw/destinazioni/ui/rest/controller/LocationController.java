@@ -58,7 +58,7 @@ public class LocationController {
         return ResponseEntity.ok(locations);
     }
 
-    // Mapper domain a DTO
+    //mapper domain a DTO
     private LocationDTO mapToDTO(Location location) {
         var address = location.getAddress();
         return new LocationDTO(
@@ -71,11 +71,11 @@ public class LocationController {
                         address.getTown(),
                         address.getProvince()
                 ),
-                null // puoi mappare visitTypes se vuoi
+                null
         );
     }
 
-    // Mapper DTO a domain
+    //mapper DTO a domain
     private Location mapToDomain(LocationDTO dto) {
         var addressDto = dto.address();
 
