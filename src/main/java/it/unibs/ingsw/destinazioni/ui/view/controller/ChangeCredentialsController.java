@@ -69,15 +69,12 @@ public class ChangeCredentialsController {
             }
 
         } catch (HttpClientErrorException e) {
-            //messaggio di default
             String errorMessage = "Errore durante l'aggiornamento delle credenziali";
 
             if (e.getStatusCode() == HttpStatus.BAD_REQUEST) {
                 try {
-                    //Response body come messaggio di errore
                     errorMessage = e.getResponseBodyAsString();
                 } catch (Exception ex) {
-                    //default
                 }
             }
 

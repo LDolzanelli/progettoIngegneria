@@ -49,8 +49,7 @@ public class HomeController {
         model.addAttribute("role", userInfo.role());
 
         // Se l'utente è un configuratore, e non esiste ancora un corpo dati, viene reindirizzato ad una
-        // pagina
-        // che gli permette di inserire location
+        // pagina che gli permette di inserire location
         if (userInfo.role().equalsIgnoreCase("configurator")) {
             String urlArea = url + "area-of-interest/isEmpty";
             Boolean exists = restTemplate.getForObject(urlArea, Boolean.class);

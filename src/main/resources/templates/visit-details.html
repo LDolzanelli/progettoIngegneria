@@ -10,7 +10,6 @@
     <h1 class="mb-4 text-center" th:text="${visit.visitTypeTitle}"></h1>
 
     <div class="row mb-4">
-        <!-- Card info principali -->
         <div class="col-md-6">
             <div class="card shadow p-4 h-100">
                 <h4 class="mb-3">Informazioni Visita</h4>
@@ -28,7 +27,6 @@
             </div>
         </div>
 
-        <!-- Card descrizione -->
         <div class="col-md-6">
             <div class="card shadow p-4 h-100">
                 <h4 class="mb-3">Descrizione</h4>
@@ -37,7 +35,6 @@
         </div>
     </div>
 
-    <!-- Card partecipanti -->
     <div class="card shadow p-4">
         <h4 class="mb-3">Partecipanti per Prenotazione</h4>
         <table class="table table-bordered">
@@ -60,8 +57,7 @@
         </table>
     </div>
 
-    <!-- Pulsante torna -->
-    <a th:href="@{/confirmed-visits(volunteerNickname=${visit.volunteerNickname})}" 
+    <a th:href="@{/confirmed-visits(volunteerNickname=${visit.volunteerNickname})}"
        class="btn btn-secondary mt-3">
         Torna alla lista
     </a>

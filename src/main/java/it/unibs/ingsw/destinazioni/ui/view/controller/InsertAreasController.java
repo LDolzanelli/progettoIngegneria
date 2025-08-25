@@ -22,7 +22,7 @@ public class InsertAreasController {
     @GetMapping
     public String showForm(@AuthenticationPrincipal UserDetails principal, Model model) {
         model.addAttribute("username", principal.getUsername());
-        return "insert-areas-of-interest"; // pagina Thymeleaf
+        return "insert-areas-of-interest";
     }
 
     @PostMapping

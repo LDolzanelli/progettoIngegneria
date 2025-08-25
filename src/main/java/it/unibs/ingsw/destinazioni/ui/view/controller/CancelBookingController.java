@@ -26,6 +26,6 @@ public class CancelBookingController {
         model.addAttribute("userId", userId);
         model.addAttribute("username", nickname);
 
-        return "cancel-booking"; // Nome del template Thymeleaf
+        return "cancel-booking";
     }
 }

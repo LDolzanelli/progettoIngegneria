@@ -20,7 +20,6 @@ public class DateTimeConfig {
     @Bean
     @Profile("test")
     public Clock testClock() {
-        // Return a fixed clock for testing
         return Clock.fixed(Instant.parse("2025-09-16T00:00:00Z"), ZoneId.systemDefault());
     }
 }

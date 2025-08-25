@@ -258,7 +258,7 @@
 
           if (resp.ok) {
             alert("Tipo di visita eliminato con successo!");
-            location.reload(); // Ricarica la pagina per aggiornare la lista
+            location.reload();
           } else {
             const errorText = await resp.text();
             alert("Errore durante l'eliminazione: " + errorText);

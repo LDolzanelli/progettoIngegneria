@@ -23,10 +23,9 @@ public class CustomUserDetailsService implements UserDetailsService {
         User user = userRepository.findByNickname(nickname)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + nickname));
 
-        // Here, the password is stored as plain text (no encoding required)
         return new org.springframework.security.core.userdetails.User(
                 user.getNickname(),
-                user.getPassword(), // Password is plain text because of {noop}
+                user.getPassword(),
                 Collections.singleton(new SimpleGrantedAuthority("ROLE_" + user.getRole()))
         );
     }

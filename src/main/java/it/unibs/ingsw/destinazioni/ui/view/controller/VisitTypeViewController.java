@@ -96,7 +96,6 @@ public class VisitTypeViewController {
     }
 
 
-    // Gestione POST per l'aggiunta
     @PostMapping("/add-visittype")
     public String addVisitTypeSubmit(@AuthenticationPrincipal UserDetails principal, @RequestParam String title,
             @RequestParam String description, @RequestParam String meetingPoint, @RequestParam String startDate,     // Formato
@@ -138,7 +137,6 @@ public class VisitTypeViewController {
     @GetMapping("/add-volunteers")
     public String addVolunteersPage(@RequestParam int visitTypeId, Model model) {
         try {
-            // Recupero visitType e i volontari già associati
             String urlAssigned = "http://localhost:8080/api/visit-type/" + visitTypeId;
             ResponseEntity<VisitTypeDTO> response = restTemplate.getForEntity(urlAssigned, VisitTypeDTO.class);
             VisitTypeDTO visitType = response.getBody();
@@ -146,12 +144,10 @@ public class VisitTypeViewController {
             model.addAttribute("visitTypeId", visitTypeId);
             model.addAttribute("assignedVolunteers", visitType.volunteers());
 
-            // Recupero tutti i volontari disponibili
             String urlAll = "http://localhost:8080/api/users/list_volunteers";
             ResponseEntity<VolunteerDTO[]> allResponse = restTemplate.getForEntity(urlAll, VolunteerDTO[].class);
             List<VolunteerDTO> allVolunteers = Arrays.asList(allResponse.getBody());
 
-            // Rimuovo quelli già associati
             List<VolunteerDTO> availableVolunteers =
                     allVolunteers.stream().filter(v -> !visitType.volunteers().contains(v.nickname())).toList();
 
@@ -174,11 +170,9 @@ public class VisitTypeViewController {
             String url = "http://localhost:8080/api/visit-type/add-volunteer/" + visitTypeId + "/" + volunteerNickname;
             restTemplate.postForEntity(url, null, Void.class);
 
-            // messaggio di successo
             redirectAttributes.addFlashAttribute("success",
                     "Volontario '" + volunteerNickname + "' aggiunto con successo!");
         } catch (Exception e) {
-            // messaggio di errore
             redirectAttributes.addFlashAttribute("error",
                     "Errore durante l'aggiunta del volontario: " + e.getMessage());
         }

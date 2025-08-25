@@ -27,7 +27,7 @@ public class RegisterUserController {
 
         model.addAttribute("isConfigurator", isConfigurator);
         model.addAttribute("username", principal != null ? principal.getUsername() : null);
-        return "register-user"; // Thymeleaf page
+        return "register-user";
     }
 
     @PostMapping
@@ -48,7 +48,7 @@ public class RegisterUserController {
 
         if (!password.equals(passwordConfirm)) {
             model.addAttribute("error", "Le password non coincidono!");
-            return "register-user"; // back to the registration page
+            return "register-user";
         }
 
         boolean isConfigurator = userInfo.role().equalsIgnoreCase("configurator");
