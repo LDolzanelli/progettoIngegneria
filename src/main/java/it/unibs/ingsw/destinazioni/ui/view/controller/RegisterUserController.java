@@ -34,28 +34,29 @@ public class RegisterUserController {
     public String register(@AuthenticationPrincipal UserDetails principal,
                            @RequestParam String nickname,
                            @RequestParam String password,
-                           @RequestParam String passwordConfirm,
+                           @RequestParam String confirmPassword,
                            Model model) {
-        String authNickname = principal.getUsername();
-        System.out.println("USERNAMEEEE " + authNickname);
-        LoginResponseDTO userInfo;
+        boolean isConfigurator = false;
+        if (principal != null) {
+            String authNickname = principal.getUsername();
+            LoginResponseDTO userInfo;
 
-        try {
-            userInfo = restTemplate.getForObject("http://localhost:8080/api/users/info/" + authNickname, LoginResponseDTO.class);
-        } catch (Exception e) {
-            throw new IllegalStateException("Errore nel recupero dell'utente: " + nickname, e);
+            try {
+                userInfo = restTemplate.getForObject("http://localhost:8080/api/users/info/" + authNickname, LoginResponseDTO.class);
+                isConfigurator = userInfo.role().equalsIgnoreCase("configurator");
+            } catch (Exception e) {
+                throw new IllegalStateException("Errore nel recupero dell'utente: " + nickname, e);
+            }
         }
 
-        if (!password.equals(passwordConfirm)) {
+        if (!password.equals(confirmPassword)) {
             model.addAttribute("error", "Le password non coincidono!");
             return "register-user";
         }
 
-        boolean isConfigurator = userInfo.role().equalsIgnoreCase("configurator");
-
         String role = isConfigurator ? "volunteer" : "finalUser";
 
-        RegisterUserDTO dto = new RegisterUserDTO(nickname, password, role);
+        RegisterUserDTO dto = new RegisterUserDTO(nickname, password, confirmPassword, role);
 
         try {
             restTemplate.postForEntity("http://localhost:8080/api/users/register", dto, Void.class);
@@ -67,6 +68,6 @@ public class RegisterUserController {
 
         model.addAttribute("success", "Registrazione avvenuta con successo!");
         model.addAttribute("isConfigurator", isConfigurator);
-        return "register-user";
+        if(isConfigurator) return "register-user"; else return "redirect:/login";
     }
 }

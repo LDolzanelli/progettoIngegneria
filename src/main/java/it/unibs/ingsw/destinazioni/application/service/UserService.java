@@ -29,7 +29,8 @@ public class UserService implements LoginUseCase, GetUserInfoUseCase, ChangeCred
             throw new IllegalArgumentException("Nickname già in uso");
         }
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user.setFirstLogin(true);
+        //se è un finalUser che si sta registrando, non deve reimpostare le credenziali
+        user.setFirstLogin(!user.getRole().equals(Role.FINAL_USER));
         userRepository.save(user);
     }
 
