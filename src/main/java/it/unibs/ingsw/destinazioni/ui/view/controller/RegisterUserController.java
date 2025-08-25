@@ -2,6 +2,7 @@ package it.unibs.ingsw.destinazioni.ui.view.controller;
 
 import it.unibs.ingsw.destinazioni.domain.dto.LoginResponseDTO;
 import it.unibs.ingsw.destinazioni.domain.dto.RegisterUserDTO;
+import jakarta.annotation.security.PermitAll;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -13,6 +14,7 @@ import org.springframework.web.client.RestTemplate;
 
 @Controller
 @RequiredArgsConstructor
+@PermitAll
 @RequestMapping("/register-user")
 public class RegisterUserController {
 
@@ -32,6 +34,7 @@ public class RegisterUserController {
     public String register(@AuthenticationPrincipal UserDetails principal,
                            @RequestParam String nickname,
                            @RequestParam String password,
+                           @RequestParam String passwordConfirm,
                            Model model) {
         String authNickname = principal.getUsername();
         System.out.println("USERNAMEEEE " + authNickname);
@@ -43,9 +46,12 @@ public class RegisterUserController {
             throw new IllegalStateException("Errore nel recupero dell'utente: " + nickname, e);
         }
 
-        boolean isConfigurator = userInfo.role().equalsIgnoreCase("configurator");
+        if (!password.equals(passwordConfirm)) {
+            model.addAttribute("error", "Le password non coincidono!");
+            return "register-user"; // back to the registration page
+        }
 
-        System.out.println(isConfigurator);
+        boolean isConfigurator = userInfo.role().equalsIgnoreCase("configurator");
 
         String role = isConfigurator ? "volunteer" : "finalUser";
 

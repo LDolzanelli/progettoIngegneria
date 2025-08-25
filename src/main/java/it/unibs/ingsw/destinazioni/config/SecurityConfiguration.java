@@ -14,12 +14,9 @@ import it.unibs.ingsw.destinazioni.application.service.CustomUserDetailsService;
 @Configuration
 public class SecurityConfiguration {
 
-    private final CustomUserDetailsService userDetailsService;
     private final CustomAuthenticationSuccessHandler successHandler;
 
-    public SecurityConfiguration(CustomUserDetailsService userDetailsService,
-                                 CustomAuthenticationSuccessHandler successHandler) {
-        this.userDetailsService = userDetailsService;
+    public SecurityConfiguration(CustomAuthenticationSuccessHandler successHandler) {
         this.successHandler = successHandler;
     }
 
@@ -30,13 +27,13 @@ public class SecurityConfiguration {
                         .ignoringRequestMatchers(new AntPathRequestMatcher("/api/**"))
                 )
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login", "/api/**", "/css/**", "/js/**").permitAll()
+                        .requestMatchers("/login", "/register-user", "/api/**", "/css/**", "/js/**").permitAll()
                         .requestMatchers("/change-credentials").authenticated()
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
                         .loginPage("/login")
-                        .successHandler(successHandler)      // <-- usa il nostro handler
+                        .successHandler(successHandler)
                         .failureUrl("/login?error=true")
                         .permitAll()
                 )
@@ -51,7 +48,7 @@ public class SecurityConfiguration {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder(); // Assicurati che le password siano codificate nel DB
+        return new BCryptPasswordEncoder();
     }
 
     @Bean

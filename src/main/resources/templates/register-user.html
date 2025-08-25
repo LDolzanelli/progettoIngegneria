@@ -28,9 +28,25 @@
             <input type="password" class="form-control" id="password" name="password" required>
         </div>
 
+        <div class="mb-3">
+            <label for="confirmPassword" class="form-label">Conferma Password</label>
+            <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" required>
+        </div>
+
         <button type="submit" class="btn btn-primary w-100">Registra</button>
     </form>
 </div>
 
 </body>
 </html>
+<script>
+    document.querySelector("form").addEventListener("submit", function (e) {
+        const password = document.getElementById("password").value;
+        const confirm = document.getElementById("confirmPassword").value;
+
+        if (password !== confirm) {
+            e.preventDefault();
+            alert("Le password non coincidono!");
+        }
+    });
+</script>
