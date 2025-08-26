@@ -1,12 +1,12 @@
 USE destinazioni;
 
-CREATE TABLE area_of_interest (
+CREATE TABLE IF NOT EXISTS area_of_interest (
   town VARCHAR(100) NOT NULL,
   province VARCHAR(50) NOT NULL,
   PRIMARY KEY (town)
 );
 
-CREATE TABLE users (
+CREATE TABLE IF NOT EXISTS users (
   id INT NOT NULL AUTO_INCREMENT,
   nickname VARCHAR(50) NOT NULL UNIQUE,
   password VARCHAR(255) NOT NULL,
@@ -16,14 +16,14 @@ CREATE TABLE users (
   CHECK (role IN ('configurator', 'volunteer', 'finalUser'))
 );
 
-CREATE TABLE locations (
+CREATE TABLE IF NOT EXISTS locations (
   id INT NOT NULL AUTO_INCREMENT,
   name VARCHAR(100) NOT NULL,
   description TEXT,
   PRIMARY KEY (id)
 );
 
-CREATE TABLE location_addresses (
+CREATE TABLE IF NOT EXISTS location_addresses (
   street VARCHAR(100) NOT NULL,
   number VARCHAR(20) NOT NULL,
   town VARCHAR(100) NOT NULL,
@@ -36,7 +36,7 @@ CREATE TABLE location_addresses (
     ON DELETE CASCADE ON UPDATE CASCADE
 );
 
-CREATE TABLE visit_types (
+CREATE TABLE IF NOT EXISTS visit_types (
   id INT NOT NULL AUTO_INCREMENT,
   title VARCHAR(100) NOT NULL,
   description TEXT NOT NULL,
@@ -56,7 +56,7 @@ CREATE TABLE visit_types (
   CHECK (max_num_participants >= min_num_participants)
 );
 
-CREATE TABLE visits (
+CREATE TABLE IF NOT EXISTS visits (
   id INT NOT NULL AUTO_INCREMENT,
   date DATE NOT NULL,
   volunteer_id INT,
@@ -71,7 +71,7 @@ CREATE TABLE visits (
 );
 
 
-CREATE TABLE bookings (
+CREATE TABLE IF NOT EXISTS bookings (
   booking_code VARCHAR(8) NOT NULL,
   visitor_name VARCHAR(100) NOT NULL,
   visit_id INT NOT NULL,
@@ -84,7 +84,7 @@ CREATE TABLE bookings (
 );
 
 
-CREATE TABLE visit_days (
+CREATE TABLE IF NOT EXISTS visit_days (
   visit_type_id INT NOT NULL,
   day_of_week VARCHAR(9) NOT NULL,
   PRIMARY KEY (visit_type_id, day_of_week),
@@ -92,17 +92,17 @@ CREATE TABLE visit_days (
   CHECK (day_of_week IN ('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'))
 );
 
-CREATE TABLE config (
+CREATE TABLE IF NOT EXISTS config (
   name VARCHAR(100) PRIMARY KEY,
   value VARCHAR(100) NOT NULL
 );
 
-CREATE TABLE blocked_dates (
+CREATE TABLE IF NOT EXISTS blocked_dates (
   date DATE NOT NULL,
   PRIMARY KEY (date)
 );
 
-CREATE TABLE volunteers_visit_types (
+CREATE TABLE IF NOT EXISTS volunteers_visit_types (
   visit_type_id INT NOT NULL,
   volunteer_id INT NOT NULL,
   PRIMARY KEY (visit_type_id, volunteer_id),
@@ -112,7 +112,7 @@ CREATE TABLE volunteers_visit_types (
       ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
-CREATE TABLE volunteer_available_dates (
+CREATE TABLE IF NOT EXISTS volunteer_available_dates (
    volunteer_id INT NOT NULL,
    available_date DATE NOT NULL,
    PRIMARY KEY (volunteer_id, available_date),
@@ -120,7 +120,7 @@ CREATE TABLE volunteer_available_dates (
        ON DELETE CASCADE ON UPDATE CASCADE
 );
 
-CREATE TABLE month_collection_state (
+CREATE TABLE IF NOT EXISTS month_collection_state (
   month INT NOT NULL,
   year INT NOT NULL,
   volunteers_availability_collection_enabled BOOLEAN NOT NULL,

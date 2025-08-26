@@ -241,9 +241,10 @@ public class VisitPlanService implements VisitPlanUseCase {
     private List<Visit> initMonthVisits(int month, int year) {
         List<Visit> monthVisits = new ArrayList<>();
 
-        visitRepository.findAll().stream().filter(visit -> {
-            return visit.getDate().getMonthValue() == month && visit.getDate().getYear() == year;
-        }).forEach(monthVisits::add);
+        visitRepository.findAll().stream() //
+                .filter(visit -> visit.getDate().getMonthValue() == month
+                        && visit.getDate().getYear() == year) //
+                .forEach(monthVisits::add);
 
         Comparator visitCompare = Comparator.comparing(Visit::getDate);
         monthVisits.sort(visitCompare);
