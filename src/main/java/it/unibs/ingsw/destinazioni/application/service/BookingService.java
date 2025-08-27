@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
-import it.unibs.ingsw.destinazioni.application.exeptions.BookingException;
-import it.unibs.ingsw.destinazioni.application.exeptions.codes.BookingErrorCode;
+import it.unibs.ingsw.destinazioni.application.exceptions.BookingException;
+import it.unibs.ingsw.destinazioni.application.exceptions.codes.BookingErrorCode;
 import it.unibs.ingsw.destinazioni.application.port.in.BookingVisitsUseCase;
 import it.unibs.ingsw.destinazioni.application.port.in.GetUserInfoUseCase;
 import it.unibs.ingsw.destinazioni.application.port.out.BookingRepositoryPort;

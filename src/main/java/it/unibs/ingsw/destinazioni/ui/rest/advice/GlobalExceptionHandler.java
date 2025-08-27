@@ -1,10 +1,12 @@
 package it.unibs.ingsw.destinazioni.ui.rest.advice;
 
+import io.swagger.v3.oas.annotations.Hidden;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import it.unibs.ingsw.destinazioni.application.exeptions.BookingException;
+import it.unibs.ingsw.destinazioni.application.exceptions.BookingException;
 
+@Hidden
 @ControllerAdvice
 public class GlobalExceptionHandler {
 

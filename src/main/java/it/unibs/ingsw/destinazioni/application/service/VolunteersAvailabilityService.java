@@ -43,10 +43,15 @@ public class VolunteersAvailabilityService
         YearMonth next = current.plusMonths(1);
         YearMonth nextPlusOne = current.plusMonths(2);
 
-        return !statePort.isVolunteerAvailabilityOpen(next.getMonthValue(), next.getYear())
-                && visitPlanStatePort.isVisitPlanCreated(next.getMonthValue(), next.getYear())
-                && !statePort.isVolunteerAvailabilityOpen(nextPlusOne.getMonthValue(), nextPlusOne.getYear())
-                && today >= 16;
+        boolean nextMonthAvailabilityNotOpen = !statePort.isVolunteerAvailabilityOpen(next.getMonthValue(), next.getYear());
+        boolean nextMonthVisitPlanCreated = visitPlanStatePort.isVisitPlanCreated(next.getMonthValue(), next.getYear());
+        boolean nextTwoMonthsAvailabilityNotOpen = !statePort.isVolunteerAvailabilityOpen(nextPlusOne.getMonthValue(), nextPlusOne.getYear());
+        boolean isTodayAfterSixteen = today >= 16;
+
+        return nextMonthAvailabilityNotOpen
+                && nextMonthVisitPlanCreated
+                && nextTwoMonthsAvailabilityNotOpen
+                && isTodayAfterSixteen;
     }
 
 

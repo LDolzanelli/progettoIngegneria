@@ -1,6 +1,6 @@
-package it.unibs.ingsw.destinazioni.application.exeptions;
+package it.unibs.ingsw.destinazioni.application.exceptions;
 
-import it.unibs.ingsw.destinazioni.application.exeptions.codes.BookingErrorCode;
+import it.unibs.ingsw.destinazioni.application.exceptions.codes.BookingErrorCode;
 
 public class BookingException extends RuntimeException {
     private final BookingErrorCode errorCode;

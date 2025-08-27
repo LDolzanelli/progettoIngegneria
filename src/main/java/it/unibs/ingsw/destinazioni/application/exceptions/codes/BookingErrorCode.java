@@ -1,4 +1,4 @@
-package it.unibs.ingsw.destinazioni.application.exeptions.codes;
+package it.unibs.ingsw.destinazioni.application.exceptions.codes;
 
 public enum BookingErrorCode {
     BOOKING_NOT_FOUND,
