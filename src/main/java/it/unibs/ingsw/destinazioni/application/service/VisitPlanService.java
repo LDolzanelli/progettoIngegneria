@@ -60,6 +60,7 @@ public class VisitPlanService implements VisitPlanUseCase {
                 && !availabilityStatePort.isVolunteerAvailabilityOpen(nextMonthValue, nextYear);
     }
 
+
     @Transactional // per poter rimuovere le blockedDates
     @Override
     public void createVisitPlan() {
@@ -113,6 +114,12 @@ public class VisitPlanService implements VisitPlanUseCase {
                 User volunteer = availableVolunteers.getFirst();
                 if (canDoVisitType(volunteer, visit.getVisitType()))
                     assignVolunteerToVisit(volunteer, visit, monthAvailabilities, volunteerVisitCounts);
+                else {
+
+                    visit.setVisitStatus(VisitStatus.CANCELLED);
+                    visitRepository.save(visit);
+
+                }
 
                 continue; // passa alla visita successiva
             }
@@ -122,7 +129,7 @@ public class VisitPlanService implements VisitPlanUseCase {
             assignVolunteerToVisit(bestVolunteer, visit, monthAvailabilities, volunteerVisitCounts);
         }
 
-        //rimuove le blockedDates del mese considerato
+        // rimuove le blockedDates del mese considerato
         removeBlockedDates(nextMonthValue, nextYear);
 
         statePort.setVisitPlanCreated(nextMonthValue, nextYear, true);
@@ -168,6 +175,7 @@ public class VisitPlanService implements VisitPlanUseCase {
         return -1;
     }
 
+
     private User volunteerById(int id, List<User> volunteers) {
         Optional<User> volunteer = volunteers.stream().filter(v -> v.getId() == id).findAny();
         if (volunteer.isPresent())
@@ -179,11 +187,9 @@ public class VisitPlanService implements VisitPlanUseCase {
 
     private boolean canDoVisitType(User volunteer, VisitType visitType) {
         Set<VisitType> visitTypes = visitTypeRepository.findByVolunteerId(volunteer.getId());
-        if (visitTypes.contains(visitType))
-            return true;
-        else
-            return false;
+        return visitTypes.stream().anyMatch(v -> v.getId().equals(visitType.getId()));
     }
+
 
     private User selectBestVolunteer(List<User> volunteers, List<VolunteerVisitCount> volunteerVisitCounts) {
 
@@ -242,8 +248,7 @@ public class VisitPlanService implements VisitPlanUseCase {
         List<Visit> monthVisits = new ArrayList<>();
 
         visitRepository.findAll().stream() //
-                .filter(visit -> visit.getDate().getMonthValue() == month
-                        && visit.getDate().getYear() == year) //
+                .filter(visit -> visit.getDate().getMonthValue() == month && visit.getDate().getYear() == year) //
                 .forEach(monthVisits::add);
 
         Comparator visitCompare = Comparator.comparing(Visit::getDate);
@@ -262,8 +267,10 @@ public class VisitPlanService implements VisitPlanUseCase {
         return volunteerVisitCounts;
     }
 
-    private void removeBlockedDates(int month, int year){
+
+    private void removeBlockedDates(int month, int year) {
         blockedDatesRepository.loadByMonth(month, year).getDates().stream().forEach(blockedDatesRepository::delete);
     }
 
 }
+
