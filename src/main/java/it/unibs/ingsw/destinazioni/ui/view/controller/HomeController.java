@@ -1,12 +1,16 @@
 package it.unibs.ingsw.destinazioni.ui.view.controller;
 
+import java.time.LocalDate;
 import java.time.Month;
 
+import it.unibs.ingsw.destinazioni.config.AdjustableClock;
 import it.unibs.ingsw.destinazioni.domain.dto.LoginResponseDTO;
 
+import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
 import java.util.Locale;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
@@ -15,10 +19,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.client.RestTemplate;
 
 @Controller
+@RequiredArgsConstructor
 public class HomeController {
 
     private final RestTemplate restTemplate = new RestTemplate();
-
+    private final AdjustableClock clock;
 
     @GetMapping("/")
     public String home(@AuthenticationPrincipal UserDetails principal, Model model) {
@@ -47,6 +52,10 @@ public class HomeController {
         model.addAttribute("username", userInfo.nickname());
         model.addAttribute("userId", userId);
         model.addAttribute("role", userInfo.role());
+
+        LocalDate today = LocalDate.now(clock);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MMMM yyyy");
+        model.addAttribute("currentDate", today.format(formatter));
 
         // Se l'utente è un configuratore, e non esiste ancora un corpo dati, viene reindirizzato ad una
         // pagina che gli permette di inserire location

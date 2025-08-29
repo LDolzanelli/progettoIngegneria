@@ -36,7 +36,6 @@ public class JpaBookingAdapter implements BookingRepositoryPort {
         bookingRepository.saveAll(entities);
     }
 
-
     @Override
     public void deleteByBookingCode(String bookingCode) {
 
@@ -49,7 +48,6 @@ public class JpaBookingAdapter implements BookingRepositoryPort {
         bookingRepository.deleteAll(bookings);
     }
 
-
     @Override
     public Optional<Booking> findByBookingCode(String bookingCode) {
         List<BookingEntity> bookings = bookingRepository.findByIdBookingCode(bookingCode);
@@ -61,8 +59,6 @@ public class JpaBookingAdapter implements BookingRepositoryPort {
         return Optional.of(toDomain(bookingCode, bookings));
     }
 
-
-
     @Override
     public List<Booking> findAll() {
         List<BookingEntity> entities = bookingRepository.findAll();
@@ -70,8 +66,6 @@ public class JpaBookingAdapter implements BookingRepositoryPort {
         return entities.stream().collect(Collectors.groupingBy(e -> e.getId().getBookingCode())).entrySet().stream()
                 .map(entry -> toDomain(entry.getKey(), entry.getValue())).toList();
     }
-
-
 
     @Override
     public List<Booking> findAllByVisitId(int visitId) {
@@ -81,8 +75,6 @@ public class JpaBookingAdapter implements BookingRepositoryPort {
                 .map(entry -> toDomain(entry.getKey(), entry.getValue())).toList();
     }
 
-
-
     @Override
     public List<Booking> findAllByUserId(int userId) {
         List<BookingEntity> bookings = bookingRepository.findByUser_Id(userId);
@@ -91,19 +83,16 @@ public class JpaBookingAdapter implements BookingRepositoryPort {
                 .map(entry -> toDomain(entry.getKey(), entry.getValue())).toList();
     }
 
-
     private Booking toDomain(String bookingCode, List<BookingEntity> entities) {
         if (entities.isEmpty()) {
             throw new IllegalArgumentException("No bookings found with booking code: " + bookingCode);
         }
 
-        User user = JpaUserRepositoryAdapter.toDomain(entities.get(0).getUser());
+        User user = JpaUserRepositoryAdapter.toDomain(entities.getFirst().getUser());
         List<String> visitorsNames = entities.stream().map(e -> e.getId().getVisitorName()).toList();
 
         return new Booking(bookingCode, user, visitorsNames);
     }
-
-
 
     private List<BookingEntity> toEntity(Booking booking, int visitId) {
 
@@ -123,7 +112,5 @@ public class JpaBookingAdapter implements BookingRepositoryPort {
         }).toList();
 
     }
-
-
 
 }

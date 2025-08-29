@@ -8,8 +8,7 @@ import it.unibs.ingsw.destinazioni.domain.model.User;
 
 public interface BookingVisitsUseCase {
 
-    public void bookVisit(Visit visit, User user,
-            List<String> visitorsNames);
+    public void bookVisit(Visit visit, User user, List<String> visitorsNames);
 
     public List<Booking> getBookingsByVisit(Visit visit);
     public List<Booking> getBookingsByUser(User user);

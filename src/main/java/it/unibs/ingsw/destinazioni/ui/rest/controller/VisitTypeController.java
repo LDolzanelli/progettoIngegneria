@@ -31,11 +31,7 @@ public class VisitTypeController {
     @PostMapping("/add/{locationId}")
     public ResponseEntity<String> addVisitType(@RequestBody VisitTypeDTO dto, @PathVariable int locationId) {
         try {
-            System.out.println("DTO Ricevuto: " + dto.toString());
             List<User> resolvedVolunteers = getUserInfoUseCase.findAllByNicknames(dto.volunteers());
-            for(User volunteer : resolvedVolunteers) {
-                System.out.println(volunteer.getId());
-            }
             var visitType = mapToDomain(dto, resolvedVolunteers);
             manageVisitTypeUseCase.addVisitType(visitType, locationId);
             return ResponseEntity.ok().build();
