@@ -51,4 +51,16 @@ public class VisitPlanController {
             return ResponseEntity.badRequest().build();
         }
     }
+
+    @GetMapping("/next-month-year")
+    public ResponseEntity<Integer> getNextMonthYear(){
+        try{
+            int month = useCase.getMonth();
+            if(month == 1) //il prossimo mese é gennaio
+                return ResponseEntity.ok( useCase.getYear()+1 );
+            else return ResponseEntity.ok( useCase.getYear() );
+        } catch (IllegalArgumentException e){
+            return ResponseEntity.badRequest().build();
+        }
+    }
 }
