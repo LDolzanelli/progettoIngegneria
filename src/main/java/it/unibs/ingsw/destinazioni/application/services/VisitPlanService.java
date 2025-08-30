@@ -131,15 +131,32 @@ public class VisitPlanService implements VisitPlanUseCase {
 
     @Override
     public List<Visit> getVisitPlan(int month, int year) {
-        System.out.println("VisitPlan creation started");
-        // TODO: implementare la logica per ottenere il piano di visita
-        return List.of(); // restituisce una lista vuota per ora
+        ArrayList<Visit> visitPlan = new ArrayList<>();
+
+        visitRepository.findAll()
+                        .stream()
+                        .filter(visit -> visit.getDate().getMonthValue() == month && visit.getDate().getYear() == year)
+                .forEach(visitPlan::add);
+        
+        return visitPlan;
+    }
+
+    public List<Visit> getVisitPlan(){
+        LocalDate today = LocalDate.now(clock);
+        YearMonth nextMonth = YearMonth.from(today).plusMonths(1);
+
+        return getVisitPlan(nextMonth.getMonthValue(), nextMonth.getYear());
     }
 
     @Override
     public int getMonth() {
         LocalDate today = LocalDate.now(clock);
         return YearMonth.from(today).plusMonths(1).getMonthValue();
+    }
+
+    public int getYear(){
+        LocalDate today = LocalDate.now(clock);
+        return today.getYear();
     }
 
     @Getter
@@ -238,7 +255,7 @@ public class VisitPlanService implements VisitPlanUseCase {
         List<Visit> monthVisits = new ArrayList<>();
 
         visitRepository.findAll().stream() //
-                .filter(visit -> visit.getDate().getMonthValue() == month && visit.getDate().getYear() == year) //
+                .filter(visit -> visit.getDate().getMonthValue() == month && visit.getDate().getYear() == year)
                 .forEach(monthVisits::add);
 
         Comparator visitCompare = Comparator.comparing(Visit::getDate);

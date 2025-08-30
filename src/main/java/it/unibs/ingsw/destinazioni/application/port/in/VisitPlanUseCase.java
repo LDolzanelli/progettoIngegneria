@@ -9,6 +9,6 @@ public interface VisitPlanUseCase {
     public void createVisitPlan();
     public List<Visit> getVisitPlan(int month, int year);
     public int getMonth();
-    
+    public int getYear();
 }
  
