@@ -4,6 +4,7 @@ import java.time.Clock;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -98,11 +99,9 @@ public class VisitPlanService implements VisitPlanUseCase {
 
             // aggiunge alla lista availableVolunteers tutti i volontari che hanno dato disponibilitá per il
             // giorno 'day'
-            monthAvailabilities.stream().filter(av -> av.getAvailableDate().equals(day))
-                    .map(av -> volunteerById(av.getVolunteerId(), volunteers)) // mappa le disponibilitá
-                                                                               // (VolunteerAvailableDate) con gli
-                                                                               // oggetti dei volontari (User di tipo
-                                                                               // VOLUNTEER)
+            monthAvailabilities.stream().filter(av -> av.getAvailableDate().equals(day)) //
+                    //mappa le disponibilitá VolunteerAvailableDate con gli oggetti USER volontari
+                    .map(av -> volunteerById(av.getVolunteerId(), volunteers)) //
                     .forEach(availableVolunteers::add);
 
 
@@ -112,18 +111,14 @@ public class VisitPlanService implements VisitPlanUseCase {
                 continue; // passa alla visita successiva
             } else if (availableVolunteers.size() == 1) {
                 User volunteer = availableVolunteers.getFirst();
-                if (canDoVisitType(volunteer, visit.getVisitType()))
+                if (canDoVisitType(volunteer, visit.getVisitType().getId()))
                     assignVolunteerToVisit(volunteer, visit, monthAvailabilities, volunteerVisitCounts);
                 else {
-
                     visit.setVisitStatus(VisitStatus.CANCELLED);
                     visitRepository.save(visit);
-
                 }
-
                 continue; // passa alla visita successiva
             }
-
             // piú di 2 volontari con disponibilitá nel giorno considerato
             User bestVolunteer = selectBestVolunteer(availableVolunteers, volunteerVisitCounts);
             assignVolunteerToVisit(bestVolunteer, visit, monthAvailabilities, volunteerVisitCounts);
@@ -185,9 +180,11 @@ public class VisitPlanService implements VisitPlanUseCase {
     }
 
 
-    private boolean canDoVisitType(User volunteer, VisitType visitType) {
-        Set<VisitType> visitTypes = visitTypeRepository.findByVolunteerId(volunteer.getId());
-        return visitTypes.stream().anyMatch(v -> v.getId().equals(visitType.getId()));
+    private boolean canDoVisitType(User volunteer, int visitTypeId) {
+        Set<Integer> visitTypesIdsAssociatedToVolunteer = visitTypeRepository.findByVolunteerId(volunteer.getId()).stream() //
+                .map(VisitType::getId) //
+                .collect(Collectors.toSet());
+        return visitTypesIdsAssociatedToVolunteer.contains(visitTypeId);
     }
 
 
@@ -197,8 +194,8 @@ public class VisitPlanService implements VisitPlanUseCase {
                 (v1, v2) -> Integer.compare(visitCountFromVolunteer(v1, volunteerVisitCounts),
                         visitCountFromVolunteer(v2, volunteerVisitCounts));
 
-        return volunteers.stream().min(volunteerComparator).get(); // ritorna il volontario a cui sono state assegnate
-                                                                   // meno visite
+        return volunteers.stream().min(volunteerComparator).get(); // volontario a cui sono state assegnate meno visite
+
     }
 
 
@@ -214,9 +211,10 @@ public class VisitPlanService implements VisitPlanUseCase {
             List<VolunteerAvailableDate> volunteerAvailabilities, List<VolunteerVisitCount> volunteerVisitCounts) {
         visit.setVolunteer(volunteer);
         visit.setVisitStatus(VisitStatus.PROPOSED);
-        volunteerVisitCounts.stream().filter(vvc -> vvc.getVolunteer().getId() == volunteer.getId()).findFirst().get()
+        volunteerVisitCounts.stream() //
+                .filter(vvc -> vvc.getVolunteer().getId() == volunteer.getId()).findFirst().get() //
                 .increment();
-        VolunteerAvailableDate usedAvailability = volunteerAvailabilities.stream().filter(Objects::nonNull)
+        VolunteerAvailableDate usedAvailability = volunteerAvailabilities.stream().filter(Objects::nonNull) //
                 .filter(av -> av.getVolunteerId() == volunteer.getId() && av.getAvailableDate().equals(visit.getDate()))
                 .findFirst().get();
 
