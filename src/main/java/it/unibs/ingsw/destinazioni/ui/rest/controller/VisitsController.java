@@ -16,6 +16,7 @@ import it.unibs.ingsw.destinazioni.domain.dto.VolunteerVisitSummaryDTO;
 import it.unibs.ingsw.destinazioni.domain.model.Visit;
 import lombok.RequiredArgsConstructor;
 import it.unibs.ingsw.destinazioni.domain.dto.VisitInformationDTO;
+import it.unibs.ingsw.destinazioni.domain.model.User;
 
 @RestController
 @RequestMapping("/api/visit")
@@ -59,10 +60,15 @@ public class VisitsController {
 
             DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
+            // una visita puó non avere un volontario associato (ad es. se è CANCELLED)
+            String volunteerNickname ="";
+            User volunteer = visit.getVolunteer();
+
+            volunteerNickname = volunteer != null ? volunteer.getNickname() : "" ;
 
             var dto = new VisitInformationDTO(
                     visit.getId(),
-                    visit.getVolunteer().getNickname(),
+                    volunteerNickname,
                     visit.getDate().format(dateFormatter),
                     visitType.getStartTime().toString(),
                     visitType.getDuration(),

@@ -1,5 +1,6 @@
 package it.unibs.ingsw.destinazioni.ui.rest.controller;
 
+import java.util.ArrayList;
 import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -9,12 +10,17 @@ import it.unibs.ingsw.destinazioni.domain.model.Visit;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.client.RestTemplate;
+
+import it.unibs.ingsw.destinazioni.domain.dto.VisitInformationDTO;
 
 @RestController
 @RequestMapping("/api/visit-plan")
 @RequiredArgsConstructor
 public class VisitPlanController {
     private final VisitPlanUseCase useCase;
+
+    private final RestTemplate restTemplate= new RestTemplate();
 
     @GetMapping("/can-create")
     public ResponseEntity<Boolean> canCreateVisitPlan() {
@@ -33,10 +39,19 @@ public class VisitPlanController {
     }
 
     @GetMapping("/plan")
-    public ResponseEntity<List<Visit>> getVisitPlan(int month, int year) {
+    public ResponseEntity<List<VisitInformationDTO>> getVisitPlan(int month, int year) {
         try {
             List<Visit> visits = useCase.getVisitPlan(month, year);
-            return ResponseEntity.ok(visits);
+            List<VisitInformationDTO> visitsDTO = new ArrayList<VisitInformationDTO>();
+
+            for(Visit visit : visits){
+                String url = "http://localhost:8080/api/visit/details/" + visit.getId();
+
+                ResponseEntity<VisitInformationDTO> response = restTemplate.getForEntity(url, VisitInformationDTO.class);
+                visitsDTO.add(response.getBody());
+            }
+
+            return ResponseEntity.ok(visitsDTO);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().build();
         }
