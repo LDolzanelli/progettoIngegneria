@@ -1,176 +1,161 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-  <head>
-    <meta charset="UTF-8" />
-    <title>Home</title>
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-    />
-  </head>
-  <body class="bg-light">
-    <nav class="navbar navbar-expand-lg bg-light shadow-sm mb-4">
-      <div class="container">
-        <a class="navbar-brand text-primary fw-bold fs-4" href="/"
-          >Centro Visite</a
+<head>
+  <meta charset="UTF-8" />
+  <title>Centro Visite</title>
+  <link
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+  />
+  <link
+          rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"
+  />
+  <style>
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(135deg, #e3f2fd, #f8f9fa);
+    }
+
+    .glass-card {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(12px);
+      border-radius: 1.5rem;
+      padding: 2.5rem;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn-lg {
+      padding: 0.85rem 1.2rem;
+      font-size: 1.1rem;
+      border-radius: 0.75rem;
+    }
+
+    .navbar {
+      position: fixed;
+      top: 0;
+      width: 100%;
+    }
+
+    h1 {
+      font-weight: 600;
+    }
+
+    h5.text-muted {
+      font-size: 1rem;
+      font-weight: 400;
+    }
+  </style>
+</head>
+<body>
+<nav class="navbar navbar-light bg-white shadow-sm sticky-top">
+  <div class="container">
+    <a class="navbar-brand text-primary fw-bold fs-4" href="/">
+      <i class="bi bi-building"></i> Centro Visite
+    </a>
+  </div>
+</nav>
+
+<main class="container text-center mt-5 pt-5">
+  <h5 class="text-muted mb-3">
+    <span th:text="${currentDate}">16 agosto 2025</span>
+  </h5>
+
+  <div class="glass-card mx-auto col-md-8 col-lg-6">
+    <h1 th:text="'Benvenuto, ' + ${username}">Benvenuto, admin1</h1>
+    <p class="lead text-muted mb-4">Scegli un'opzione per continuare</p>
+
+    <!-- configuratore -->
+    <div class="d-grid gap-3" th:if="${role == 'configurator'}">
+      <a href="/view-locations" class="btn btn-primary btn-lg shadow-sm">
+        <i class="bi bi-geo-alt-fill"></i> Visualizza i luoghi di interesse
+      </a>
+      <a href="/system-config" class="btn btn-dark btn-lg shadow-sm">
+        <i class="bi bi-gear-fill"></i> Impostazioni di sistema
+      </a>
+      <a href="/view-volunteers" class="btn btn-secondary btn-lg shadow-sm">
+        <i class="bi bi-people-fill"></i> Visualizza la lista dei volontari
+      </a>
+
+      <form action="/api/volunteer-availability/enable" method="post">
+        <button
+                class="btn btn-success btn-lg shadow-sm"
+                type="submit"
+                th:disabled="${!canEnableAvailability}"
+                th:text="'Apri raccolta disponibilità per ' + ${enableMonthLabel}"
         >
-      </div>
-    </nav>
+          <i class="bi bi-calendar-plus"></i>
+          Apri raccolta disponibilità
+        </button>
+      </form>
 
-    <div class="container text-center mb-4">
-      <h5 class="text-muted">
-        <span th:text="${currentDate}">28 Agosto 2025</span>
-      </h5>
+      <form action="/api/volunteer-availability/disable" method="post">
+        <button
+                class="btn btn-danger btn-lg shadow-sm"
+                type="submit"
+                th:disabled="${!canDisableAvailability}"
+                th:text="'Chiudi raccolta disponibilità per ' + ${disableMonthLabel}"
+        >
+          <i class="bi bi-calendar-x"></i>
+          Chiudi raccolta disponibilità
+        </button>
+      </form>
+
+      <form action="/api/visit-plan/create" method="post">
+        <button
+                class="btn btn-warning btn-lg shadow-sm"
+                type="submit"
+                th:disabled="${!canCreateVisitPlan}"
+                th:text="'Crea piano visite per ' + ${createVisitPlanLabel}"
+        >
+          <i class="bi bi-journal-plus"></i>
+          Crea piano visite
+        </button>
+      </form>
     </div>
 
-    <div class="container py-5">
-      <div class="row justify-content-center">
-        <div class="col-lg-8">
-          <div class="card shadow-lg rounded-4 p-4 text-center">
-            <div class="card-body">
-              <h1
-                class="card-title mb-4 display-5"
-                th:text="'Benvenuto, ' + ${username}"
-              >
-                Benvenuto user
-              </h1>
-              <p class="lead mb-4">Scegli un'opzione per continuare:</p>
-
-              <!-- opzioni per i configuratori -->
-              <div
-                class="d-grid gap-3 col-6 mx-auto"
-                th:if="${role == 'configurator'}"
-              >
-                <a
-                  href="/view-locations"
-                  class="btn btn-primary btn-lg shadow-sm"
-                >
-                  Visualizza i luoghi di interesse
-                </a>
-                <a
-                  href="/system-config"
-                  class="btn btn-secondary btn-lg shadow-sm"
-                >
-                  Impostazioni di sistema
-                </a>
-                <a
-                  href="/view-volunteers"
-                  class="btn btn-secondary btn-lg shadow-sm"
-                >
-                  Visualizza la lista dei volontari
-                </a>
-
-                <form action="/api/volunteer-availability/enable" method="post">
-                  <button
-                    class="btn btn-success btn-lg shadow-sm mt-3"
-                    type="submit"
-                    th:disabled="${!canEnableAvailability}"
-                    th:text="'Apri raccolta disponibilità per ' + ${enableMonthLabel}"
-                  >
-                    Apri raccolta disponibilità
-                  </button>
-                </form>
-
-                <form
-                  action="/api/volunteer-availability/disable"
-                  method="post"
-                >
-                  <button
-                    class="btn btn-danger btn-lg shadow-sm mt-3"
-                    type="submit"
-                    th:disabled="${!canDisableAvailability}"
-                    th:text="'Chiudi raccolta disponibilità per ' + ${disableMonthLabel}"
-                  >
-                    Chiudi raccolta disponibilità
-                  </button>
-                </form>
-
-                <form action="/api/visit-plan/create" method="post">
-                  <button
-                    class="btn btn-warning btn-lg shadow-sm mt-3"
-                    type="submit"
-                    th:disabled="${!canCreateVisitPlan}"
-                    th:text="'Crea piano visite per ' + ${createVisitPlanLabel}"
-                  >
-                    Crea piano visite
-                  </button>
-                </form>
-              </div>
-
-              <!-- opzioni per i volontari -->
-
-              <div
-                class="d-grid gap-3 col-6 mx-auto"
-                th:if="${role == 'volunteer'}"
-              >
-                <a
-                  th:href="@{/view-visittype(volunteerId=${userId})}"
-                  class="btn btn-primary btn-lg shadow-sm"
-                >
-                  Visualizza i tipi di visita a te assegnati
-                </a>
-                <a
-                  href="/date-picker?mode=available"
-                  class="btn btn-secondary btn-lg shadow-sm"
-                >
-                  Dai le tue disponibilità per il mese successivo
-                </a>
-
-                <a
-                  th:href="@{/confirmed-visits(volunteerNickname=${username})}"
-                  class="btn btn-success btn-lg shadow-sm"
-                >
-                  Le tue visite confermate
-                </a>
-              </div>
-            </div>
-            <!-- opzioni per i fruitori -->
-            <div
-              class="d-grid gap-3 col-6 mx-auto"
-              th:if="${role == 'finalUser'}"
-            >
-              <!-- TODO: NUOVI PULSANTI -->
-              <a th:href="@{/cancel-booking}" class="btn btn-warning mt-2"
-                >Disdici prenotazione</a
-              >
-            </div>
-          </div>
-        </div>
-      </div>
+    <!-- volontario -->
+    <div class="d-grid gap-3" th:if="${role == 'volunteer'}">
+      <a
+              th:href="@{/view-visittype(volunteerId=${userId})}"
+              class="btn btn-primary btn-lg shadow-sm"
+      >
+        <i class="bi bi-list-task"></i> Tipi di visita assegnati
+      </a>
+      <a
+              href="/date-picker?mode=available"
+              class="btn btn-secondary btn-lg shadow-sm"
+      >
+        <i class="bi bi-calendar-check"></i>
+        Inserisci disponibilità per il mese successivo
+      </a>
+      <a
+              th:href="@{/confirmed-visits(volunteerNickname=${username})}"
+              class="btn btn-success btn-lg shadow-sm"
+      >
+        <i class="bi bi-calendar-event"></i> Le tue visite confermate
+      </a>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-      document.addEventListener("DOMContentLoaded", function () {
-        const forms = document.querySelectorAll(
-          "form[action$='enable'], form[action$='disable'], form[action$='create']"
-        );
+    <!-- fruitore -->
+    <div class="d-grid gap-3" th:if="${role == 'finalUser'}">
+      <a href="/book-visit" class="btn btn-primary btn-lg shadow-sm">
+        <i class="bi bi-ticket-detailed"></i> Prenota una visita
+      </a>
+      <a href="/my-bookings" class="btn btn-success btn-lg shadow-sm">
+        <i class="bi bi-journal-text"></i> Le mie prenotazioni
+      </a>
+      <a th:href="@{/cancel-booking}" class="btn btn-danger btn-lg shadow-sm">
+        <i class="bi bi-x-circle"></i> Disdici prenotazione
+      </a>
+    </div>
+  </div>
+</main>
 
-        forms.forEach((form) => {
-          form.addEventListener("submit", function (event) {
-            event.preventDefault();
-
-            fetch(form.action, {
-              method: "POST",
-              headers: {
-                "X-Requested-With": "XMLHttpRequest",
-              },
-            })
-              .then((response) => {
-                if (response.ok) {
-                  alert("Operazione completata con successo");
-                  location.reload();
-                } else {
-                  alert("Errore nell'operazione. Verifica le condizioni.");
-                }
-              })
-              .catch((error) => {
-                console.error("Errore nella richiesta:", error);
-                alert("Errore di rete durante l’operazione.");
-              });
-          });
-        });
-      });
-    </script>
-  </body>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
 </html>
