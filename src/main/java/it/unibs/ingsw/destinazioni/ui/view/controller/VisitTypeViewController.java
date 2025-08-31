@@ -18,6 +18,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+//da rimuovere
+import it.unibs.ingsw.destinazioni.domain.dto.VisitInformationDTO;
+
 @Controller
 @RequiredArgsConstructor
 public class VisitTypeViewController {
@@ -179,6 +182,62 @@ public class VisitTypeViewController {
         return "redirect:/add-volunteers?visitTypeId=" + visitTypeId;
     }
 
+    // DA CORREGGERE: il controller scritto in VisitPlanController non viene registrato da spring
+    @GetMapping("/view-plan")
+    public String viewVisitPlan(@AuthenticationPrincipal UserDetails principal, Model model){
 
+        System.out.println("ViewPlanController called!");
+        System.out.println("<---------------------------------------------------------------------------------->");
+
+
+        model.addAttribute("username", principal.getUsername());
+        String userRole = "finalUser";
+
+        try {
+            String url = "http://localhost:8080/api/users/get-role/" + principal.getUsername();
+            ResponseEntity<String> role = restTemplate.getForEntity(url, String.class);
+            userRole = role.getBody();
+        } catch (Exception e) {
+            model.addAttribute("error", "Errore nel recupero dello user");
+        }
+
+        model.addAttribute("role", userRole);
+
+        int nextMonth = 0;
+        try{
+            String url = "http://localhost:8080/api/visit-plan/next-month";
+            ResponseEntity<Integer> monthResponse = restTemplate.getForEntity(url, Integer.class);
+            nextMonth = monthResponse.getBody();
+        }catch(Exception e){
+            model.addAttribute("error", "Errore nel recuperare il mese successivo");
+        }
+
+        int year = 0;
+        try{
+            String url = "http://localhost:8080/api/visit-plan/next-month-year";
+            ResponseEntity<Integer> yearResponse = restTemplate.getForEntity(url, Integer.class);
+            year = yearResponse.getBody();
+        }catch(Exception e){
+            model.addAttribute("error", "Errore nel recuperare il mese successivo");
+        }
+
+        System.out.println("Piano visite per: " + year + nextMonth);
+
+        VisitInformationDTO[] visitPlan = new it.unibs.ingsw.destinazioni.domain.dto.VisitInformationDTO[0];
+        try{
+
+            String url = "http://localhost:8080/api/visit-plan/plan?month=" + nextMonth + "&year=" + year;
+            ResponseEntity<VisitInformationDTO[]> response = restTemplate.getForEntity(url, VisitInformationDTO[].class);
+            visitPlan = response.getBody();
+        } catch(Exception e){
+            model.addAttribute("error", "Errore nel recupero del piano visite");
+        }
+
+        if(visitPlan.length == 0)
+            model.addAttribute("visitPlan", List.of());
+        else model.addAttribute("visitPlan", Arrays.asList(visitPlan));
+
+        return "view-plan";
+    }
 
 }
