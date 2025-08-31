@@ -36,13 +36,6 @@ public class LocationViewController {
         return "view-locations";
     }
 
-    @GetMapping("/townProvinceMap")
-    @ResponseBody
-    public Object townProvinceMap() {
-        RestTemplate restTemplate = new RestTemplate();
-        return restTemplate.getForObject("http://localhost:8080/api/area-of-interest/townProvinceMap", Object.class);
-    }
-
     @GetMapping("/add-location")
     public String addLocationForm(@AuthenticationPrincipal UserDetails principal, Model model) {
         model.addAttribute("username", principal.getUsername());

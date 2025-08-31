@@ -10,3 +10,4 @@ public interface VolunteerAvailabilityControlUseCase {
     int getMonthToDisable();
     boolean isAvailabilityEnabled();
 }
+ 

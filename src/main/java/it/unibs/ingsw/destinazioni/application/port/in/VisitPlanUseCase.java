@@ -11,3 +11,4 @@ public interface VisitPlanUseCase {
     public int getMonth();
     public int getYear();
 }
+ 

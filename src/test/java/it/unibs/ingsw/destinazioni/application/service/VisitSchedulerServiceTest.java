@@ -1,6 +1,7 @@
 package it.unibs.ingsw.destinazioni.application.service;
 
 import it.unibs.ingsw.destinazioni.application.port.out.VisitRepositoryPort;
+import it.unibs.ingsw.destinazioni.application.services.VisitSchedulerService;
 import it.unibs.ingsw.destinazioni.domain.model.Booking;
 import it.unibs.ingsw.destinazioni.domain.model.User;
 import it.unibs.ingsw.destinazioni.domain.model.Visit;
@@ -37,16 +38,15 @@ class VisitSchedulerServiceTest {
         // Setup di un visitType generico con minimo partecipanti = 1, massimo = 5.
         VisitType visitType = new VisitType("visitType", "description", "meetingPoint", LocalDate.parse("2025-01-01"),
                 LocalDate.parse("2026-12-31"), LocalTime.parse("20:00"), 20, 5, 1, true, null, null);
-        // setup di visita da manipolare per ogni test case (caso base: visita tra un mese)
+        // setup di visita da manipolare per ogni test case (caso base: visita tra un
+        // mese)
         visit = new Visit(today.plusDays(30), null, visitType, null, VisitStatus.PROPOSED);
-
 
         schedulerService = new VisitSchedulerService(visitRepository, fixedClock);
 
         // mock comune della repo che ritorna la visit definita
         when(visitRepository.findAll()).thenReturn(Set.of(visit));
     }
-
 
     @Test
     void updateVisitsStatus_checkIfOldVisitTurnsIntoCompletedIfConfirmed() {
@@ -62,11 +62,9 @@ class VisitSchedulerServiceTest {
         assertEquals(VisitStatus.COMPLETED, captor.getValue().getVisitStatus());
     }
 
-
     @Test
     void updateVisitsStatus_checkIfProposedVisitTurnsIntoFull() {
         visit.setVisitStatus(VisitStatus.PROPOSED);
-
 
         List<Booking> bookings = new ArrayList<>();
         bookings.add(new Booking("code1", new User("user1", "", Role.FINAL_USER), List.of("visitor1")));
@@ -74,7 +72,6 @@ class VisitSchedulerServiceTest {
         bookings.add(new Booking("code3", new User("user3", "", Role.FINAL_USER), List.of("visitor3")));
         bookings.add(new Booking("code4", new User("user4", "", Role.FINAL_USER), List.of("visitor4")));
         bookings.add(new Booking("code5", new User("user5", "", Role.FINAL_USER), List.of("visitor5")));
-
 
         visit.setBookings(bookings);
 
@@ -86,7 +83,6 @@ class VisitSchedulerServiceTest {
         assertEquals(5, captor.getValue().visitorsNumber());
         assertEquals(VisitStatus.FULL, captor.getValue().getVisitStatus());
     }
-
 
     @Test
     void updateVisitsStatus_checkIfFullVisitTurnsIntoProposedWhenNoLongerFull() {
@@ -108,7 +104,6 @@ class VisitSchedulerServiceTest {
         assertEquals(VisitStatus.PROPOSED, captor.getValue().getVisitStatus());
     }
 
-
     @Test
     void updateVisitsStatus_checkIfVisitStatusChangedThreeDaysBeforeToConfirmedIfMinNumberReached() {
         List<Booking> bookings = new ArrayList<>();
@@ -125,7 +120,6 @@ class VisitSchedulerServiceTest {
         assertEquals(1, captor.getValue().visitorsNumber());
         assertEquals(VisitStatus.CONFIRMED, captor.getValue().getVisitStatus());
     }
-
 
     @Test
     void updateVisitsStatus_checkIfVisitStatusChangedThreeDaysBeforeToCancelledIfMinNumberNotReached() {

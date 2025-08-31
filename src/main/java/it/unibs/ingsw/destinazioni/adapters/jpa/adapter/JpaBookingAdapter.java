@@ -1,24 +1,22 @@
 package it.unibs.ingsw.destinazioni.adapters.jpa.adapter;
 
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
+
 import org.springframework.stereotype.Repository;
 
-import lombok.RequiredArgsConstructor;
 import it.unibs.ingsw.destinazioni.adapters.jpa.entity.BookingEntity;
 import it.unibs.ingsw.destinazioni.adapters.jpa.entity.BookingId;
 import it.unibs.ingsw.destinazioni.adapters.jpa.entity.UserEntity;
 import it.unibs.ingsw.destinazioni.adapters.jpa.entity.VisitEntity;
 import it.unibs.ingsw.destinazioni.adapters.jpa.repository.BookingRepository;
+import it.unibs.ingsw.destinazioni.adapters.jpa.repository.UserRepository;
+import it.unibs.ingsw.destinazioni.adapters.jpa.repository.VisitRepository;
 import it.unibs.ingsw.destinazioni.application.port.out.BookingRepositoryPort;
 import it.unibs.ingsw.destinazioni.domain.model.Booking;
 import it.unibs.ingsw.destinazioni.domain.model.User;
-import it.unibs.ingsw.destinazioni.adapters.jpa.repository.UserRepository;
-import it.unibs.ingsw.destinazioni.adapters.jpa.repository.VisitRepository;
+import lombok.RequiredArgsConstructor;
 
 
 @Repository
@@ -62,7 +60,6 @@ public class JpaBookingAdapter implements BookingRepositoryPort {
     }
 
 
-
     @Override
     public List<Booking> findAll() {
         List<BookingEntity> entities = bookingRepository.findAll();
@@ -72,7 +69,6 @@ public class JpaBookingAdapter implements BookingRepositoryPort {
     }
 
 
-
     @Override
     public List<Booking> findAllByVisitId(int visitId) {
         List<BookingEntity> entities = bookingRepository.findByVisit_Id(visitId);
@@ -80,7 +76,6 @@ public class JpaBookingAdapter implements BookingRepositoryPort {
         return entities.stream().collect(Collectors.groupingBy(e -> e.getId().getBookingCode())).entrySet().stream()
                 .map(entry -> toDomain(entry.getKey(), entry.getValue())).toList();
     }
-
 
 
     @Override
@@ -97,12 +92,11 @@ public class JpaBookingAdapter implements BookingRepositoryPort {
             throw new IllegalArgumentException("No bookings found with booking code: " + bookingCode);
         }
 
-        User user = JpaUserRepositoryAdapter.toDomain(entities.get(0).getUser());
+        User user = JpaUserRepositoryAdapter.toDomain(entities.getFirst().getUser());
         List<String> visitorsNames = entities.stream().map(e -> e.getId().getVisitorName()).toList();
 
         return new Booking(bookingCode, user, visitorsNames);
     }
-
 
 
     private List<BookingEntity> toEntity(Booking booking, int visitId) {
@@ -123,7 +117,5 @@ public class JpaBookingAdapter implements BookingRepositoryPort {
         }).toList();
 
     }
-
-
 
 }

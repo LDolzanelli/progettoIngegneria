@@ -1,18 +1,19 @@
-package it.unibs.ingsw.destinazioni.application.service;
-
-import it.unibs.ingsw.destinazioni.application.port.out.VisitRepositoryPort;
-import it.unibs.ingsw.destinazioni.domain.model.Visit;
-import it.unibs.ingsw.destinazioni.domain.model.enums.VisitStatus;
-import lombok.RequiredArgsConstructor;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+package it.unibs.ingsw.destinazioni.application.services;
 
 import java.time.Clock;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Set;
+
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import it.unibs.ingsw.destinazioni.application.port.out.VisitRepositoryPort;
+import it.unibs.ingsw.destinazioni.domain.model.Visit;
+import it.unibs.ingsw.destinazioni.domain.model.enums.VisitStatus;
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -22,25 +23,28 @@ public class VisitSchedulerService {
 
     private final Clock clock;
 
-    //ogni 10 minuti
+    // ogni 10 minuti
     @Scheduled(fixedDelay = 600_000)
     @Transactional
     public void updateVisitsStatus() {
         LocalDate today = LocalDate.now(clock);
 
         Set<Visit> visits = visitRepository.findAll();
-        if (visits == null) return;
+        if (visits == null)
+            return;
 
         for (Visit visit : visits) {
-            
-            if (visit == null) continue;
+
+            if (visit == null)
+                continue;
 
             LocalDate visitDate = visit.getDate();
             VisitStatus status = visit.getVisitStatus();
             List<?> bookings = visit.getBookings();
             var visitType = visit.getVisitType();
 
-            if (visitDate == null || status == null || /*bookings == null||*/ visitType == null) continue;
+            if (visitDate == null || status == null || /* bookings == null|| */ visitType == null)
+                continue;
 
             if (visitDate.isBefore(today)) {
                 handleOldVisitStatus(visit);
@@ -65,8 +69,7 @@ public class VisitSchedulerService {
         }
     }
 
-    public static void setStatusToFullIfProposedVisitFull(Visit visit)
-    {
+    public static void setStatusToFullIfProposedVisitFull(Visit visit) {
 
         if (visit.getVisitStatus() == VisitStatus.PROPOSED &&
                 visit.visitorsNumber() == visit.getVisitType().getMaxParticipants()) {
@@ -74,16 +77,14 @@ public class VisitSchedulerService {
         }
     }
 
-    public static void setStatusToProposedIfFullVisitNoLongerFull(Visit visit)
-    {
+    public static void setStatusToProposedIfFullVisitNoLongerFull(Visit visit) {
         if (visit.getVisitStatus() == VisitStatus.FULL &&
                 visit.visitorsNumber() < visit.getVisitType().getMaxParticipants()) {
             visit.setVisitStatus(VisitStatus.PROPOSED);
         }
     }
 
-    private static void closeVisitStatusThreeDaysBeforeItTakesPlace(Visit visit, LocalDate today)
-    {
+    private static void closeVisitStatusThreeDaysBeforeItTakesPlace(Visit visit, LocalDate today) {
         long daysUntilVisit = ChronoUnit.DAYS.between(today, visit.getDate());
 
         if (daysUntilVisit <= 3 && daysUntilVisit > 0) {

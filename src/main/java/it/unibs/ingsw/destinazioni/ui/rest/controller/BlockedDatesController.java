@@ -1,18 +1,26 @@
 package it.unibs.ingsw.destinazioni.ui.rest.controller;
 
+import java.time.LocalDate;
+import java.time.Month;
+import java.time.YearMonth;
+import java.time.format.DateTimeParseException;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import it.unibs.ingsw.destinazioni.application.port.in.BlockedDatesUseCase;
 import it.unibs.ingsw.destinazioni.domain.dto.BlockedDatesDTO;
 import it.unibs.ingsw.destinazioni.domain.model.BlockedDates;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.time.LocalDate;
-import java.time.Month;
-import java.time.format.DateTimeParseException;
-import java.util.*;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/blocked-dates")
@@ -23,54 +31,54 @@ public class BlockedDatesController {
 
     @GetMapping("/month-to-update")
     public ResponseEntity<Integer> getMonthToUpdate() {
-        Month month = blockedDatesUseCase.getMonthToUpdate();
+        Month month = blockedDatesUseCase.getMonthToUpdate().getMonth();
         return ResponseEntity.ok(month.getValue());
     }
 
+
     @GetMapping("/month-dates")
     public ResponseEntity<Set<String>> getBlockedDatesForMonth() {
-        Month month = blockedDatesUseCase.getMonthToUpdate();
-        BlockedDates blockedDates = blockedDatesUseCase.getBlockedDates(month.getValue());
+        YearMonth month = blockedDatesUseCase.getMonthToUpdate();
+        BlockedDates blockedDates = blockedDatesUseCase.getBlockedDates(month.getMonthValue(), month.getYear());
 
-        Set<String> dates = blockedDates.getDates().stream()
-                .filter(d -> d.getMonth() == month)
-                .map(LocalDate::toString)
-                .collect(Collectors.toSet());
+        Set<String> dates = blockedDates.getDates().stream().filter(d -> d.getMonth() == month.getMonth())
+                .map(LocalDate::toString).collect(Collectors.toSet());
 
         return ResponseEntity.ok(dates);
     }
+
 
     @GetMapping("/get")
     public ResponseEntity<Set<String>> getBlockedDates() {
         BlockedDates blockedDates = blockedDatesUseCase.getBlockedDates();
-        Set<String> dates = blockedDates.getDates().stream()
-                .sorted()
-                .map(LocalDate::toString)
+        Set<String> dates = blockedDates.getDates().stream().sorted().map(LocalDate::toString)
                 .collect(Collectors.toCollection(LinkedHashSet::new)); // ordine cronologico
         return ResponseEntity.ok(dates);
     }
 
+
     @PostMapping("/set")
-    public ResponseEntity<Void> addBlockedDates(@RequestBody BlockedDatesDTO blockedDatesDTO, HttpServletRequest request) {
-        try{
+    public ResponseEntity<Void> addBlockedDates(@RequestBody BlockedDatesDTO blockedDatesDTO,
+            HttpServletRequest request) {
+        try {
 
             Set<LocalDate> blockedDates = new HashSet<>();
 
-            for(String date: blockedDatesDTO.dateList())
-                try{
+            for (String date : blockedDatesDTO.dateList())
+                try {
                     LocalDate parsedDate = LocalDate.parse(date);
                     blockedDates.add(parsedDate);
-                }catch (DateTimeParseException e){
+                } catch (DateTimeParseException e) {
                     throw new IllegalArgumentException("Formato data non valido: " + e.getMessage());
                 }
 
             blockedDatesUseCase.updateBlockedDates(blockedDates);
 
             return ResponseEntity.ok().build();
-        }catch (IllegalArgumentException iae){
+        } catch (IllegalArgumentException iae) {
             System.out.println(iae.getMessage());
             return ResponseEntity.badRequest().build();
-        }catch (Exception e){
+        } catch (Exception e) {
             System.out.println(e.getMessage());
             return ResponseEntity.internalServerError().build();
         }

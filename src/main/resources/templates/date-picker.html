@@ -140,17 +140,15 @@
       </div>
     </div>
 
-    <script th:inline="javascript">
-      const mode = /*[[${mode}]]*/ "blocked";
-      const isReadOnly = /*[[${availabilityStatus}]]*/ false === false;
-    </script>
-
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/locales/bootstrap-datepicker.it.min.js"></script>
 
-    <script>
+    <script th:inline="javascript">
+      const mode = /*[[${mode}]]*/ 'blocked';
+      const isReadOnly = /*[[${!availabilityStatus}]]*/ false; // true if availability collection closed
+
       function formatDateLocal(date) {
         const y = date.getFullYear();
         const m = String(date.getMonth() + 1).padStart(2, "0");
@@ -164,22 +162,17 @@
       }
 
       $(async function () {
-        const API_BASE =
-          mode === "blocked"
-            ? "http://localhost:8080/api/blocked-dates"
-            : "http://localhost:8080/api/volunteer-availability";
+        const API_BASE = mode === "blocked"
+                ? "http://localhost:8080/api/blocked-dates"
+                : "http://localhost:8080/api/volunteer-availability";
 
         try {
-          const monthToUpdate = await fetch(`${API_BASE}/month-to-update`).then(
-            (res) => (res.ok ? res.json() : Promise.reject("Errore mese"))
-          );
+          const monthToUpdate = await fetch(`${API_BASE}/month-to-update`)
+                  .then(res => res.ok ? res.json() : Promise.reject("Errore mese"));
 
           const now = new Date();
           let year = now.getFullYear();
-
-          if (monthToUpdate < now.getMonth() + 1) {
-            year += 1;
-          }
+          if (monthToUpdate < now.getMonth() + 1) year += 1;
 
           const firstDay = new Date(year, monthToUpdate - 1, 1);
           const lastDay = new Date(year, monthToUpdate, 0);
@@ -194,18 +187,23 @@
             defaultViewDate: firstDay,
             startDate: firstDay,
             endDate: lastDay,
-            enabled: (mode === "available" && !isReadOnly) || mode === "blocked",
+            beforeShowDay: function(date) {
+              if (isReadOnly && mode === "available") {
+                return { enabled: false, classes: 'disabled-day' };
+              }
+              return true;
+            }
           });
 
+          //server per settare il mese corretto
           setTimeout(() => {
             const dp = $("#inline-datepicker").data("datepicker");
             dp.viewDate = firstDay;
             dp._fill();
           }, 0);
 
-          const dates = await fetch(
-            `${API_BASE}${mode === "blocked" ? "/month-dates" : "/get-own"}`
-          ).then((res) => (res.ok ? res.json() : []));
+          const dates = await fetch(`${API_BASE}${mode === "blocked" ? "/month-dates" : "/get-own"}`)
+                  .then(res => res.ok ? res.json() : []);
 
           if (dates.length > 0) {
             const dateObjects = dates.map(parseLocalDate);
@@ -214,12 +212,12 @@
 
           let selectedDates = dates;
 
-          $("#inline-datepicker").on("changeDate", function () {
-            selectedDates = $("#inline-datepicker")
-              .datepicker("getDates")
-              .map(formatDateLocal);
-            console.log("Date selezionate:", selectedDates);
-          });
+          if (!(isReadOnly && mode === "available")) {
+            $("#inline-datepicker").on("changeDate", function () {
+              selectedDates = $("#inline-datepicker").datepicker("getDates").map(formatDateLocal);
+              console.log("Date selezionate:", selectedDates);
+            });
+          }
 
           $("#blocked-dates-form").on("submit", async function (e) {
             e.preventDefault();
@@ -227,24 +225,25 @@
             const payload = { dateList: selectedDates };
 
             const response = await fetch(
-              `${API_BASE}${mode === "blocked" ? "/set" : "/update-own"}`,
-              {
-                method: mode === "blocked" ? "POST" : "PUT",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(payload),
-              }
+                    `${API_BASE}${mode === "blocked" ? "/set" : "/update-own"}`,
+                    {
+                      method: mode === "blocked" ? "POST" : "PUT",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify(payload),
+                    }
             );
 
             if (response.ok) {
               alert(
-                mode === "blocked"
-                  ? "Date bloccate aggiornate con successo!"
-                  : "Disponibilità aggiornata con successo!"
+                      mode === "blocked"
+                              ? "Date bloccate aggiornate con successo!"
+                              : "Disponibilità aggiornata con successo!"
               );
             } else {
               alert("Errore: " + (await response.text()));
             }
           });
+
         } catch (err) {
           alert("Errore caricamento dati: " + err);
         }
