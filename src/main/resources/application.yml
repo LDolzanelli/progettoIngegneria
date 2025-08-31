@@ -20,4 +20,5 @@ spring:
 
   jpa:
     show-sql: true
-
+    database-platform: org.hibernate.dialect.MySQLDialect
+    dialect: org.hibernate.dialect.MySQLDialect

@@ -10,3 +10,4 @@ public interface VolunteersAvailabilityUseCase {
     Set<LocalDate> getAvailability(int volunteerId, Month month);
     Month getTargetMonth();
 }
+ 

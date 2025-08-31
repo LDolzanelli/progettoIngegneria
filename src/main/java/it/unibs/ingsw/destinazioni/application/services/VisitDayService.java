@@ -1,4 +1,4 @@
-package it.unibs.ingsw.destinazioni.application.service;
+package it.unibs.ingsw.destinazioni.application.services;
 
 import java.time.Clock;
 import java.time.LocalDate;
@@ -20,8 +20,6 @@ import it.unibs.ingsw.destinazioni.domain.model.enums.DaysOfWeek;
 import it.unibs.ingsw.destinazioni.domain.model.enums.Role;
 import it.unibs.ingsw.destinazioni.domain.model.enums.VisitStatus;
 import lombok.RequiredArgsConstructor;
-
-
 
 @Service
 @RequiredArgsConstructor
@@ -50,15 +48,15 @@ public class VisitDayService implements VisitDaysUseCase {
         LocalDate startOfMonth = targetMonth.atDay(1);
         LocalDate endOfMonth = targetMonth.atEndOfMonth();
 
-        List<VisitType> visitTypes =
-                visitTypeRepository.findAll().stream().filter(visitType -> !visitType.getStartDate().isAfter(endOfMonth)
-                        && !visitType.getEndDate().isBefore(startOfMonth)).toList();
+        List<VisitType> visitTypes = visitTypeRepository.findAll().stream()
+                .filter(visitType -> !visitType.getStartDate().isAfter(endOfMonth)
+                        && !visitType.getEndDate().isBefore(startOfMonth))
+                .toList();
 
         for (VisitType visitType : visitTypes) {
             createVisitsForType(visitType, startOfMonth, endOfMonth, blockedDates);
         }
     }
-
 
     private void createVisitsForType(VisitType visitType, LocalDate startOfMonth, LocalDate endOfMonth,
             BlockedDates blockedDates) {
@@ -79,12 +77,11 @@ public class VisitDayService implements VisitDaysUseCase {
         }
     }
 
-
     @Override
     public void updateVisitDays(int month) {
-        // TODO: implementare la logica per aggiornare i giorni di visita (con il piano di visita)
+        // TODO: implementare la logica per aggiornare i giorni di visita (con il piano
+        // di visita)
     }
-
 
     @Override
     public List<Visit> getConfirmedVisitsPerVolunteer(String volunteerNickname) {
@@ -92,27 +89,18 @@ public class VisitDayService implements VisitDaysUseCase {
         User volunteer = userInfoService.findByNickname(volunteerNickname)
                 .orElseThrow(() -> new IllegalArgumentException("Volontario non trovato: " + volunteerNickname));
 
-
         if (volunteer.getRole() != Role.VOLUNTEER)
             throw new IllegalArgumentException("L'utente non è un volontario: " + volunteerNickname);
-
 
         return visitRepository.findByVolunteer(volunteerNickname).stream()
                 .filter(visit -> visit.getVisitStatus() == VisitStatus.CONFIRMED).toList();
 
     }
 
-
     @Override
     public Visit getVisitById(int visitId) {
         return visitRepository.findById(visitId)
                 .orElseThrow(() -> new IllegalArgumentException("Visita non trovata con id: " + visitId));
     }
-
-
-
-
-
-
 
 }

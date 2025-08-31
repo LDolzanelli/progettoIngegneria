@@ -1,7 +1,9 @@
-package it.unibs.ingsw.destinazioni.application.service;
+package it.unibs.ingsw.destinazioni.application.services;
 
 import java.time.Clock;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -14,11 +16,9 @@ import it.unibs.ingsw.destinazioni.application.port.out.VisitPlanStatePort;
 import it.unibs.ingsw.destinazioni.application.port.out.VisitTypeRepositoryPort;
 import it.unibs.ingsw.destinazioni.application.port.out.VolunteerAvailabilityStatePort;
 import it.unibs.ingsw.destinazioni.domain.model.Location;
-import it.unibs.ingsw.destinazioni.domain.model.VisitType;
 import it.unibs.ingsw.destinazioni.domain.model.User;
+import it.unibs.ingsw.destinazioni.domain.model.VisitType;
 import lombok.RequiredArgsConstructor;
-import java.util.ArrayList;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -32,42 +32,48 @@ public class VisitTypeService implements ManageVisitTypeUseCase {
 
     private final Clock clock;
 
-
-
     @Override
+    /*@ also
+      @ requires repository != null && locationRepository != null;
+      @ ensures repository.findById(visitType.getId()) != null ==> 
+      @         repository.findById(visitType.getId()).isPresent();
+      @*/
     public void addVisitType(VisitType visitType, int locationId) {
         repository.save(visitType, locationId);
     }
 
 
     @Override
+    /*@ also
+      @ ensures !repository.findById(visitTypeId).isPresent();
+      @ ensures (\forall User volunteer; \old(repository.findById(visitTypeId).get().getVolunteers()).contains(volunteer);
+      @          repository.findByVolunteerId(volunteer.getId()).isEmpty() ==> 
+      @          !userRepository.findById(volunteer.getId()).isPresent());
+      @*/
     public void removeVisitType(int visitTypeId) {
 
         VisitType visitType = repository.findById(visitTypeId)
                 .orElseThrow(() -> new IllegalArgumentException("Visit Type con id " + visitTypeId + " non trovata"));
 
-
         if (!canBeRemoved(visitType.getId())) {
             throw new IllegalArgumentException("Il tipo di visita non può essere rimosso.");
         }
 
-
-
         Location location = locationRepository.findByVisitType(visitType)
                 .orElseThrow(() -> new IllegalArgumentException("Location associata al tipo di visita non trovata"));
-
-
 
         location.removeVisitType(visitType);
         locationRepository.save(location);
 
-        // Se dopo la rimozione del tipo di visita non ci sono più tipi di visita associati alla location,
+        // Se dopo la rimozione del tipo di visita non ci sono più tipi di visita
+        // associati alla location,
         // possiamo rimuovere la location
         if (location.getVisitTypes() == null || location.getVisitTypes().isEmpty()) {
             locationRepository.deleteById(location.getId());
         }
 
-        // Rimuovere i volontari che erano associati a questo tipo di visita se non sono associati ad
+        // Rimuovere i volontari che erano associati a questo tipo di visita se non sono
+        // associati ad
         // altri tipi di visita
         if (visitType.getVolunteers() != null) {
             visitType.getVolunteers().forEach(volunteer -> {
@@ -80,32 +86,48 @@ public class VisitTypeService implements ManageVisitTypeUseCase {
     }
 
 
-
     @Override
+    /*@ also
+      @ ensures \result.equals(repository.findAll());
+      @*/
     public Set<VisitType> listAll() {
         return repository.findAll();
     }
 
 
     @Override
+    /*@ also
+      @ ensures \result.equals(repository.findByLocationId(locationId));
+      @*/
     public Set<VisitType> listByLocation(int locationId) {
         return repository.findByLocationId(locationId);
     }
 
 
     @Override
+    /*@ also
+      @ ensures \result.equals(repository.findByVolunteerId(volunteerId));
+      @*/
     public Set<VisitType> listByVolunteerId(int volunteerId) {
         return repository.findByVolunteerId(volunteerId);
     }
 
 
     @Override
+    /*@ also
+      @ ensures \result.equals(repository.findById(id));
+      @*/
     public Optional<VisitType> findById(int id) {
         return repository.findById(id);
     }
 
 
     @Override
+    /*@ also
+      @ ensures repository.findById(visitType.getId()).isPresent();
+      @ ensures repository.findById(visitType.getId()).get().getTitle().equals(visitType.getTitle());
+      @ ensures repository.findById(visitType.getId()).get().getDescription().equals(visitType.getDescription());
+      @*/
     public void updateVisitType(VisitType visitType) {
         if (visitType == null || visitType.getId() == null) {
             throw new IllegalArgumentException("VisitType o ID non valido");
@@ -122,27 +144,46 @@ public class VisitTypeService implements ManageVisitTypeUseCase {
         repository.save(visitType, location.getId());
     }
 
-	@Override
-	public boolean isAddOrRemovalStateActive() {
-		LocalDate today = LocalDate.now(clock);
-
-		//verifica se siamo dopo il 15 del mese corrente (i)
-		boolean isAfter15th = today.getDayOfMonth() > 15;
-
-		//verifica se è stato prodotto il piano visite per i+1
-		LocalDate nextMonth = today.plusMonths(1);
-		boolean isVisitPlanCreated =
-				visitPlanStateRepo.isVisitPlanCreated(nextMonth.getMonthValue(), nextMonth.getYear());
-
-		//verifica se non è stata aperta la raccolta disponibilità per i+2
-		LocalDate twoMonthsLater = today.plusMonths(2);
-		boolean isAvailabilityOpen = volunteerAvailabilityStateRepo
-				.isVolunteerAvailabilityOpen(twoMonthsLater.getMonthValue(), twoMonthsLater.getYear());
-
-		return isAfter15th && isVisitPlanCreated && !isAvailabilityOpen;
-	}
 
     @Override
+    /*@ also
+      @ requires clock != null && volunteerAvailabilityStateRepo != null && visitPlanStateRepo != null;
+      @ ensures \result == (LocalDate.now(clock).getDayOfMonth() > 15 &&
+      @                    visitPlanStateRepo.isVisitPlanCreated(LocalDate.now(clock).plusMonths(1).getMonthValue(),
+      @                                                         LocalDate.now(clock).plusMonths(1).getYear()) &&
+      @                    !volunteerAvailabilityStateRepo.isVolunteerAvailabilityOpen(
+      @                        LocalDate.now(clock).plusMonths(2).getMonthValue(),
+      @                        LocalDate.now(clock).plusMonths(2).getYear()));
+      @*/
+    public boolean isAddOrRemovalStateActive() {
+        LocalDate today = LocalDate.now(clock);
+
+        // verifica se siamo dopo il 15 del mese corrente (i)
+        boolean isAfter15th = today.getDayOfMonth() > 15;
+
+        // verifica se è stato prodotto il piano visite per i+1
+        LocalDate nextMonth = today.plusMonths(1);
+        boolean isVisitPlanCreated =
+                visitPlanStateRepo.isVisitPlanCreated(nextMonth.getMonthValue(), nextMonth.getYear());
+
+        // verifica se non è stata aperta la raccolta disponibilità per i+2
+        LocalDate twoMonthsLater = today.plusMonths(2);
+        boolean isAvailabilityOpen = volunteerAvailabilityStateRepo
+                .isVolunteerAvailabilityOpen(twoMonthsLater.getMonthValue(), twoMonthsLater.getYear());
+
+        return isAfter15th && isVisitPlanCreated && !isAvailabilityOpen;
+    }
+
+
+    @Override
+    /*@ also
+      @ ensures \result ==> isAddOrRemovalStateActive();
+      @ ensures \result == (isAddOrRemovalStateActive() && 
+      @                    (repository.findById(visitTypeId).get().getStartDate()
+      @                     .isAfter(LocalDate.now(clock).withDayOfMonth(1).plusMonths(2)) ||
+      @                     repository.findById(visitTypeId).get().getEndDate()
+      @                     .isBefore(LocalDate.now(clock).withDayOfMonth(1))));
+      @*/
     public boolean canBeRemoved(int visitTypeId) {
         LocalDate today = LocalDate.now(clock);
         VisitType visitType = repository.findById(visitTypeId)
@@ -151,7 +192,8 @@ public class VisitTypeService implements ManageVisitTypeUseCase {
         LocalDate startDate = visitType.getStartDate();
         LocalDate endDate = visitType.getEndDate();
 
-        // verifica se la data di inizio è nel futuro rispetto al mese corrente (i+2) o se la data di fine è
+        // verifica se la data di inizio è nel futuro rispetto al mese corrente (i+2) o
+        // se la data di fine è
         // nel passato rispetto al mese corrente (i)
         boolean isStartDateInFuture = startDate.isAfter(today.withDayOfMonth(1).plusMonths(2));
         boolean isEndDateInPast = endDate.isBefore(today.withDayOfMonth(1));
@@ -161,6 +203,13 @@ public class VisitTypeService implements ManageVisitTypeUseCase {
 
 
     @Override
+    /*@ also
+      @ ensures \result ==> canBeRemoved(visitTypeId);
+      @ ensures \result == (canBeRemoved(visitTypeId) && 
+      @                    !visitPlanStateRepo.isVisitPlanCreated(
+      @                        repository.findById(visitTypeId).get().getStartDate().getMonthValue(),
+      @                        repository.findById(visitTypeId).get().getStartDate().getYear()));
+      @*/
     public boolean canBeModified(int visitTypeId) {
 
         VisitType visitType = repository.findById(visitTypeId)
@@ -169,7 +218,8 @@ public class VisitTypeService implements ManageVisitTypeUseCase {
         boolean isVisitPlanCreated = visitPlanStateRepo.isVisitPlanCreated(visitType.getStartDate().getMonthValue(),
                 visitType.getStartDate().getYear());
 
-        // NB: se il tipo di visita non può essere rimosso, non può essere modificato perché non siamo nel
+        // NB: se il tipo di visita non può essere rimosso, non può essere modificato
+        // perché non siamo nel
         // periodo corretto
         boolean canBeRemoved = canBeRemoved(visitTypeId);
         return canBeRemoved && !isVisitPlanCreated;
@@ -177,6 +227,12 @@ public class VisitTypeService implements ManageVisitTypeUseCase {
 
 
     @Override
+    /*@ also
+      @ ensures repository.findById(visitTypeId).get().getVolunteers().stream()
+      @         .anyMatch(v -> v.getNickname().equals(nickname));
+      @ ensures repository.findById(visitTypeId).get().getVolunteers().size() == 
+      @         \old(repository.findById(visitTypeId).get().getVolunteers().size()) + 1;
+      @*/
     public void addVolunteerToVisitType(int visitTypeId, String nickname) {
 
         if (!this.canBeModified(visitTypeId)) {

@@ -1,13 +1,15 @@
-package it.unibs.ingsw.destinazioni.application.service;
-
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.*;
-import it.unibs.ingsw.destinazioni.application.port.out.UserRepositoryPort;
-import it.unibs.ingsw.destinazioni.domain.model.User;
-
-import org.springframework.stereotype.Service;
+package it.unibs.ingsw.destinazioni.application.services;
 
 import java.util.Collections;
+
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Service;
+
+import it.unibs.ingsw.destinazioni.application.port.out.UserRepositoryPort;
+import it.unibs.ingsw.destinazioni.domain.model.User;
 
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
@@ -26,7 +28,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         return new org.springframework.security.core.userdetails.User(
                 user.getNickname(),
                 user.getPassword(),
-                Collections.singleton(new SimpleGrantedAuthority("ROLE_" + user.getRole()))
-        );
+                Collections.singleton(new SimpleGrantedAuthority("ROLE_" + user.getRole())));
     }
 }
+ 

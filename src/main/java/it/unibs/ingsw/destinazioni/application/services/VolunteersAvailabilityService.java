@@ -1,19 +1,22 @@
-package it.unibs.ingsw.destinazioni.application.service;
+package it.unibs.ingsw.destinazioni.application.services;
 
+import java.time.Clock;
+import java.time.LocalDate;
+import java.time.Month;
+import java.time.YearMonth;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+
+import it.unibs.ingsw.destinazioni.application.port.in.VisitDaysUseCase;
 import it.unibs.ingsw.destinazioni.application.port.in.VolunteerAvailabilityControlUseCase;
 import it.unibs.ingsw.destinazioni.application.port.in.VolunteersAvailabilityUseCase;
-import it.unibs.ingsw.destinazioni.application.port.in.VisitDaysUseCase;
 import it.unibs.ingsw.destinazioni.application.port.out.VisitPlanStatePort;
 import it.unibs.ingsw.destinazioni.application.port.out.VolunteerAvailabilityStatePort;
 import it.unibs.ingsw.destinazioni.application.port.out.VolunteerAvailableDateRepositoryPort;
 import it.unibs.ingsw.destinazioni.domain.model.VolunteerAvailableDate;
-
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-
-import java.time.*;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -24,16 +27,18 @@ public class VolunteersAvailabilityService
     private final VisitPlanStatePort visitPlanStatePort;
     private final VisitDaysUseCase visitDaysUseCase;
     private final VolunteerAvailableDateRepositoryPort repository;
-    private final Clock clock;
+    private final Clock clock; 
 
     // ==== CONTROLLI DI STATO ====
 
     /**
-     * Controlla se è possibile abilitare la disponibilità dei volontari per il mese i+2.
+     * Controlla se è possibile abilitare la disponibilità dei volontari per il mese
+     * i+2.
      * Con i = mese corrente, i vincoli sono:
      * 1. La disponibilità dei volontari deve essere chiusa per il mese i+1.
      * 2. Il piano di visita per il mese i+1 deve essere stato creato.
-     * 3. Il giorno corrente deve essere compreso tra il 16 del mese i e il 15 del mese i+1.
+     * 3. Il giorno corrente deve essere compreso tra il 16 del mese i e il 15 del
+     * mese i+1.
      */
     @Override
     public boolean canEnableAvailability() {
@@ -43,9 +48,11 @@ public class VolunteersAvailabilityService
         YearMonth next = current.plusMonths(1);
         YearMonth nextPlusOne = current.plusMonths(2);
 
-        boolean nextMonthAvailabilityNotOpen = !statePort.isVolunteerAvailabilityOpen(next.getMonthValue(), next.getYear());
+        boolean nextMonthAvailabilityNotOpen = !statePort.isVolunteerAvailabilityOpen(next.getMonthValue(),
+                next.getYear());
         boolean nextMonthVisitPlanCreated = visitPlanStatePort.isVisitPlanCreated(next.getMonthValue(), next.getYear());
-        boolean nextTwoMonthsAvailabilityNotOpen = !statePort.isVolunteerAvailabilityOpen(nextPlusOne.getMonthValue(), nextPlusOne.getYear());
+        boolean nextTwoMonthsAvailabilityNotOpen = !statePort.isVolunteerAvailabilityOpen(nextPlusOne.getMonthValue(),
+                nextPlusOne.getYear());
         boolean isTodayAfterSixteen = today >= 16;
 
         return nextMonthAvailabilityNotOpen
@@ -54,9 +61,9 @@ public class VolunteersAvailabilityService
                 && isTodayAfterSixteen;
     }
 
-
     /**
-     * Controlla se è possibile disabilitare la disponibilità dei volontari per il mese i+1.
+     * Controlla se è possibile disabilitare la disponibilità dei volontari per il
+     * mese i+1.
      * Con i = mese corrente, i vincoli sono:
      * 1. La disponibilità dei volontari deve essere aperta per il mese i+1.
      * 2. Il giorno corrente deve essere dopo il 15 del mese i.
@@ -69,8 +76,6 @@ public class VolunteersAvailabilityService
 
         return statePort.isVolunteerAvailabilityOpen(next.getMonthValue(), next.getYear()) && today > 15;
     }
-
-
 
     @Override
     public void enableAvailability() {
@@ -85,7 +90,6 @@ public class VolunteersAvailabilityService
         visitDaysUseCase.createDefaultVisitDays(target.getMonthValue());
     }
 
-
     @Override
     public void disableAvailability() {
         if (!canDisableAvailability()) {
@@ -98,39 +102,33 @@ public class VolunteersAvailabilityService
         statePort.setVolunteerAvailabilityOpen(target.getMonthValue(), target.getYear(), false);
     }
 
-
     @Override
     public int getMonthToEnable() {
         return YearMonth.now(clock).plusMonths(2).getMonthValue();
     }
-
 
     @Override
     public int getMonthToDisable() {
         return YearMonth.now(clock).plusMonths(1).getMonthValue();
     }
 
-
     @Override
     public boolean isAvailabilityEnabled() {
 
         LocalDate now = LocalDate.now(clock);
 
-        YearMonth next =
-                now.getDayOfMonth() >= 16 ? YearMonth.from(now).plusMonths(2) : YearMonth.from(now).plusMonths(1);
+        YearMonth next = now.getDayOfMonth() >= 16 ? YearMonth.from(now).plusMonths(2)
+                : YearMonth.from(now).plusMonths(1);
 
         return statePort.isVolunteerAvailabilityOpen(next.getMonthValue(), next.getYear());
     }
 
     // ==== CRUD DISPONIBILITÀ VOLONTARI ====
 
-
     @Override
     public void updateAvailability(int volunteerId, Set<LocalDate> availableDates) {
 
-
         Month target = getTargetMonth();
-
 
         if (!isAvailabilityEnabled()) {
             throw new IllegalStateException("La disponibilità dei volontari non è abilitata per il mese " + target);
@@ -141,7 +139,6 @@ public class VolunteersAvailabilityService
 
         availableDates.forEach(d -> repository.save(new VolunteerAvailableDate(volunteerId, d)));
     }
-
 
     @Override
     public Set<LocalDate> getAvailability(int volunteerId) {
@@ -156,7 +153,6 @@ public class VolunteersAvailabilityService
         return repository.findByVolunteerId(volunteerId).stream().filter(v -> v.getAvailableDate().getMonth() == month)
                 .map(VolunteerAvailableDate::getAvailableDate).collect(Collectors.toSet());
     }
-
 
     @Override
     public Month getTargetMonth() {

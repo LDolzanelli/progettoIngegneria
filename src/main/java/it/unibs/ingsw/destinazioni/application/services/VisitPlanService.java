@@ -1,9 +1,14 @@
-package it.unibs.ingsw.destinazioni.application.service;
+package it.unibs.ingsw.destinazioni.application.services;
 
 import java.time.Clock;
 import java.time.LocalDate;
 import java.time.YearMonth;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
@@ -11,23 +16,20 @@ import org.springframework.transaction.annotation.Transactional;
 
 import it.unibs.ingsw.destinazioni.application.port.in.GetUserInfoUseCase;
 import it.unibs.ingsw.destinazioni.application.port.in.VisitPlanUseCase;
+import it.unibs.ingsw.destinazioni.application.port.out.BlockedDatesRepositoryPort;
 import it.unibs.ingsw.destinazioni.application.port.out.VisitPlanStatePort;
+import it.unibs.ingsw.destinazioni.application.port.out.VisitRepositoryPort;
+import it.unibs.ingsw.destinazioni.application.port.out.VisitTypeRepositoryPort;
 import it.unibs.ingsw.destinazioni.application.port.out.VolunteerAvailabilityStatePort;
-import it.unibs.ingsw.destinazioni.domain.model.Visit;
-import it.unibs.ingsw.destinazioni.domain.model.enums.VisitStatus;
+import it.unibs.ingsw.destinazioni.application.port.out.VolunteerAvailableDateRepositoryPort;
 import it.unibs.ingsw.destinazioni.domain.model.User;
+import it.unibs.ingsw.destinazioni.domain.model.Visit;
 import it.unibs.ingsw.destinazioni.domain.model.VisitType;
 import it.unibs.ingsw.destinazioni.domain.model.VolunteerAvailableDate;
-
-import it.unibs.ingsw.destinazioni.application.port.out.VisitTypeRepositoryPort;
-import it.unibs.ingsw.destinazioni.application.port.out.VolunteerAvailableDateRepositoryPort;
-import it.unibs.ingsw.destinazioni.application.port.out.VisitRepositoryPort;
-import it.unibs.ingsw.destinazioni.application.port.out.BlockedDatesRepositoryPort;
-
 import it.unibs.ingsw.destinazioni.domain.model.enums.Role;
-
+import it.unibs.ingsw.destinazioni.domain.model.enums.VisitStatus;
+import lombok.Getter; 
 import lombok.RequiredArgsConstructor;
-import lombok.Getter;
 import lombok.Setter;
 
 @Service
@@ -61,7 +63,6 @@ public class VisitPlanService implements VisitPlanUseCase {
                 && !availabilityStatePort.isVolunteerAvailabilityOpen(nextMonthValue, nextYear);
     }
 
-
     @Transactional // per poter rimuovere le blockedDates
     @Override
     public void createVisitPlan() {
@@ -74,15 +75,13 @@ public class VisitPlanService implements VisitPlanUseCase {
         int nextMonthValue = nextMonth.getMonthValue();
         int nextYear = nextMonth.getYear();
 
-
         List<User> volunteers = userService.getUsersByRole(Role.VOLUNTEER);
-
 
         List<VisitType> visitTypes = new ArrayList();
         visitTypes.addAll(visitTypeRepository.findAll());
 
-        List<VolunteerAvailableDate> monthAvailabilities =
-                initMonthAvailabilities(volunteers, nextMonthValue, nextYear);
+        List<VolunteerAvailableDate> monthAvailabilities = initMonthAvailabilities(volunteers, nextMonthValue,
+                nextYear);
 
         // recupera le visite del prossimo mese e ordinale
         List<Visit> monthVisits = initMonthVisits(nextMonthValue, nextYear);
@@ -97,13 +96,13 @@ public class VisitPlanService implements VisitPlanUseCase {
             LocalDate day = visit.getDate();
             List<User> availableVolunteers = new ArrayList<>();
 
-            // aggiunge alla lista availableVolunteers tutti i volontari che hanno dato disponibilitá per il
+            // aggiunge alla lista availableVolunteers tutti i volontari che hanno dato
+            // disponibilitá per il
             // giorno 'day'
             monthAvailabilities.stream().filter(av -> av.getAvailableDate().equals(day)) //
-                    //mappa le disponibilitá VolunteerAvailableDate con gli oggetti USER volontari
+                    // mappa le disponibilitá VolunteerAvailableDate con gli oggetti USER volontari
                     .map(av -> volunteerById(av.getVolunteerId(), volunteers)) //
                     .forEach(availableVolunteers::add);
-
 
             if (availableVolunteers.isEmpty()) {
                 visit.setVisitStatus(VisitStatus.CANCELLED);
@@ -130,14 +129,12 @@ public class VisitPlanService implements VisitPlanUseCase {
         statePort.setVisitPlanCreated(nextMonthValue, nextYear, true);
     }
 
-
     @Override
     public List<Visit> getVisitPlan(int month, int year) {
         System.out.println("VisitPlan creation started");
         // TODO: implementare la logica per ottenere il piano di visita
         return List.of(); // restituisce una lista vuota per ora
     }
-
 
     @Override
     public int getMonth() {
@@ -155,7 +152,6 @@ public class VisitPlanService implements VisitPlanUseCase {
             this.volunteer = volunteer;
         }
 
-
         public void increment() {
             visitCount++;
         }
@@ -170,7 +166,6 @@ public class VisitPlanService implements VisitPlanUseCase {
         return -1;
     }
 
-
     private User volunteerById(int id, List<User> volunteers) {
         Optional<User> volunteer = volunteers.stream().filter(v -> v.getId() == id).findAny();
         if (volunteer.isPresent())
@@ -179,25 +174,23 @@ public class VisitPlanService implements VisitPlanUseCase {
             throw new RuntimeException("Volunteer with id " + id + " not found in volunteer list!");
     }
 
-
     private boolean canDoVisitType(User volunteer, int visitTypeId) {
-        Set<Integer> visitTypesIdsAssociatedToVolunteer = visitTypeRepository.findByVolunteerId(volunteer.getId()).stream() //
+        Set<Integer> visitTypesIdsAssociatedToVolunteer = visitTypeRepository.findByVolunteerId(volunteer.getId())
+                .stream() //
                 .map(VisitType::getId) //
                 .collect(Collectors.toSet());
         return visitTypesIdsAssociatedToVolunteer.contains(visitTypeId);
     }
 
-
     private User selectBestVolunteer(List<User> volunteers, List<VolunteerVisitCount> volunteerVisitCounts) {
 
-        Comparator<User> volunteerComparator =
-                (v1, v2) -> Integer.compare(visitCountFromVolunteer(v1, volunteerVisitCounts),
-                        visitCountFromVolunteer(v2, volunteerVisitCounts));
+        Comparator<User> volunteerComparator = (v1, v2) -> Integer.compare(
+                visitCountFromVolunteer(v1, volunteerVisitCounts),
+                visitCountFromVolunteer(v2, volunteerVisitCounts));
 
         return volunteers.stream().min(volunteerComparator).get(); // volontario a cui sono state assegnate meno visite
 
     }
-
 
     /*
      * Assegna un volontario a una visita
@@ -223,11 +216,11 @@ public class VisitPlanService implements VisitPlanUseCase {
         visitRepository.save(visit);
     }
 
-
     private List<VolunteerAvailableDate> initMonthAvailabilities(List<User> volunteers, int month, int year) {
         List<VolunteerAvailableDate> monthAvailabilities = new ArrayList<>();
         for (User v : volunteers) {
-            // per ogni volontario recupera le sue disponibilitá e seleziona quelle del mese selezionato
+            // per ogni volontario recupera le sue disponibilitá e seleziona quelle del mese
+            // selezionato
             List<VolunteerAvailableDate> volunteerAvailabilities = new ArrayList<>();
 
             volunteerAvailabilityRepository.findByVolunteerId(v.getId()).stream().filter(va -> {
@@ -240,7 +233,6 @@ public class VisitPlanService implements VisitPlanUseCase {
 
         return monthAvailabilities;
     }
-
 
     private List<Visit> initMonthVisits(int month, int year) {
         List<Visit> monthVisits = new ArrayList<>();
@@ -255,7 +247,6 @@ public class VisitPlanService implements VisitPlanUseCase {
         return monthVisits;
     }
 
-
     private List<VolunteerVisitCount> initVolunteerVisitCounts(List<User> volunteers) {
         List<VolunteerVisitCount> volunteerVisitCounts = new ArrayList<>();
         for (User v : volunteers) {
@@ -265,10 +256,8 @@ public class VisitPlanService implements VisitPlanUseCase {
         return volunteerVisitCounts;
     }
 
-
     private void removeBlockedDates(int month, int year) {
         blockedDatesRepository.loadByMonth(month, year).getDates().stream().forEach(blockedDatesRepository::delete);
     }
 
 }
-

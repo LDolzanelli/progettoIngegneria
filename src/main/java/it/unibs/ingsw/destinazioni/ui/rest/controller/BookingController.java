@@ -1,27 +1,27 @@
 package it.unibs.ingsw.destinazioni.ui.rest.controller;
 
-import it.unibs.ingsw.destinazioni.application.port.in.*;
-import it.unibs.ingsw.destinazioni.domain.dto.BookingRequestDTO;
-import it.unibs.ingsw.destinazioni.domain.model.User;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.RequestBody;
-
-import lombok.RequiredArgsConstructor;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
+import it.unibs.ingsw.destinazioni.application.port.in.BookingVisitsUseCase;
+import it.unibs.ingsw.destinazioni.application.port.in.GetUserInfoUseCase;
+import it.unibs.ingsw.destinazioni.application.port.in.ManageLocationUseCase;
+import it.unibs.ingsw.destinazioni.application.port.in.VisitDaysUseCase;
 import it.unibs.ingsw.destinazioni.domain.dto.BookingDetailsDTO;
+import it.unibs.ingsw.destinazioni.domain.dto.BookingRequestDTO;
 import it.unibs.ingsw.destinazioni.domain.dto.CancelBookingDTO;
 import it.unibs.ingsw.destinazioni.domain.model.Booking;
+import it.unibs.ingsw.destinazioni.domain.model.User;
 import it.unibs.ingsw.destinazioni.domain.model.Visit;
-import it.unibs.ingsw.destinazioni.application.service.LocationService;
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
@@ -56,7 +56,8 @@ public class BookingController {
         DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
         var dto = new BookingDetailsDTO(booking.getUser().getId(), visit.getId(), booking.getUser().getNickname(),
-                booking.getVisitorsNames(), visit.getVisitType().getTitle(), locationName, visit.getDate().format(dateFormatter));
+                booking.getVisitorsNames(), visit.getVisitType().getTitle(), locationName,
+                visit.getDate().format(dateFormatter));
 
         return ResponseEntity.ok(dto);
     }

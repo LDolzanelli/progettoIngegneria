@@ -1,4 +1,4 @@
-package it.unibs.ingsw.destinazioni.application.service;
+package it.unibs.ingsw.destinazioni.application.services;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,7 +20,6 @@ public class VolunteerService implements ManageVolunteersUseCase {
     private final ManageVisitTypeUseCase visitTypeService;
     private final UserRepositoryPort userRepository;
 
-
     @Override
     public boolean canBeRemoved(User volunteer) {
         if (volunteer.getRole() != Role.VOLUNTEER) {
@@ -34,10 +33,8 @@ public class VolunteerService implements ManageVolunteersUseCase {
                 return false;
             }
         }
-        return true;
+        return true; 
     }
-
-
 
     @Override
     public void removeVolunteer(User volunteer) {
@@ -48,13 +45,11 @@ public class VolunteerService implements ManageVolunteersUseCase {
         List<VisitType> visitTypes = visitTypeService.listAll().stream().filter(visitType -> visitType.getVolunteers()
                 .stream().anyMatch(v -> v.getNickname().equals(volunteer.getNickname()))).toList();
 
-
         for (VisitType visitType : visitTypes) {
-            
+
             List<User> volunteers = new ArrayList<>(visitType.getVolunteers());
             volunteers.removeIf(v -> v.getNickname().equals(volunteer.getNickname()));
             visitType.setVolunteers(volunteers);
-
 
             if (visitType.getVolunteers().isEmpty()) {
                 visitTypeService.removeVisitType(visitType.getId());

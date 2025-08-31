@@ -7,3 +7,4 @@ public interface ManageVolunteersUseCase {
     boolean canBeRemoved(User volunteer);
     void removeVolunteer(User volunteer);
 }
+ 
