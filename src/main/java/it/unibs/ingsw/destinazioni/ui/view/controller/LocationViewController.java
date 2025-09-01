@@ -14,7 +14,7 @@ import org.springframework.web.client.RestTemplate;
 @RequiredArgsConstructor
 public class LocationViewController {
 
-    private final RestTemplate restTemplate = new RestTemplate();
+    private final RestTemplate restTemplate;
 
     @GetMapping("/view-locations")
     public String viewLocations(@AuthenticationPrincipal UserDetails principal, Model model) {

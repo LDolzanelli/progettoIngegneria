@@ -1,5 +1,6 @@
 package it.unibs.ingsw.destinazioni.ui.view.controller;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,9 +12,10 @@ import it.unibs.ingsw.destinazioni.domain.dto.VolunteerVisitSummaryDTO;
 import it.unibs.ingsw.destinazioni.domain.dto.VisitInformationDTO;
 
 @Controller
+@RequiredArgsConstructor
 public class VolunteerVisitsViewController {
 
-    private final RestTemplate restTemplate = new RestTemplate();
+    private final RestTemplate restTemplate;
     private final String BASE_URL = "http://localhost:8080/api/visit";
 
     @GetMapping("/confirmed-visits")

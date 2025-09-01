@@ -3,6 +3,8 @@ package it.unibs.ingsw.destinazioni.ui.rest.controller;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
+
+import it.unibs.ingsw.destinazioni.ui.rest.mapper.VisitMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,6 +27,8 @@ public class VisitsController {
 
     private final VisitDaysUseCase visitDaysUseCase;
     private final ManageLocationUseCase locationService;
+    private final VisitMapper visitMapper;
+
 
     @GetMapping("/list-confirmed/{volunteerNickname}")
     public ResponseEntity<List<VolunteerVisitSummaryDTO>> getConfirmedVisitsForVolunteer(
@@ -45,47 +49,12 @@ public class VisitsController {
     }
 
 
+
     @GetMapping("/details/{visitId}")
     public ResponseEntity<VisitInformationDTO> getVisitDetails(@PathVariable int visitId) {
         try {
-
-            var visit = visitDaysUseCase.getVisitById(visitId);
-            var visitType = visit.getVisitType();
-            var location = locationService.getLocationForVisitType(visitType);
-
-            HashMap<String, List<String>> visitorsPerBookingCode = new HashMap<>();
-            visit.getBookings().forEach(booking -> 
-                visitorsPerBookingCode.put(booking.getBookingCode(), booking.getVisitorsNames())
-            );
-
-            DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-
-            // una visita puó non avere un volontario associato (ad es. se è CANCELLED)
-            String volunteerNickname ="";
-            User volunteer = visit.getVolunteer();
-
-            volunteerNickname = volunteer != null ? volunteer.getNickname() : "" ;
-
-            var dto = new VisitInformationDTO(
-                    visit.getId(),
-                    volunteerNickname,
-                    visit.getDate().format(dateFormatter),
-                    visitType.getStartTime().toString(),
-                    visitType.getDuration(),
-                    visit.visitorsNumber(),
-                    visitType.getMaxParticipants(),
-                    visitType.getTitle(),
-                    visitType.getDescription(),
-                    location.getName(),
-                    location.getAddress().getFullAddress(),
-                    visitType.getMeetingPoint(),
-                    visit.getVisitStatus().getItalianName(),
-                    visit.getDate().getDayOfWeek().toString(),
-                    visitorsPerBookingCode
-            );
-
-            return ResponseEntity.ok(dto);
-            
+            Visit visit = visitDaysUseCase.getVisitById(visitId);
+            return ResponseEntity.ok(visitMapper.toVisitInformationDTO(visit));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }

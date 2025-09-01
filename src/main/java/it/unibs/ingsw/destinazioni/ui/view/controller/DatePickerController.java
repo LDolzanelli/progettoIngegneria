@@ -1,5 +1,6 @@
 package it.unibs.ingsw.destinazioni.ui.view.controller;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -11,9 +12,10 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 @Controller
 @Slf4j
+@RequiredArgsConstructor
 public class DatePickerController {
 
-    private final RestTemplate restTemplate = new RestTemplate();
+    private final RestTemplate restTemplate;
 
     @GetMapping("/date-picker")
     public String showDatePicker(@AuthenticationPrincipal UserDetails principal,
