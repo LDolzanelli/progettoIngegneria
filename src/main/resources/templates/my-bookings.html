@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="it">
+<head>
+	<meta charset="UTF-8"/>
+	<title>Le mie prenotazioni</title>
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"/>
+	<style>
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            background: linear-gradient(135deg, #e3f2fd, #f8f9fa);
+        }
+        main.container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            border-radius: 1.5rem;
+            padding: 2rem;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+            width: 100%;
+            max-width: 900px;
+        }
+        .card-title {
+            font-weight: 600;
+        }
+	</style>
+</head>
+<body>
+<nav class="navbar navbar-light bg-white shadow-sm sticky-top">
+	<div class="container">
+		<a class="navbar-brand text-primary fw-bold fs-4" href="/">
+			<i class="bi bi-building"></i> Centro Visite
+		</a>
+	</div>
+</nav>
+
+<main class="container d-flex flex-column align-items-center mt-5 pt-5">
+
+	<h5 class="text-muted mb-3">Le mie prenotazioni</h5>
+
+	<div th:if="${myBookings.isEmpty()}" class="glass-card text-center">
+		<p class="text-muted">Non hai ancora prenotazioni.</p>
+	</div>
+
+	<div th:each="entry : ${myBookings}" class="glass-card text-start w-100" style="max-width:800px;">
+		<h5 class="card-title" th:text="${entry.value.visitTypeTitle}">Titolo visita</h5>
+		<p th:text="${entry.value.visitTypeDescription}">Descrizione...</p>
+		<p><strong>Codice prenotazione:</strong> <span th:text="${entry.key}">XXX</span></p>
+		<p><strong>Data:</strong> <span th:text="${entry.value.date}">01/09/2025</span> |
+			<strong>Ora inizio:</strong> <span th:text="${entry.value.startTime}">10:00</span></p>
+		<p><strong>Punto incontro:</strong> <span th:text="${entry.value.meetingPoint}">Indirizzo</span></p>
+
+		<p th:if="${!entry.value.isFree}">
+			<i class="bi bi-ticket-perforated"></i> Biglietto necessario
+		</p>
+
+		<p><strong>Partecipanti:</strong></p>
+		<ul>
+			<li th:each="name : ${entry.value.visitorsPerBookingCode[entry.key]}" th:text="${name}"></li>
+		</ul>
+	</div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

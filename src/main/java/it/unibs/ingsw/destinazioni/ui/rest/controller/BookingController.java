@@ -2,7 +2,11 @@ package it.unibs.ingsw.destinazioni.ui.rest.controller;
 
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.stream.Collectors;
 
+import it.unibs.ingsw.destinazioni.domain.dto.BookingInformationDTO;
+import it.unibs.ingsw.destinazioni.domain.dto.VisitInformationDTO;
+import it.unibs.ingsw.destinazioni.ui.rest.mapper.VisitMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -75,5 +79,25 @@ public class BookingController {
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body("Errore durante la prenotazione: " + e.getMessage());
         }
+    }
+
+    private final VisitMapper visitMapper;
+
+    @GetMapping("/my-bookings/{userId}")
+    public ResponseEntity<List<BookingInformationDTO>> getMyBookingsWithCode(@PathVariable int userId) {
+        User user = userService.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        List<Booking> bookings = bookingService.getBookingsByUser(user);
+
+        List<BookingInformationDTO> result = bookings.stream()
+                .map(b -> {
+                    Visit visit = bookingService.getVisitByBookingCode(b.getBookingCode());
+                    VisitInformationDTO dto = visitMapper.toVisitInformationDTO(visit);
+                    return new BookingInformationDTO(dto, b.getBookingCode());
+                })
+                .toList();
+
+        return ResponseEntity.ok(result);
     }
 }
