@@ -22,7 +22,7 @@ import org.springframework.web.client.RestTemplate;
 @RequiredArgsConstructor
 public class HomeController {
 
-    private final RestTemplate restTemplate = new RestTemplate();
+    private final RestTemplate restTemplate;
     private final AdjustableClock clock;
 
     @GetMapping("/")
@@ -81,14 +81,14 @@ public class HomeController {
 
             Boolean canEnable = restTemplate.getForObject(canEnableUrl, Boolean.class);
             Boolean canDisable = restTemplate.getForObject(canDisableUrl, Boolean.class);
-            Boolean canCreateVisitPlan = restTemplate.getForObject(url + "visit-plan/can-create", Boolean.class);
+            Boolean canCreateVisitPlan = restTemplate.getForObject(url + "get-month-visit-plan/can-create", Boolean.class);
 
 
             Integer monthToUpdate =
                     restTemplate.getForObject(url + "volunteer-availability/month-to-enable", Integer.class);
             Integer monthToDisable =
                     restTemplate.getForObject(url + "volunteer-availability/month-to-disable", Integer.class);
-            Integer monthToCreate = restTemplate.getForObject(url + "visit-plan/next-month", Integer.class);
+            Integer monthToCreate = restTemplate.getForObject(url + "get-month-visit-plan/next-month", Integer.class);
 
 
             model.addAttribute("canCreateVisitPlan", canCreateVisitPlan);

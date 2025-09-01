@@ -18,7 +18,8 @@ public record VisitInformationDTO(
     String meetingPoint,
     String status,
     String dayOfWeek,
-    Map<String, List<String>> visitorsPerBookingCode
+    Map<String, List<String>> visitorsPerBookingCode,
+    boolean isFree
 ) {}
 
 

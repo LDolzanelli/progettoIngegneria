@@ -1,5 +1,6 @@
 package it.unibs.ingsw.destinazioni.ui.view.controller;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -10,9 +11,10 @@ import org.springframework.web.client.RestTemplate;
 
 @Controller
 @Slf4j
+@RequiredArgsConstructor
 public class CancelBookingController {
 
-    private final RestTemplate restTemplate = new RestTemplate();
+    private final RestTemplate restTemplate;
 
     @GetMapping("/cancel-booking")
     public String showCancelBookingPage(@AuthenticationPrincipal UserDetails principal, Model model) {

@@ -18,7 +18,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class VolunteerListViewController {
 
-    private final RestTemplate restTemplate = new RestTemplate();
+    private final RestTemplate restTemplate;
 
     @GetMapping("/view-volunteers")
     public String viewVolunteers(@AuthenticationPrincipal UserDetails principal, Model model) {

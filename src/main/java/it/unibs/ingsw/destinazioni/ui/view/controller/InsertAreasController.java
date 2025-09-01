@@ -17,7 +17,7 @@ import java.util.List;
 @RequestMapping("/insert-areas-of-interest")
 public class InsertAreasController {
 
-    private final RestTemplate restTemplate = new RestTemplate();
+    private final RestTemplate restTemplate;
 
     @GetMapping
     public String showForm(@AuthenticationPrincipal UserDetails principal, Model model) {

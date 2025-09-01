@@ -3,6 +3,7 @@ package it.unibs.ingsw.destinazioni.ui.view.controller;
 import it.unibs.ingsw.destinazioni.ui.view.dto.LoginFormDTO;
 import it.unibs.ingsw.destinazioni.domain.dto.LoginRequestDTO;
 import it.unibs.ingsw.destinazioni.domain.dto.LoginResponseDTO;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -13,9 +14,10 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Slf4j
 @Controller
+@RequiredArgsConstructor
 public class LoginController {
 
-    private final RestTemplate restTemplate = new RestTemplate();
+    private final RestTemplate restTemplate;
 
     @GetMapping("/login")
     public String showLoginForm(Model model) {

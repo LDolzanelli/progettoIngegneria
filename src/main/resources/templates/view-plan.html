@@ -1,392 +1,120 @@
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org" lang="it">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>View Plan</title>
-    <link
-            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-            rel="stylesheet"
-    />
-    <link
-            href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css"
-            rel="stylesheet"
-    />
-
+    <title>Piano Visite</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"/>
     <style>
-        .datepicker-inline {
-            font-size: 1.2rem;
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            background: linear-gradient(135deg, #e3f2fd, #f8f9fa);
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            border-radius: 1.5rem;
+            padding: 2rem;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
             width: 100%;
-            display: block;
+            max-width: 900px;
         }
 
-        .datepicker table {
-            width: 100%;
+        .btn-lg {
+            padding: 0.75rem 1.2rem;
+            font-size: 1.05rem;
+            border-radius: 0.75rem;
         }
 
-        .datepicker td,
-        .datepicker th {
-            width: 3rem;
-            height: 3rem;
-            text-align: center;
-            vertical-align: middle;
-            font-size: 1rem;
-            border-radius: 0.25rem;
+        .card-title {
+            font-weight: 600;
         }
 
-        .datepicker td.active,
-        .datepicker td.active:hover {
-            background-color: #6c757d !important;
-            color: #fff;
-            border-color: #6c757d !important;
-            border-radius: 0.35rem;
-            transition: background-color 0.2s ease-in-out,
-            border-color 0.2s ease-in-out;
-        }
-
-        .datepicker table tr td.active,
-        .datepicker table tr td.active:hover {
-            background-image: linear-gradient(to bottom, #0eafc1, #98ddc8);
-        }
-
-        .available-mode .datepicker table tr td.active,
-        .available-mode .datepicker table tr td.active:hover {
-            background-image: linear-gradient(to bottom, #28a745, #7cd37c);
-        }
-        .datepicker td.day:hover {
-            background-color: #e2e6ea;
-            border-radius: 0.25rem;
-        }
-
-        .datepicker td.active.focus,
-        .datepicker td.active:hover.focus {
-            outline: none;
-            box-shadow: none;
-        }
-
-        .datepicker {
-            margin: 0 auto;
-            float: none;
-        }
-
-        .datepicker-days .datepicker-switch {
-            cursor: default;
-        }
-
-        .datepicker .datepicker-switch:hover {
-            background-color: transparent !important;
-            color: inherit !important;
+        .collapse .list-group-item {
+            font-size: 0.95rem;
         }
     </style>
-
 </head>
 <body>
-    <body class="bg-light">
-    <nav class="navbar navbar-expand-lg bg-light shadow-sm mb-4">
-        <div class="container">
-            <a class="navbar-brand text-primary fw-bold fs-4" href="/">Centro Visite</a>
+<nav class="navbar navbar-light bg-white shadow-sm sticky-top">
+    <div class="container">
+        <a class="navbar-brand text-primary fw-bold fs-4" href="/">
+            <i class="bi bi-building"></i> Centro Visite
+        </a>
+    </div>
+</nav>
+
+<main class="container text-center mt-5 pt-5">
+
+    <h5 class="text-muted mb-3">
+        Piano visite per <span th:text="${month} + '/' + ${year}">Settembre 2025</span>
+    </h5>
+
+    <div class="glass-card mx-auto">
+        <h1 th:text="'Benvenuto, ' + ${username}">Benvenuto, utente</h1>
+        <p class="text-muted mb-4">Visualizza il piano delle visite per il prossimo mese</p>
+
+        <div th:if="${#lists.isEmpty(visitsByType)}">
+            <p class="text-muted">Nessuna visita programmata.</p>
         </div>
-    </nav>
-    <!-- per errori -->
-    <div class="alert alert-danger error-alert" role="alert">
-        <strong>Error!</strong> <span class="error-message"></span>
+
+        <div class="accordion" id="accordion">
+            <div class="accordion-item" th:each="entry, iterStat : ${visitsByType}">
+
+                <h2 class="accordion-header" th:id="'heading-' + ${iterStat.index}">
+                    <button class="accordion-button collapsed" type="button"
+                            data-bs-toggle="collapse"
+                            th:data-bs-target="'#collapse-' + ${iterStat.index}"
+                            th:aria-controls="'collapse-' + ${iterStat.index}"
+                            aria-expanded="false">
+                        <i class="bi bi-calendar-event me-2"></i>
+                        <span th:text="${entry.key}">Titolo VisitType</span>
+                    </button>
+                </h2>
+
+                <div th:id="'collapse-' + ${iterStat.index}" class="accordion-collapse collapse"
+                     th:aria-labelledby="'heading-' + ${iterStat.index}"
+                     data-bs-parent="#accordion">
+                    <div class="accordion-body text-start">
+
+                        <h5 th:text="${entry.value[0].visitTypeTitle}">Titolo</h5>
+                        <p th:text="${entry.value[0].visitTypeDescription}">Descrizione...</p>
+                        <p><strong>Punto incontro:</strong> <span th:text="${entry.value[0].meetingPoint}">Indirizzo</span></p>
+                        <p th:if="${!entry.value[0].isFree}">
+                            <i class="bi bi-ticket-perforated"></i> Biglietto necessario
+                        </p>
+
+                        <ul class="list-group list-group-flush mt-3">
+                            <li class="list-group-item mb-2" th:each="visit : ${entry.value}">
+                                <div th:if="${visit.status != 'Annullata'}">
+                                    <span th:text="${visit.date}">01/09/2025</span> -
+                                    <span th:text="${visit.startTime}">10:00</span>
+                                    <span class="badge bg-primary rounded-pill ms-2"
+                                          th:text="${visit.numberOfParticipants + '/' + visit.maxParticipants + ' partecipanti'}">
+                                    </span>
+                                </div>
+                                <div th:if="${visit.status == 'Annullata'}" class="text-muted">
+                                    <span th:text="${visit.date}">01/09/2025</span>
+                                    <span class="badge bg-danger ms-2">Cancellata</span>
+                                </div>
+                            </li>
+                        </ul>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
     </div>
 
-    <div class="row">
-        <!-- Calendar Column -->
-        <div class="col-md-6">
-            <div class="calendar-container">
-                <h4 class="mb-3">Select Date</h4>
-                <div id="calendar"></div>
-            </div>
-        </div>
+</main>
 
-        <!-- Visit Plans Column -->
-        <div class="col-md-6">
-            <div class="calendar-container">
-                <h4 class="mb-3">Visit Plans</h4>
-                <div id="visit-plan-container">
-                    <p class="text-muted text-center">Select a date to view visit plans</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- jQuery -->
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-        <!-- bootstrap.js -->
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
-
-        <!-- Bootstrap Datepicker JS -->
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
-
-        <script th:inline="javascript">
-            // Global variables to store visit plan data
-
-            // DA CORREGGERE: visitPlanData contiene le visite ma con molte informazioni mancanti
-            let visitPlanData = /*[[${visitPlan}]]*/ [];
-            let highlightedDates = [];
-
-            //get the correct month and year of the visitPlan
-            async function getVisitPlanMonth(){
-                let month = 0;
-
-                try{
-                    const response = await fetch('/api/visit-plan/next-month', {
-                        method: 'GET',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json'
-                        }
-                    });
-
-                    if (!response.ok) {
-                        console.log(response.ok);
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-
-                    month = await response.json();
-
-                }catch(error){
-                    console.error('Error getting visit plan month:', error);
-                    showError(`Failed to load visit plan month: ${error.message}`);
-                    showLoading(false);
-                }
-
-                return parseInt(month);
-            }
-
-            async function getVisitPlanYear(){
-                let year = 0;
-
-                try{
-                    const response = await fetch('/api/visit-plan/next-month-year', {
-                        method: 'GET',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json'
-                        }
-                    });
-
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-
-                    year = await response.json();
-
-                }catch(error){
-                    console.error('Error getting visit plan year:', error);
-                    showError(`Failed to load visit plan year: ${error.message}`);
-                    showLoading(false);
-                }
-
-                return parseInt(year);
-            }
-
-            // Initialize the application when document is ready
-            $(document).ready(async function() {
-                await initializeCalendar();
-                await processVisitPlanData();
-            });
-
-            // Initialize Bootstrap Datepicker
-            async function initializeCalendar() {
-                let month = await getVisitPlanMonth();
-                let year = await getVisitPlanYear();
-                console.log("Mese: " + month);
-                console.log("Anno: " + year);
-
-                const startDate = new Date(year, month-1, 1);
-                const endDate = new Date(year, month, 0) // il giorno 0 indica di recuperare l'ultimo giorno del mese precedente
-
-                $("#calendar").datepicker({
-                    inline: true,
-                    format: 'yyyy-mm-dd',
-                    todayHighlight: true,
-                    autoclose: true,
-                    startDate: startDate,
-                    endDate: endDate,
-                    minViewMode: 0,
-                    maxViewMode: 0,
-                    beforeShowDay: function(date) {
-                        // Highlight dates that have visit plans
-                        const dateStr = formatDate(date);
-                        const hasVisitPlan = highlightedDates.includes(dateStr);
-
-                        if (hasVisitPlan) {
-                            return {
-                                classes: 'highlighted',
-                                tooltip: 'Visit plan available'
-                            };
-                        }
-                        return {};
-                    }
-                }).on('changeDate', function(e) {
-                    // Handle date selection
-                    const selectedDate = formatDate(e.date);
-                    displayVisitsForDate(selectedDate);
-                });
-            }
-
-            //recupera i dati delle visite da Thymeleaf
-            function processVisitPlanData() {
-                try {
-                    showLoading(true);
-                    hideError();
-
-                    console.log('Visit plans loaded from Thymeleaf:', visitPlanData);
-
-                    // Extract dates that have visit plans for highlighting
-                    highlightedDates = extractDatesFromVisitPlan(visitPlanData);
-
-                    // Refresh calendar to show highlighted dates
-                    $('#calendar').datepicker('refresh');
-
-                    showLoading(false);
-
-                } catch (error) {
-                    console.error('Error processing visit plans:', error);
-                    showError(`Failed to process visit plans: ${error.message}`);
-                    showLoading(false);
-                }
-            }
-
-            //estrae le singole date dal piano visite
-            function extractDatesFromVisitPlan(data) {
-                const visits = new Set();
-
-                // Handle different possible data structures
-                if (Array.isArray(data)) {
-                    data.forEach(plan => {
-                            visits.add(plan.date);
-                    });
-                } else if (data && typeof data === 'object') {
-                    // Handle object with date keys
-                    Object.keys(data).forEach(key => {
-                        if (isValidDate(key)) {
-                            visits.add(key);
-                        }
-                    });
-                }
-
-                return Array.from(visits);
-            }
-
-            // mostra le visite disponibili per una certa data
-            function displayVisitsForDate(selectedDate) {
-                const container = $('#visit-plan-container');
-                const planForDate = getVisitsForDate(selectedDate);
-
-                if (planForDate.length === 0) {
-                    container.html(`
-                    <div class="text-center text-muted">
-                        <i class="bi bi-calendar-x" style="font-size: 3rem;"></i>
-                        <p class="mt-2">Nessuna visita per ${formatDisplayDate(selectedDate)}</p>
-                    </div>
-                `);
-                    return;
-                }
-
-                let html = `<h5 class="mb-3">Visite per ${formatDisplayDate(selectedDate)}</h5>`;
-
-                planForDate.forEach((visit, index) => {
-                    html += createVisitPlanCard(visit, index);
-                });
-
-                container.html(html);
-            }
-
-            //restituisce tutte le visite che si svolgeranno in un giorno dato
-            function getVisitsForDate(date) {
-                const plans = [];
-
-                if (Array.isArray(visitPlanData)) {
-                    return visitPlanData.filter(visit => {
-                        return visit.date === date
-                    });
-                } else if (visitPlanData && typeof visitPlanData === 'object') {
-                    // Handle object structure
-                    if (visitPlanData[date]) {
-                        return Array.isArray(visitPlanData[date]) ?
-                            visitPlanData[date] : [visitPlanData[date]];
-                    }
-                }
-
-                return plans;
-            }
-
-            function createVisitPlanCard(visit, index) {
-                const title = visit.visitTypeTitle || 'Tipo visita non definito';
-                const time = visit.startTime || 'Ora non specificata';
-                const location = visit.location || 'Luogo non specificato';
-                const description = visit.description || '';
-                const status = visit.status || 'stato sconosciuto';
-
-                return `
-                <div class="visit-plan-card">
-                    <div class="d-flex justify-content-between align-items-start mb-2">
-                        <h6 class="mb-0">${escapeHtml(title)}</h6>
-                        <span class="badge-custom">${escapeHtml(status)}</span>
-                    </div>
-                    <div class="visit-details">
-                        <p class="mb-1"><strong>Time:</strong> ${escapeHtml(time)}</p>
-                        <p class="mb-1"><strong>Location:</strong> ${escapeHtml(location)}</p>
-                        ${description ? `<p class="mb-0"><strong>Notes:</strong> ${escapeHtml(description)}</p>` : ''}
-                    </div>
-                </div>
-            `;
-            }
-
-            //utility functions
-            function formatDate(date) {
-                const d = new Date(date);
-                const year = d.getFullYear();
-                const month = String(d.getMonth() + 1).padStart(2, '0');
-                const day = String(d.getDate()).padStart(2, '0');
-                return `${year}-${month}-${day}`;
-            }
-
-            function formatDisplayDate(dateStr) {
-                const date = new Date(dateStr);
-                return date.toLocaleDateString('it-IT', {
-                    weekday: 'long',
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric'
-                });
-            }
-
-            function escapeHtml(text) {
-                const map = {
-                    '&': '&amp;',
-                    '<': '&lt;',
-                    '>': '&gt;',
-                    '"': '&quot;',
-                    "'": '&#039;'
-                };
-                return text.toString().replace(/[&<>"']/g, function(m) { return map[m]; });
-            }
-
-            function isValidDate(dateString) {
-                return !isNaN(Date.parse(dateString));
-            }
-
-            function showLoading(show) {
-                if (show) {
-                    $('.loading-spinner').show();
-                } else {
-                    $('.loading-spinner').hide();
-                }
-            }
-
-            function showError(message) {
-                $('.error-message').text(message);
-                $('.error-alert').show();
-            }
-
-            function hideError() {
-                $('.error-alert').hide();
-            }
-
-        </script>
-    </body>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
 </html>

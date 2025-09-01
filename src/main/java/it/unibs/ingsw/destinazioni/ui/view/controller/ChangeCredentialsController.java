@@ -24,7 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping("/change-credentials")
 public class ChangeCredentialsController {
 
-    private final RestTemplate restTemplate = new RestTemplate();
+    private final RestTemplate restTemplate;
 
     @GetMapping
     public String showForm(@AuthenticationPrincipal UserDetails principal,

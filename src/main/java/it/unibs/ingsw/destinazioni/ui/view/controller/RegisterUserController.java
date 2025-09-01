@@ -18,7 +18,7 @@ import org.springframework.web.client.RestTemplate;
 @RequestMapping("/register-user")
 public class RegisterUserController {
 
-    private final RestTemplate restTemplate = new RestTemplate();
+    private final RestTemplate restTemplate;
 
     @GetMapping
     public String showForm(@AuthenticationPrincipal UserDetails principal, Model model) {
