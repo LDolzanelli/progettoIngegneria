@@ -12,10 +12,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Controller
@@ -65,10 +62,17 @@ public class VisitPlanViewController {
         }
 
         Map<String, List<VisitInformationDTO>> visitsByType = Arrays.stream(visitPlan)
-                .collect(Collectors.groupingBy(VisitInformationDTO::visitTypeTitle));
+                .sorted(Comparator.comparing(VisitInformationDTO::visitTypeTitle))
+                .collect(Collectors.groupingBy(
+                        VisitInformationDTO::visitTypeTitle,
+                        LinkedHashMap::new,
+                        Collectors.toList()
+                ));
 
         visitsByType.forEach((visitType, visits) ->
-                visits.sort(Comparator.comparing(v -> LocalDate.parse(v.date(), DateTimeFormatter.ofPattern("dd/MM/yyyy"))))
+                visits.sort(Comparator.comparing(v ->
+                        LocalDate.parse(v.date(), DateTimeFormatter.ofPattern("dd/MM/yyyy"))
+                ))
         );
 
         model.addAttribute("visitsByType", visitsByType);
