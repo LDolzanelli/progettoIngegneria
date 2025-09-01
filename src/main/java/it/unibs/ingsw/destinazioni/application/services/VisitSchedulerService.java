@@ -23,8 +23,8 @@ public class VisitSchedulerService {
 
     private final Clock clock;
 
-    // ogni 10 minuti
-    @Scheduled(fixedDelay = 600_000)
+    // ogni minuto
+    @Scheduled(fixedDelay = 60_000)
     @Transactional
     public void updateVisitsStatus() {
         LocalDate today = LocalDate.now(clock);
