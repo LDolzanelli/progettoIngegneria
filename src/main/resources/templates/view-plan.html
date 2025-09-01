@@ -98,7 +98,12 @@
                                     <span class="badge bg-primary rounded-pill ms-2"
                                           th:text="${visit.numberOfParticipants + '/' + visit.maxParticipants + ' partecipanti'}">
                                     </span>
+                                    <a th:href="@{/book-visit(visitId=${visit.id})}"
+                                       class="btn btn-primary btn-sm ms-2 mt-2">
+                                        <i class="bi bi-ticket-detailed"></i> PRENOTA
+                                    </a>
                                 </div>
+
                                 <div th:if="${visit.status == 'Annullata'}" class="text-muted">
                                     <span th:text="${visit.date}">01/09/2025</span>
                                     <span class="badge bg-danger ms-2">Cancellata</span>
