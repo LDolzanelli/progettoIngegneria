@@ -2,21 +2,20 @@ package it.unibs.ingsw.destinazioni.ui.view.controller;
 
 import java.time.LocalDate;
 import java.time.Month;
-
-import it.unibs.ingsw.destinazioni.config.AdjustableClock;
-import it.unibs.ingsw.destinazioni.domain.dto.LoginResponseDTO;
-
 import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
 import java.util.Locale;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.client.RestTemplate;
+
+import it.unibs.ingsw.destinazioni.config.AdjustableClock;
+import it.unibs.ingsw.destinazioni.domain.dto.LoginResponseDTO;
+import lombok.RequiredArgsConstructor;
 
 @Controller
 @RequiredArgsConstructor
@@ -81,14 +80,14 @@ public class HomeController {
 
             Boolean canEnable = restTemplate.getForObject(canEnableUrl, Boolean.class);
             Boolean canDisable = restTemplate.getForObject(canDisableUrl, Boolean.class);
-            Boolean canCreateVisitPlan = restTemplate.getForObject(url + "get-month-visit-plan/can-create", Boolean.class);
+            Boolean canCreateVisitPlan = restTemplate.getForObject(url + "visit-plan/can-create", Boolean.class);
 
 
             Integer monthToUpdate =
                     restTemplate.getForObject(url + "volunteer-availability/month-to-enable", Integer.class);
             Integer monthToDisable =
                     restTemplate.getForObject(url + "volunteer-availability/month-to-disable", Integer.class);
-            Integer monthToCreate = restTemplate.getForObject(url + "get-month-visit-plan/next-month", Integer.class);
+            Integer monthToCreate = restTemplate.getForObject(url + "visit-plan/next-month", Integer.class);
 
 
             model.addAttribute("canCreateVisitPlan", canCreateVisitPlan);
