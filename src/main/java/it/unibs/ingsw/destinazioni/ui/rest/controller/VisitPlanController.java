@@ -38,10 +38,10 @@ public class VisitPlanController {
         }
     }
 
-    @GetMapping("/get-month-visit-plan")
-    public ResponseEntity<List<VisitInformationDTO>> getVisitPlan(int month, int year) {
+    @GetMapping("/get-visit-plan-after-today")
+    public ResponseEntity<List<VisitInformationDTO>> getVisitPlan() {
         try {
-            List<Visit> visits = visitPlanService.getVisitPlan(month, year);
+            List<Visit> visits = visitPlanService.getAllVisitsAfterToday();
             List<VisitInformationDTO> visitsDTO = visits.stream()
                     .map(visitMapper::toVisitInformationDTO)
                     .toList();

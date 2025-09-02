@@ -36,24 +36,9 @@ public class VisitPlanViewController {
         }
         model.addAttribute("userId", userId);
 
-        int nextMonth = 0;
-        int nextYear = 0;
-        try {
-            ResponseEntity<Integer> monthResponse = restTemplate.getForEntity(
-                    "http://localhost:8080/api/visit-plan/next-month", Integer.class);
-            nextMonth = monthResponse.getBody();
-
-            ResponseEntity<Integer> yearResponse = restTemplate.getForEntity(
-                    "http://localhost:8080/api/visit-plan/next-month-year", Integer.class);
-            nextYear = yearResponse.getBody();
-        } catch (Exception e) {
-            model.addAttribute("error", "Errore nel recuperare mese/anno successivo");
-        }
-
         VisitInformationDTO[] visitPlan = new VisitInformationDTO[0];
         try {
-            String url = "http://localhost:8080/api/visit-plan/get-month-visit-plan?month="
-                    + nextMonth + "&year=" + nextYear;
+            String url = "http://localhost:8080/api/visit-plan/get-visit-plan-after-today";
             ResponseEntity<VisitInformationDTO[]> response =
                     restTemplate.getForEntity(url, VisitInformationDTO[].class);
             visitPlan = response.getBody();
@@ -76,8 +61,6 @@ public class VisitPlanViewController {
         );
 
         model.addAttribute("visitsByType", visitsByType);
-        model.addAttribute("month", nextMonth);
-        model.addAttribute("year", nextYear);
 
         return "view-plan";
     }

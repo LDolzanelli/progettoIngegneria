@@ -141,11 +141,17 @@ public class VisitPlanService implements VisitPlanUseCase {
         return visitPlan;
     }
 
-    public List<Visit> getVisitPlan(){
+    @Override
+    public List<Visit> getAllVisitsAfterToday() {
+        ArrayList<Visit> visitPlan = new ArrayList<>();
         LocalDate today = LocalDate.now(clock);
-        YearMonth nextMonth = YearMonth.from(today).plusMonths(1);
 
-        return getVisitPlan(nextMonth.getMonthValue(), nextMonth.getYear());
+        visitRepository.findAll()
+                .stream()
+                .filter(visit -> visit.getDate().isAfter(today))
+                .forEach(visitPlan::add);
+
+        return visitPlan;
     }
 
     @Override

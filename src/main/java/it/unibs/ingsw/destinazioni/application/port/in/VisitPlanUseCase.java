@@ -8,6 +8,7 @@ public interface VisitPlanUseCase {
     public boolean canCreateVisitPlan();
     public void createVisitPlan();
     public List<Visit> getVisitPlan(int month, int year);
+    public List<Visit> getAllVisitsAfterToday();
     public int getMonth();
     public int getYear();
 }
