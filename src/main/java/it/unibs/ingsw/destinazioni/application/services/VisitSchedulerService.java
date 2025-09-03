@@ -48,6 +48,8 @@ public class VisitSchedulerService {
 
             if (visitDate.isBefore(today)) {
                 handleOldVisitStatus(visit);
+                visitRepository.save(visit);
+                continue; // se la visita é vecchia non bisogna piú cambiargli stato
             }
 
             setStatusToFullIfProposedVisitFull(visit);
