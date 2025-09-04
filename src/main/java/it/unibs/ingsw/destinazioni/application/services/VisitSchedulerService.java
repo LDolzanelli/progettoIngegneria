@@ -47,7 +47,6 @@ public class VisitSchedulerService {
 
             if (visitDate.isBefore(today)) {
                 handleOldVisitStatus(visit);
-                visitRepository.save(visit);
                 continue; // se la visita é vecchia non bisogna piú cambiargli stato
             }
 
@@ -64,6 +63,7 @@ public class VisitSchedulerService {
     private void handleOldVisitStatus(Visit visit) {
         if (visit.getVisitStatus() == VisitStatus.CONFIRMED) {
             visit.setVisitStatus(VisitStatus.COMPLETED);
+            visitRepository.save(visit); // salva lo stato solo se prima era CONFIRMED
         } else if (visit.getVisitStatus() == VisitStatus.CANCELLED) {
             visitRepository.deleteById(visit.getId());
             System.out.println("visita cancellata");
