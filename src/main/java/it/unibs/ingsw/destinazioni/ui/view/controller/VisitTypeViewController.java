@@ -13,6 +13,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import java.time.Clock;
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -26,6 +29,7 @@ import it.unibs.ingsw.destinazioni.domain.dto.VisitInformationDTO;
 public class VisitTypeViewController {
 
     private final RestTemplate restTemplate;
+    private final Clock clock;
 
     @GetMapping("/view-visittype")
     public String viewVisitTypes(@RequestParam(required = false) Long locationId,
@@ -83,6 +87,8 @@ public class VisitTypeViewController {
     @GetMapping("/add-visittype")
     public String addVisitTypeForm(@AuthenticationPrincipal UserDetails principal, Model model) {
         model.addAttribute("username", principal.getUsername());
+        LocalDate currentDate = LocalDate.now(clock);
+        model.addAttribute("currentDate", currentDate);
 
         try {
             String url = "http://localhost:8080/api/users/list_volunteers";

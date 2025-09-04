@@ -1,61 +1,73 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="it">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8"/>
     <title>Disdici Prenotazione</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
-</head>
-<body class="bg-light">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"/>
+    <style>
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            background: linear-gradient(135deg, #e3f2fd, #f8f9fa);
+            padding-top: 4rem;
+        }
 
-<div class="container py-5">
-    <h1 class="mb-4 text-center">Disdici una Prenotazione</h1>
+        .glass-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            border-radius: 1.5rem;
+            padding: 2.5rem;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 600px;
+        }
+
+        h1 {
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+        }
+
+        .alert {
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+
+<div class="glass-card">
+    <h1 class="text-center">Disdici una Prenotazione</h1>
 
     <div id="message" class="alert d-none text-center"></div>
 
-    <div class="card shadow-sm mb-4">
-        <div class="card-body">
-            <h5 class="card-title mb-3">Inserisci il Codice</h5>
-            <div class="mb-3">
-                <input type="text" id="bookingCode" class="form-control" placeholder="Es. ABC123">
-            </div>
-            <button id="loadDetailsBtn" class="btn btn-primary w-100">Carica Dettagli</button>
+    <div class="mb-4">
+        <h5 class="mb-3">Inserisci il Codice</h5>
+        <div class="input-group mb-3">
+            <input type="text" id="bookingCode" class="form-control" placeholder="Es. ABC123">
+            <button id="loadDetailsBtn" class="btn btn-primary"><i class="bi bi-search"></i> Carica Dettagli</button>
         </div>
     </div>
 
-    <div id="bookingDetails" class="card shadow-sm d-none">
-        <div class="card-body">
-            <h5 class="card-title text-primary mb-3">Dettagli Prenotazione</h5>
-            <div class="table-responsive">
-                <table class="table table-bordered">
-                    <tbody>
-                        <tr>
-                            <th scope="row">Utente</th>
-                            <td id="userName"></td>
-                        </tr>
-                        <tr>
-                            <th scope="row">Visitatori</th>
-                            <td id="visitors"></td>
-                        </tr>
-                        <tr>
-                            <th scope="row">Tipo Visita</th>
-                            <td id="visitType"></td>
-                        </tr>
-                        <tr>
-                            <th scope="row">Luogo</th>
-                            <td id="location"></td>
-                        </tr>
-                        <tr>
-                            <th scope="row">Data</th>
-                            <td id="visitDate"></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-            <button id="cancelBtn" class="btn btn-danger w-100 mt-3">Disdici Prenotazione</button>
+    <div id="bookingDetails" class="d-none">
+        <h5 class="text-primary mb-3">Dettagli Prenotazione</h5>
+        <div class="table-responsive mb-3">
+            <table class="table table-bordered">
+                <tbody>
+                <tr><th>Utente</th><td id="userName"></td></tr>
+                <tr><th>Visitatori</th><td id="visitors"></td></tr>
+                <tr><th>Tipo Visita</th><td id="visitType"></td></tr>
+                <tr><th>Luogo</th><td id="location"></td></tr>
+                <tr><th>Data</th><td id="visitDate"></td></tr>
+                </tbody>
+            </table>
         </div>
+        <button id="cancelBtn" class="btn btn-danger w-100"><i class="bi bi-x-circle"></i> Disdici Prenotazione</button>
     </div>
 
-    <a th:href="@{/}" class="btn btn-secondary mt-4 w-100">Torna alla Home</a>
+    <a th:href="@{/}" class="btn btn-secondary w-100 mt-4"><i class="bi bi-arrow-left"></i> Torna alla Home</a>
 </div>
 
 <script th:inline="javascript">
@@ -115,21 +127,22 @@
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ bookingCode: bookingCode, userId: userId })
             })
-            .then(response => {
-                if (!response.ok) return response.text().then(text => { throw new Error(text); });
-                return response.text();
-            })
-            .then(successMsg => {
-                showMessage(successMsg, "success");
-                bookingDetailsDiv.classList.add("d-none");
-                document.getElementById("bookingCode").value = "";
-            })
-            .catch(error => {
-                showMessage(error.message, "danger");
-            });
+                .then(response => {
+                    if (!response.ok) return response.text().then(text => { throw new Error(text); });
+                    return response.text();
+                })
+                .then(successMsg => {
+                    showMessage(successMsg, "success");
+                    bookingDetailsDiv.classList.add("d-none");
+                    document.getElementById("bookingCode").value = "";
+                })
+                .catch(error => {
+                    showMessage(error.message, "danger");
+                });
         });
     });
 </script>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

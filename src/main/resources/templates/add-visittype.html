@@ -1,110 +1,178 @@
 <!DOCTYPE html>
-<html lang="it">
+<html lang="it" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8" />
     <title>Aggiungi tipo di visita</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+            rel="stylesheet"
+    />
+    <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"
+    />
     <link href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" rel="stylesheet" />
     <link href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" rel="stylesheet" />
+    <style>
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            background: linear-gradient(135deg, #e3f2fd, #f8f9fa);
+            padding-top: 4rem;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            border-radius: 1.5rem;
+            padding: 2.5rem;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 800px;
+            margin-bottom: 3rem;
+        }
+
+        h1 {
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+        }
+
+        .btn-lg {
+            padding: 0.85rem 1.2rem;
+            font-size: 1.1rem;
+            border-radius: 0.75rem;
+        }
+
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 10;
+        }
+
+        #weekdayWarning {
+            margin-bottom: 1rem;
+        }
+    </style>
 </head>
 <body>
-<nav class="navbar navbar-expand-lg bg-light shadow-sm mb-4">
+<nav class="navbar navbar-light bg-white shadow-sm">
     <div class="container">
-        <a class="navbar-brand text-primary fw-bold fs-4" href="/">Centro Visite</a>
+        <a class="navbar-brand text-primary fw-bold fs-4" href="/">
+            <i class="bi bi-building"></i> Centro Visite
+        </a>
     </div>
 </nav>
 
-<div class="container mt-5">
-    <h1 class="mb-4">Aggiungi un tipo di visita</h1>
+<main class="container d-flex justify-content-center mt-5 pt-5">
+    <div class="glass-card">
+        <h1>Aggiungi un tipo di visita</h1>
 
-    <form id="visitTypeForm" class="needs-validation" novalidate onsubmit="submitVisitType(event)">
-        <div class="mb-3">
-            <label for="title" class="form-label">Titolo:</label>
-            <input type="text" id="title" name="title" class="form-control" required />
-            <div class="invalid-feedback">Inserire il titolo della visita.</div>
-        </div>
-
-        <div class="mb-3">
-            <label for="description" class="form-label">Descrizione:</label>
-            <textarea id="description" name="description" class="form-control" rows="3"></textarea>
-        </div>
-
-        <div class="mb-3">
-            <label for="meetingPoint" class="form-label">Punto di ritrovo:</label>
-            <input type="text" id="meetingPoint" name="meetingPoint" class="form-control" required />
-            <div class="invalid-feedback">Inserire il punto di ritrovo.</div>
-        </div>
-
-        <div class="mb-3">
-            <label class="form-label">Giorni disponibili:</label>
-            <div class="form-check"><input class="form-check-input" type="checkbox" name="daysAvailable" value="MONDAY" id="monday"><label class="form-check-label" for="monday">Lunedì</label></div>
-            <div class="form-check"><input class="form-check-input" type="checkbox" name="daysAvailable" value="TUESDAY" id="tuesday"><label class="form-check-label" for="tuesday">Martedì</label></div>
-            <div class="form-check"><input class="form-check-input" type="checkbox" name="daysAvailable" value="WEDNESDAY" id="wednesday"><label class="form-check-label" for="wednesday">Mercoledì</label></div>
-            <div class="form-check"><input class="form-check-input" type="checkbox" name="daysAvailable" value="THURSDAY" id="thursday"><label class="form-check-label" for="thursday">Giovedì</label></div>
-            <div class="form-check"><input class="form-check-input" type="checkbox" name="daysAvailable" value="FRIDAY" id="friday"><label class="form-check-label" for="friday">Venerdì</label></div>
-            <div class="form-check"><input class="form-check-input" type="checkbox" name="daysAvailable" value="SATURDAY" id="saturday"><label class="form-check-label" for="saturday">Sabato</label></div>
-            <div class="form-check"><input class="form-check-input" type="checkbox" name="daysAvailable" value="SUNDAY" id="sunday"><label class="form-check-label" for="sunday">Domenica</label></div>
-        </div>
-
-        <div id="weekdayWarning" class="alert alert-warning d-none" role="alert">
-            Seleziona almeno un giorno della settimana per poter scegliere una data.
-        </div>
-
-        <div class="row">
-            <div class="col-md-6 mb-3">
-                <label for="startDate" class="form-label">Data inizio:</label>
-                <input type="text" id="startDate" name="startDate" class="form-control" required disabled />
-                <div class="invalid-feedback">Inserire la data di inizio.</div>
+        <form id="visitTypeForm" class="needs-validation" novalidate onsubmit="submitVisitType(event)">
+            <div class="mb-3">
+                <label for="title" class="form-label">Titolo:</label>
+                <input type="text" id="title" name="title" class="form-control" required />
+                <div class="invalid-feedback">Inserire il titolo della visita.</div>
             </div>
-            <div class="col-md-6 mb-3">
-                <label for="endDate" class="form-label">Data fine:</label>
-                <input type="text" id="endDate" name="endDate" class="form-control" required disabled />
-                <div class="invalid-feedback">Inserire la data di fine.</div>
+
+            <div class="mb-3">
+                <label for="description" class="form-label">Descrizione:</label>
+                <textarea id="description" name="description" class="form-control" rows="3"></textarea>
             </div>
-        </div>
 
-        <div class="mb-3">
-            <label for="startTime" class="form-label">Ora di inizio (es. 14:30):</label>
-            <input type="time" id="startTime" name="startTime" class="form-control" required />
-        </div>
+            <div class="mb-3">
+                <label for="meetingPoint" class="form-label">Punto di ritrovo:</label>
+                <input type="text" id="meetingPoint" name="meetingPoint" class="form-control" required />
+                <div class="invalid-feedback">Inserire il punto di ritrovo.</div>
+            </div>
 
-        <div class="mb-3">
-            <label for="duration" class="form-label">Durata (minuti):</label>
-            <input type="number" id="duration" name="duration" class="form-control" min="1" required />
-        </div>
+            <div class="mb-3">
+                <label class="form-label">Giorni disponibili:</label>
+                <div class="d-flex flex-wrap gap-2">
+                    <div class="form-check"><input class="form-check-input" type="checkbox" name="daysAvailable" value="MONDAY" id="monday"><label class="form-check-label" for="monday">Lunedì</label></div>
+                    <div class="form-check"><input class="form-check-input" type="checkbox" name="daysAvailable" value="TUESDAY" id="tuesday"><label class="form-check-label" for="tuesday">Martedì</label></div>
+                    <div class="form-check"><input class="form-check-input" type="checkbox" name="daysAvailable" value="WEDNESDAY" id="wednesday"><label class="form-check-label" for="wednesday">Mercoledì</label></div>
+                    <div class="form-check"><input class="form-check-input" type="checkbox" name="daysAvailable" value="THURSDAY" id="thursday"><label class="form-check-label" for="thursday">Giovedì</label></div>
+                    <div class="form-check"><input class="form-check-input" type="checkbox" name="daysAvailable" value="FRIDAY" id="friday"><label class="form-check-label" for="friday">Venerdì</label></div>
+                    <div class="form-check"><input class="form-check-input" type="checkbox" name="daysAvailable" value="SATURDAY" id="saturday"><label class="form-check-label" for="saturday">Sabato</label></div>
+                    <div class="form-check"><input class="form-check-input" type="checkbox" name="daysAvailable" value="SUNDAY" id="sunday"><label class="form-check-label" for="sunday">Domenica</label></div>
+                </div>
+            </div>
 
-        <div class="mb-3">
-            <label for="minParticipants" class="form-label">Minimo partecipanti:</label>
-            <input type="number" id="minParticipants" name="minParticipants" class="form-control" min="1" required />
-        </div>
+            <div id="weekdayWarning" class="alert alert-warning d-none" role="alert">
+                Seleziona almeno un giorno della settimana per poter scegliere una data.
+            </div>
 
-        <div class="mb-3">
-            <label for="maxParticipants" class="form-label">Massimo partecipanti:</label>
-            <input type="number" id="maxParticipants" name="maxParticipants" class="form-control" min="1" required />
-        </div>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="startDate" class="form-label">Data inizio:</label>
+                    <input type="text" id="startDate" name="startDate" class="form-control" required disabled />
+                    <div class="invalid-feedback">Inserire la data di inizio.</div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="endDate" class="form-label">Data fine:</label>
+                    <input type="text" id="endDate" name="endDate" class="form-control" required disabled />
+                    <div class="invalid-feedback">Inserire la data di fine.</div>
+                </div>
+            </div>
 
-        <div class="form-check mb-3">
-            <input class="form-check-input" type="checkbox" id="isFree" name="isFree" />
-            <label class="form-check-label" for="isFree">Visita gratuita</label>
-        </div>
+            <div class="mb-3">
+                <label for="startTime" class="form-label">Ora di inizio (es. 14:30):</label>
+                <input type="time" id="startTime" name="startTime" class="form-control" required />
+            </div>
 
-        <div class="mb-3">
-            <label for="volunteers">Seleziona volontari:</label>
-            <select id="volunteers" name="volunteers" multiple required>
-                <option th:each="vol : ${volunteers}" th:value="${vol.nickname}" th:text="${vol.nickname}"></option>
-            </select>
-            <a href="/register-user" class="btn btn-link p-0 mt-2">+ Aggiungi nuovo volontario</a>
-        </div>
+            <div class="mb-3">
+                <label for="duration" class="form-label">Durata (minuti):</label>
+                <input type="number" id="duration" name="duration" class="form-control" min="1" required />
+            </div>
 
-        <button type="submit" class="btn btn-success">Aggiungi tipo di visita</button>
-        <a href="/view-locations" class="btn btn-secondary ms-2">Torna alla lista luoghi</a>
-    </form>
-</div>
+            <div class="mb-3">
+                <label for="minParticipants" class="form-label">Minimo partecipanti:</label>
+                <input type="number" id="minParticipants" name="minParticipants" class="form-control" min="1" required />
+            </div>
+
+            <div class="mb-3">
+                <label for="maxParticipants" class="form-label">Massimo partecipanti:</label>
+                <input type="number" id="maxParticipants" name="maxParticipants" class="form-control" min="1" required />
+            </div>
+
+            <div class="form-check mb-3">
+                <input class="form-check-input" type="checkbox" id="isFree" name="isFree" />
+                <label class="form-check-label" for="isFree">Visita gratuita</label>
+            </div>
+
+            <div class="mb-3">
+                <label for="volunteers">Seleziona volontari:</label>
+                <select id="volunteers" name="volunteers" multiple required></select>
+                <a href="/register-user" class="btn btn-link p-0 mt-2">+ Aggiungi nuovo volontario</a>
+            </div>
+
+            <div class="d-grid gap-2">
+                <button type="submit" class="btn btn-success btn-lg">
+                    <i class="bi bi-check-circle"></i> Aggiungi tipo di visita
+                </button>
+                <a href="/view-locations" class="btn btn-secondary btn-lg">
+                    <i class="bi bi-arrow-left-circle"></i> Torna alla lista luoghi
+                </a>
+            </div>
+        </form>
+    </div>
+</main>
 
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
 
-<script>
+<script th:inline="javascript">
+
+    /*<![CDATA[*/
+    const todayString = /*[[${currentDate}]]*/ '1970-01-01';
+    const today = new Date(todayString);
+    today.setHours(0, 0, 0, 0);
+    /*]]>*/
+
     let blockedDates = new Set();
     let allowedWeekdays = [];
 
@@ -167,7 +235,6 @@
         const iso = formatDateLocal(date);
         const weekday = date.getDay();
 
-        const today = new Date();
         const minDate = new Date(today.getFullYear(), today.getMonth() + 2, 1);
 
         return blockedDates.has(iso) || !allowedWeekdays.includes(weekday) || date < minDate;
@@ -176,7 +243,6 @@
     let startDatePicker, endDatePicker;
 
     function initFlatpickr(id) {
-        const today = new Date();
         const minDate = new Date(today.getFullYear(), today.getMonth() + 2, 1);
 
         const instance = flatpickr(`#${id}`, {
@@ -216,7 +282,6 @@
 
         const startDate = new Date(form.startDate.value);
         const endDate = new Date(form.endDate.value);
-        const today = new Date();
         today.setHours(0, 0, 0, 0);
 
         if (startDate <= today) {

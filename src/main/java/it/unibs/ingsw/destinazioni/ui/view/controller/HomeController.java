@@ -1,5 +1,6 @@
 package it.unibs.ingsw.destinazioni.ui.view.controller;
 
+import java.time.Clock;
 import java.time.LocalDate;
 import java.time.Month;
 import java.time.format.DateTimeFormatter;
@@ -22,7 +23,7 @@ import lombok.RequiredArgsConstructor;
 public class HomeController {
 
     private final RestTemplate restTemplate;
-    private final AdjustableClock clock;
+    private final Clock clock;
 
     @GetMapping("/")
     public String home(@AuthenticationPrincipal UserDetails principal, Model model) {

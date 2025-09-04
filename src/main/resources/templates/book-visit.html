@@ -4,19 +4,55 @@
     <meta charset="UTF-8"/>
     <title>Prenotazione Visita</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"/>
     <style>
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            background: linear-gradient(135deg, #e3f2fd, #f8f9fa);
+            padding-top: 4rem;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            border-radius: 1.5rem;
+            padding: 2.5rem;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 700px;
+        }
+
+        h2 {
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+        }
+
         .visitor-row {
             display: flex;
             gap: 0.5rem;
             align-items: center;
         }
+
         .visitor-row input {
             flex: 1;
         }
+
+        .remove-btn {
+            flex-shrink: 0;
+        }
+
+        .d-grid .btn {
+            margin-top: 0.5rem;
+        }
+
     </style>
 </head>
 <body>
-<div class="container mt-5">
+<div class="glass-card">
     <h2>Prenotazione visita: <span th:text="${visit.visitTypeTitle}">Titolo visita</span></h2>
     <p><strong>Data:</strong> <span th:text="${visit.date}">01/09/2025</span></p>
     <p><strong>Ora:</strong> <span th:text="${visit.startTime}">10:00</span></p>
@@ -33,10 +69,16 @@
         </div>
 
         <div class="d-flex gap-2 mb-3">
-            <button type="button" class="btn btn-secondary" id="addVisitorBtn">Aggiungi partecipante</button>
+            <button type="button" class="btn btn-secondary" id="addVisitorBtn">
+                <i class="bi bi-person-plus"></i> Aggiungi partecipante
+            </button>
         </div>
 
-        <button type="submit" class="btn btn-primary">Conferma prenotazione</button>
+        <div class="d-grid gap-2">
+            <button type="submit" class="btn btn-primary btn-lg">
+                <i class="bi bi-check-circle"></i> Conferma prenotazione
+            </button>
+        </div>
     </form>
 </div>
 
@@ -49,7 +91,6 @@
     const visitorsContainer = document.getElementById('visitorsContainer');
     const addBtn = document.getElementById('addVisitorBtn');
     const bookingForm = document.getElementById('bookingForm');
-
 
     addBtn.addEventListener('click', () => {
         if (currentCount < maxTickets && currentCount < maxParticipants) {
