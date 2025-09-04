@@ -146,9 +146,24 @@ public class VisitPlanService implements VisitPlanUseCase {
         ArrayList<Visit> visitPlan = new ArrayList<>();
         LocalDate today = LocalDate.now(clock);
 
+        Set<Visit> allVisits = visitRepository.findAll();
+
+        allVisits.stream()
+                .filter(visit -> visit.getVolunteer() != null) //ignora le visite inizializzate, ma non ancora parte del piano
+                .filter(visit -> visit.getDate().isAfter(today))
+                .filter(visit -> visit.getVisitStatus() != VisitStatus.COMPLETED) //ignora archivio storico
+                .forEach(visitPlan::add);
+
+        return visitPlan;
+    }
+
+    @Override
+    public List<Visit> getAllCompletedVisits() {
+        ArrayList<Visit> visitPlan = new ArrayList<>();
+
         visitRepository.findAll()
                 .stream()
-                .filter(visit -> visit.getDate().isAfter(today))
+                .filter(visit -> visit.getVisitStatus() == VisitStatus.COMPLETED)
                 .forEach(visitPlan::add);
 
         return visitPlan;

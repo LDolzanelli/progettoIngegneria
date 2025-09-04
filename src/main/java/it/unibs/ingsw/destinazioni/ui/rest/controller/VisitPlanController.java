@@ -52,6 +52,21 @@ public class VisitPlanController {
         }
     }
 
+    @GetMapping("/get-completed-visits")
+    public ResponseEntity<List<VisitInformationDTO>> getCopletedVisitsForArchive() {
+        try {
+            List<Visit> visits = visitPlanService.getAllCompletedVisits();
+            List<VisitInformationDTO> visitsDTO = visits.stream()
+                    .map(visitMapper::toVisitInformationDTO)
+                    .toList();
+
+            return ResponseEntity.ok(visitsDTO);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+
     @GetMapping("/next-month")
     public ResponseEntity<Integer> getNextMonth() {
         try {

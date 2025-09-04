@@ -80,42 +80,39 @@
       <a href="/view-volunteers" class="btn btn-secondary btn-lg shadow-sm">
         <i class="bi bi-people-fill"></i> Visualizza la lista dei volontari
       </a>
+      <a href="/view-archive" class="btn btn-info btn-lg shadow-sm">
+        <i class="bi bi-archive-fill"></i> Archivio storico visite
+      </a>
 
-      <form action="/api/volunteer-availability/enable" method="post">
-        <button
-                class="btn btn-success btn-lg shadow-sm"
-                type="submit"
-                th:disabled="${!canEnableAvailability}"
-                th:text="'Apri raccolta disponibilità per ' + ${enableMonthLabel}"
-        >
-          <i class="bi bi-calendar-plus"></i>
-          Apri raccolta disponibilità
-        </button>
-      </form>
+      <button
+              id="enableAvailabilityBtn"
+              class="btn btn-success btn-lg shadow-sm"
+              type="button"
+              th:disabled="${!canEnableAvailability}"
+              th:text="'Apri raccolta disponibilità per ' + ${enableMonthLabel}">
+        <i class="bi bi-calendar-plus"></i>
+        Apri raccolta disponibilità
+      </button>
 
-      <form action="/api/volunteer-availability/disable" method="post">
-        <button
-                class="btn btn-danger btn-lg shadow-sm"
-                type="submit"
-                th:disabled="${!canDisableAvailability}"
-                th:text="'Chiudi raccolta disponibilità per ' + ${disableMonthLabel}"
-        >
-          <i class="bi bi-calendar-x"></i>
-          Chiudi raccolta disponibilità
-        </button>
-      </form>
+      <button
+              id="disableAvailabilityBtn"
+              class="btn btn-danger btn-lg shadow-sm"
+              type="button"
+              th:disabled="${!canDisableAvailability}"
+              th:text="'Chiudi raccolta disponibilità per ' + ${disableMonthLabel}">
+        <i class="bi bi-calendar-x"></i>
+        Chiudi raccolta disponibilità
+      </button>
 
-      <form action="/api/visit-plan/create" method="post">
-        <button
-                class="btn btn-warning btn-lg shadow-sm"
-                type="submit"
-                th:disabled="${!canCreateVisitPlan}"
-                th:text="'Crea piano visite per ' + ${createVisitPlanLabel}"
-        >
-          <i class="bi bi-journal-plus"></i>
-          Crea piano visite
-        </button>
-      </form>
+      <button
+              id="createVisitPlanBtn"
+              class="btn btn-warning btn-lg shadow-sm"
+              type="button"
+              th:disabled="${!canCreateVisitPlan}"
+              th:text="'Crea piano visite per ' + ${createVisitPlanLabel}">
+        <i class="bi bi-journal-plus"></i>
+        Crea piano visite
+      </button>
     </div>
 
     <!-- volontario -->
@@ -156,6 +153,36 @@
   </div>
 </main>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  async function callApi(url, successMessage) {
+    try {
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" }
+      });
+      if (res.ok) {
+        alert(successMessage);
+        location.reload(); // se vuoi aggiornare la pagina
+      } else {
+        alert("Errore: " + res.status);
+      }
+    } catch (e) {
+      console.error(e);
+      alert("Errore di connessione");
+    }
+  }
+
+  document.getElementById("enableAvailabilityBtn")?.addEventListener("click", () =>
+          callApi("/api/volunteer-availability/enable", "Disponibilità aperta con successo!")
+  );
+
+  document.getElementById("disableAvailabilityBtn")?.addEventListener("click", () =>
+          callApi("/api/volunteer-availability/disable", "Disponibilità chiusa con successo!")
+  );
+
+  document.getElementById("createVisitPlanBtn")?.addEventListener("click", () =>
+          callApi("/api/visit-plan/create", "Piano visite creato con successo!")
+  );
+</script>
 </body>
 </html>
