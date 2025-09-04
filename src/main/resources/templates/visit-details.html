@@ -4,38 +4,75 @@
     <meta charset="UTF-8">
     <title>Dettagli Visita</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"/>
+    <style>
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: linear-gradient(135deg, #e3f2fd, #f8f9fa);
+        }
+        nav.navbar {
+            background-color: #ffffff;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+        .container {
+            max-width: 900px;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            border-radius: 1.5rem;
+            padding: 2rem;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+        h1, h4 {
+            font-weight: 600;
+        }
+        table th, table td {
+            vertical-align: middle;
+        }
+        .btn + .btn {
+            margin-left: 0.5rem;
+        }
+    </style>
 </head>
-<body class="bg-light">
+<body>
+
+<nav class="navbar navbar-light shadow-sm sticky-top">
+    <div class="container">
+        <a class="navbar-brand text-primary fw-bold fs-4" href="/">Centro Visite</a>
+    </div>
+</nav>
+
 <div class="container py-5">
     <h1 class="mb-4 text-center" th:text="${visit.visitTypeTitle}"></h1>
 
     <div class="row mb-4">
         <div class="col-md-6">
-            <div class="card shadow p-4 h-100">
+            <div class="glass-card h-100">
                 <h4 class="mb-3">Informazioni Visita</h4>
                 <p><strong>Data:</strong> <span th:text="${visit.date}"></span></p>
                 <p><strong>Ora:</strong> <span th:text="${visit.startTime}"></span></p>
                 <p><strong>Durata:</strong> <span th:text="${visit.duration}"></span> minuti</p>
                 <p><strong>Luogo:</strong> <span th:text="${visit.locationName}"></span></p>
-                <p><strong>indirizzo:</strong> <span th:text="${visit.locationAddress}"></span></p>
+                <p><strong>Indirizzo:</strong> <span th:text="${visit.locationAddress}"></span></p>
                 <p><strong>Punto di Ritrovo:</strong> <span th:text="${visit.meetingPoint}"></span></p>
                 <p><strong>Stato:</strong> <span th:text="${visit.status}"></span></p>
-                <p><strong>Partecipanti:</strong> 
-                    <span th:text="${visit.numberOfParticipants}"></span> /
-                    <span th:text="${visit.maxParticipants}"></span>
-                </p>
+                <p><strong>Partecipanti:</strong> <span th:text="${visit.numberOfParticipants}"></span> / <span th:text="${visit.maxParticipants}"></span></p>
             </div>
         </div>
 
         <div class="col-md-6">
-            <div class="card shadow p-4 h-100">
+            <div class="glass-card h-100">
                 <h4 class="mb-3">Descrizione</h4>
                 <p th:text="${visit.visitTypeDescription}"></p>
             </div>
         </div>
     </div>
 
-    <div class="card shadow p-4">
+    <div class="glass-card">
         <h4 class="mb-3">Partecipanti per Prenotazione</h4>
         <table class="table table-bordered">
             <thead class="table-light">
@@ -57,10 +94,10 @@
         </table>
     </div>
 
-    <a th:href="@{/confirmed-visits(volunteerNickname=${visit.volunteerNickname})}"
-       class="btn btn-secondary mt-3">
+    <a th:href="@{/confirmed-visits(volunteerNickname=${visit.volunteerNickname})}" class="btn btn-secondary mt-3">
         Torna alla lista
     </a>
 </div>
+
 </body>
 </html>

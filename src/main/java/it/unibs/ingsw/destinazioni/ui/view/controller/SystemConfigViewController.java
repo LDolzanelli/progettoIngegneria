@@ -20,7 +20,7 @@ public class SystemConfigViewController {
     public String showConfigPage(Model model) {
         int currentMax;
         try {
-            currentMax = restTemplate.getForObject(BASE_URL + "/max-tickets", Integer.class);
+            currentMax = restTemplate.getForObject(BASE_URL + "/getMaxTickets", Integer.class);
         } catch (Exception e) {
             currentMax = 0;
             model.addAttribute("error", "Errore nel recupero della configurazione attuale");
@@ -34,7 +34,7 @@ public class SystemConfigViewController {
     @PostMapping
     public String updateMaxTickets(@ModelAttribute("dto") ChangeMaxNumberTicketsDTO dto, Model model) {
         try {
-            restTemplate.postForEntity(BASE_URL + "/update-max-tickets", dto, Void.class);
+            restTemplate.postForEntity(BASE_URL + "/changeMaxTickets", dto, Void.class);
         } catch (Exception e) {
             model.addAttribute("error", "Errore durante l'aggiornamento della configurazione");
             return "system-config";

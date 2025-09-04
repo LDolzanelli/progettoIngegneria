@@ -54,6 +54,13 @@
     .mt-auto {
       margin-top: auto;
     }
+    .card .btn {
+      padding: 0.375rem 0.75rem;
+      line-height: 1.2;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
   </style>
 </head>
 <body>
@@ -97,11 +104,11 @@
           Volontari: <span th:text="${#strings.arrayJoin(vt.volunteers, ', ')}"></span>
         </small>
       </p>
-      <div class="d-flex mt-auto">
-        <a th:href="@{|/add-volunteers?visitTypeId=${vt.id}|}" class="btn btn-primary btn-sm me-2" th:if="${role == 'configurator'}" th:classappend="${!vt.canBeModified} ? ' disabled' : ''">Aggiungi volontari</a>
+      <div class="d-flex mt-auto gap-2">
+        <a th:href="@{|/add-volunteers?visitTypeId=${vt.id}|}" class="btn btn-primary btn-sm" th:if="${role == 'configurator'}" th:classappend="${!vt.canBeModified} ? ' disabled' : ''">Aggiungi volontari</a>
         <div th:if="${role == 'configurator'}">
-          <button type="button" class="btn btn-danger btn-sm me-2 mt-2" th:if="${vt.canBeRemoved}" th:attr="onclick=|deleteVisitType(${vt.id})|">Rimuovi</button>
-          <button type="button" class="btn btn-secondary btn-sm mt-2" th:unless="${vt.canBeRemoved}" disabled>Non rimovibile</button>
+          <button type="button" class="btn btn-danger btn-sm" th:if="${vt.canBeRemoved}" th:attr="onclick=|deleteVisitType(${vt.id})|">Rimuovi</button>
+          <button type="button" class="btn btn-secondary btn-sm" th:unless="${vt.canBeRemoved}" disabled>Non rimovibile</button>
         </div>
       </div>
     </div>

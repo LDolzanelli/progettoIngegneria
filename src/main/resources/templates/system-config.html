@@ -65,7 +65,7 @@
 
     <div class="glass-card mx-auto col-md-8 col-lg-6">
         <h5 class="mb-3">Cambia il numero massimo di biglietti acquistabili da una singola persona</h5>
-        <p>Valore attuale: <strong th:text="${oldMax}"></strong></p>
+        <p class="card-text">Valore attuale: <strong th:text="${oldMax}"></strong></p>
 
         <form th:action="@{/system-config}" method="post" th:object="${dto}">
             <div class="mb-3 text-start">

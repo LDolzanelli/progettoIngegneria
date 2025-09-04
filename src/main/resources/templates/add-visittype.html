@@ -146,7 +146,9 @@
 
             <div class="mb-3">
                 <label for="volunteers">Seleziona volontari:</label>
-                <select id="volunteers" name="volunteers" multiple required></select>
+                <select id="volunteers" name="volunteers" multiple required>
+                    <option th:each="vol : ${volunteers}" th:value="${vol.nickname}" th:text="${vol.nickname}"></option>
+                </select>
                 <a href="/register-user" class="btn btn-link p-0 mt-2">+ Aggiungi nuovo volontario</a>
             </div>
 
@@ -199,13 +201,6 @@
         try {
             const res = await fetch('/api/users/list_volunteers');
             const volunteers = await res.json();
-
-            volunteers.forEach(v => {
-                const option = document.createElement('option');
-                option.value = v.id;
-                option.text = v.nickname;
-                select.appendChild(option);
-            });
 
             new Choices('#volunteers', {
                 removeItemButton: true,
