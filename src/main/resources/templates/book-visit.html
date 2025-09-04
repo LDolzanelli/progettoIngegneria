@@ -48,6 +48,8 @@
 
     const visitorsContainer = document.getElementById('visitorsContainer');
     const addBtn = document.getElementById('addVisitorBtn');
+    const bookingForm = document.getElementById('bookingForm');
+
 
     addBtn.addEventListener('click', () => {
         if (currentCount < maxTickets && currentCount < maxParticipants) {
@@ -77,6 +79,17 @@
             input.placeholder = `Nome partecipante ${index + 1}`;
         });
     }
+
+    bookingForm.addEventListener('submit', (event) => {
+        const inputs = visitorsContainer.querySelectorAll('input[name="visitorsNames"]');
+        const names = Array.from(inputs).map(i => i.value.trim().toLowerCase());
+        const duplicates = names.filter((name, index) => names.indexOf(name) !== index);
+
+        if (duplicates.length > 0) {
+            event.preventDefault();
+            alert('Non puoi inserire nomi duplicati tra i partecipanti!');
+        }
+    });
     /*]]>*/
 </script>
 
