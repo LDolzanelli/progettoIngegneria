@@ -191,14 +191,34 @@
         initFlatpickr("startDate");
         initFlatpickr("endDate");
 
-        new Choices('#volunteers', {
-            removeItemButton: true,
-            placeholderValue: 'Seleziona volontari',
-            noResultsText: 'Nessun volontario trovato',
-            itemSelectText: '',
-            shouldSort: false
-        });
+        await loadVolunteers();
     });
+
+    async function loadVolunteers() {
+        const select = document.getElementById('volunteers');
+        try {
+            const res = await fetch('/api/users/list_volunteers');
+            const volunteers = await res.json();
+
+            volunteers.forEach(v => {
+                const option = document.createElement('option');
+                option.value = v.id;
+                option.text = v.nickname;
+                select.appendChild(option);
+            });
+
+            new Choices('#volunteers', {
+                removeItemButton: true,
+                placeholderValue: 'Seleziona volontari',
+                noResultsText: 'Nessun volontario trovato',
+                itemSelectText: '',
+                shouldSort: false
+            });
+
+        } catch (err) {
+            console.error("Errore nel caricamento dei volontari:", err);
+        }
+    }
 
     async function fetchBlockedDates() {
         try {

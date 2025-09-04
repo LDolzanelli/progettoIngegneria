@@ -1,114 +1,114 @@
 <!DOCTYPE html>
-<html lang="it">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Visualizza Tipi di Visita</title>
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-    />
-  </head>
-  <body>
-    <nav class="navbar navbar-expand-lg bg-light shadow-sm mb-4">
-      <div class="container">
-        <a class="navbar-brand text-primary fw-bold fs-4" href="/"
-          >Centro Visite</a
-        >
-      </div>
-    </nav>
+<html lang="it" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Visualizza Tipi di Visita</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"/>
+  <style>
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background: linear-gradient(135deg, #e3f2fd, #f8f9fa);
+    }
+    nav.navbar {
+      background-color: #ffffff;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    main.container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-top: 2rem;
+      padding-bottom: 2rem;
+    }
+    .glass-card {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(12px);
+      border-radius: 1.5rem;
+      padding: 2rem;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+      margin-bottom: 2rem;
+      width: 100%;
+      max-width: 900px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+    }
+    .card-title {
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+    .card-text {
+      margin-bottom: 0.75rem;
+      font-size: 0.95rem;
+    }
+    .btn-sm {
+      border-radius: 0.5rem;
+    }
+    .btn + .btn {
+      margin-left: 0.5rem;
+    }
+    .mt-auto {
+      margin-top: auto;
+    }
+  </style>
+</head>
+<body>
 
-    <div class="container my-4">
-      <h2>Lista Tipi di Visita</h2>
-      <button
-              id="addVisitTypeBtn"
-              type="button"
-              class="btn btn-success mb-3"
-              th:disabled="${!canAddVisits}"
-              th:classappend="${role != 'configurator'} ? ' d-none' : ''">
-        Aggiungi Tipo di Visita
-      </button>
+<nav class="navbar navbar-light shadow-sm sticky-top">
+  <div class="container">
+    <a class="navbar-brand text-primary fw-bold fs-4" href="/">Centro Visite</a>
+  </div>
+</nav>
 
-      <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
-      <div
-        th:if="${visitTypes.isEmpty()}"
-        id="noVisitTypesMessage"
-        class="alert alert-info"
-      >
-        Nessun tipo di visita disponibile.
-      </div>
+<main class="container my-4">
+  <h2 class="mb-4">Lista Tipi di Visita</h2>
+  <button
+          id="addVisitTypeBtn"
+          type="button"
+          class="btn btn-success mb-4"
+          th:disabled="${!canAddVisits}"
+          th:classappend="${role != 'configurator'} ? ' d-none' : ''">
+    Aggiungi Tipo di Visita
+  </button>
 
-      <div class="row" id="visitTypesGrid">
-        <div class="col-md-4 mb-3" th:each="vt : ${visitTypes}">
-          <div class="card h-100 shadow-sm">
-            <div class="card-body">
-              <h5 class="card-title" th:text="${vt.title}">Titolo</h5>
-              <p class="card-text" th:text="${vt.description}">Descrizione</p>
-              <p class="card-text">
-                <small class="text-muted">
-                  Dal <span th:text="${vt.startDate}"></span> al
-                  <span th:text="${vt.endDate}"></span><br />
-                  Punto d'incontro: <span th:text="${vt.meetingPoint}"></span
-                  ><br />
-                  Inizio: <span th:text="${vt.startTime}"></span><br />
-                  Durata: <span th:text="${vt.duration}"></span> minuti<br />
-                  Min partecipanti: <span th:text="${vt.minParticipants}"></span
-                  ><br />
-                  Max partecipanti: <span th:text="${vt.maxParticipants}"></span
-                  ><br />
-                  La visita è
-                  <span th:text="${vt.free} ? 'gratuita' : 'a pagamento'"></span
-                  ><br />
-                  Giorni disponibili:
-                  <span
-                    class="days-available"
-                    th:text="${vt.daysAvailable}"
-                  ></span
-                  ><br />
-                  Volontari:
-                  <span
-                    th:text="${#strings.arrayJoin(vt.volunteers, ', ')}"
-                  ></span>
-                </small>
-              </p>
+  <div th:if="${error}" class="alert alert-danger mb-3" th:text="${error}"></div>
+  <div th:if="${visitTypes.isEmpty()}" id="noVisitTypesMessage" class="alert alert-info mb-3">
+    Nessun tipo di visita disponibile.
+  </div>
 
-              <div>
-                <a
-                  th:href="@{|/add-volunteers?visitTypeId=${vt.id}|}"
-                  class="btn btn-primary btn-sm mt-2"
-                  th:if="${role == 'configurator'}"
-                  th:classappend="${!vt.canBeModified} ? ' disabled' : ''"
-                >
-                  Aggiungi volontari
-                </a>
-              </div>
-              <div th:if="${role == 'configurator'}">
-                <div th:if="${vt.canBeRemoved}">
-                  <button
-                    type="button"
-                    class="btn btn-danger btn-sm mt-2"
-                    th:attr="onclick=|deleteVisitType(${vt.id})|"
-                  >
-                    Rimuovi
-                  </button>
-                </div>
-                <div th:unless="${vt.canBeRemoved}">
-                  <button
-                    type="button"
-                    class="btn btn-secondary btn-sm mt-2"
-                    disabled
-                  >
-                    Non rimovibile
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
+  <div id="visitTypesGrid" class="w-100">
+    <div class="glass-card mb-4" th:each="vt : ${visitTypes}">
+      <h5 class="card-title" th:text="${vt.title}">Titolo</h5>
+      <p class="card-text" th:text="${vt.description}">Descrizione</p>
+      <p class="card-text">
+        <small class="text-muted">
+          Dal <span th:text="${vt.startDate}"></span> al <span th:text="${vt.endDate}"></span><br/>
+          Punto d'incontro: <span th:text="${vt.meetingPoint}"></span><br/>
+          Inizio: <span th:text="${vt.startTime}"></span><br/>
+          Durata: <span th:text="${vt.duration}"></span> minuti<br/>
+          Min partecipanti: <span th:text="${vt.minParticipants}"></span><br/>
+          Max partecipanti: <span th:text="${vt.maxParticipants}"></span><br/>
+          La visita è <span th:text="${vt.free} ? 'gratuita' : 'a pagamento'"></span><br/>
+          Giorni disponibili: <span class="days-available" th:text="${vt.daysAvailable}"></span><br/>
+          Volontari: <span th:text="${#strings.arrayJoin(vt.volunteers, ', ')}"></span>
+        </small>
+      </p>
+      <div class="d-flex mt-auto">
+        <a th:href="@{|/add-volunteers?visitTypeId=${vt.id}|}" class="btn btn-primary btn-sm me-2" th:if="${role == 'configurator'}" th:classappend="${!vt.canBeModified} ? ' disabled' : ''">Aggiungi volontari</a>
+        <div th:if="${role == 'configurator'}">
+          <button type="button" class="btn btn-danger btn-sm me-2 mt-2" th:if="${vt.canBeRemoved}" th:attr="onclick=|deleteVisitType(${vt.id})|">Rimuovi</button>
+          <button type="button" class="btn btn-secondary btn-sm mt-2" th:unless="${vt.canBeRemoved}" disabled>Non rimovibile</button>
         </div>
       </div>
     </div>
+  </div>
+</main>
 
-    <input
+<input
       type="hidden"
       id="thymeleafDataPresent"
       th:value="${visitTypes != null}"
