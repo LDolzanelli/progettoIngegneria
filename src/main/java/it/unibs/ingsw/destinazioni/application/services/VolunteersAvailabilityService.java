@@ -27,7 +27,7 @@ public class VolunteersAvailabilityService
     private final VisitPlanStatePort visitPlanStatePort;
     private final VisitDaysUseCase visitDaysUseCase;
     private final VolunteerAvailableDateRepositoryPort repository;
-    private final Clock clock; 
+    private final Clock clock;
 
     // ==== CONTROLLI DI STATO ====
 
@@ -48,18 +48,17 @@ public class VolunteersAvailabilityService
         YearMonth next = current.plusMonths(1);
         YearMonth nextPlusOne = current.plusMonths(2);
 
-        boolean nextMonthAvailabilityNotOpen = !statePort.isVolunteerAvailabilityOpen(next.getMonthValue(),
-                next.getYear());
+        boolean nextMonthAvailabilityNotOpen =
+                !statePort.isVolunteerAvailabilityOpen(next.getMonthValue(), next.getYear());
         boolean nextMonthVisitPlanCreated = visitPlanStatePort.isVisitPlanCreated(next.getMonthValue(), next.getYear());
-        boolean nextTwoMonthsAvailabilityNotOpen = !statePort.isVolunteerAvailabilityOpen(nextPlusOne.getMonthValue(),
-                nextPlusOne.getYear());
+        boolean nextTwoMonthsAvailabilityNotOpen =
+                !statePort.isVolunteerAvailabilityOpen(nextPlusOne.getMonthValue(), nextPlusOne.getYear());
         boolean isTodayAfterSixteen = today >= 16;
 
-        return nextMonthAvailabilityNotOpen
-                && nextMonthVisitPlanCreated
-                && nextTwoMonthsAvailabilityNotOpen
+        return nextMonthAvailabilityNotOpen && nextMonthVisitPlanCreated && nextTwoMonthsAvailabilityNotOpen
                 && isTodayAfterSixteen;
     }
+
 
     /**
      * Controlla se è possibile disabilitare la disponibilità dei volontari per il
@@ -77,6 +76,7 @@ public class VolunteersAvailabilityService
         return statePort.isVolunteerAvailabilityOpen(next.getMonthValue(), next.getYear()) && today > 15;
     }
 
+
     @Override
     public void enableAvailability() {
         if (!canEnableAvailability()) {
@@ -90,6 +90,7 @@ public class VolunteersAvailabilityService
         visitDaysUseCase.createDefaultVisitDays(target.getMonthValue());
     }
 
+
     @Override
     public void disableAvailability() {
         if (!canDisableAvailability()) {
@@ -102,28 +103,32 @@ public class VolunteersAvailabilityService
         statePort.setVolunteerAvailabilityOpen(target.getMonthValue(), target.getYear(), false);
     }
 
+
     @Override
     public int getMonthToEnable() {
         return YearMonth.now(clock).plusMonths(2).getMonthValue();
     }
+
 
     @Override
     public int getMonthToDisable() {
         return YearMonth.now(clock).plusMonths(1).getMonthValue();
     }
 
+
     @Override
     public boolean isAvailabilityEnabled() {
 
         LocalDate now = LocalDate.now(clock);
 
-        YearMonth next = now.getDayOfMonth() >= 16 ? YearMonth.from(now).plusMonths(2)
-                : YearMonth.from(now).plusMonths(1);
+        YearMonth next =
+                now.getDayOfMonth() >= 16 ? YearMonth.from(now).plusMonths(2) : YearMonth.from(now).plusMonths(1);
 
         return statePort.isVolunteerAvailabilityOpen(next.getMonthValue(), next.getYear());
     }
 
     // ==== CRUD DISPONIBILITÀ VOLONTARI ====
+
 
     @Override
     public void updateAvailability(int volunteerId, Set<LocalDate> availableDates) {
@@ -140,11 +145,13 @@ public class VolunteersAvailabilityService
         availableDates.forEach(d -> repository.save(new VolunteerAvailableDate(volunteerId, d)));
     }
 
+
     @Override
     public Set<LocalDate> getAvailability(int volunteerId) {
         return repository.findByVolunteerId(volunteerId).stream().map(VolunteerAvailableDate::getAvailableDate)
                 .collect(Collectors.toSet());
     }
+
 
     // gestisce anni diversi?
     // valutare se sostituire Month con un YearMonth
@@ -153,6 +160,7 @@ public class VolunteersAvailabilityService
         return repository.findByVolunteerId(volunteerId).stream().filter(v -> v.getAvailableDate().getMonth() == month)
                 .map(VolunteerAvailableDate::getAvailableDate).collect(Collectors.toSet());
     }
+
 
     @Override
     public Month getTargetMonth() {

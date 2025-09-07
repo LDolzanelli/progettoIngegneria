@@ -1,0 +1,96 @@
+@startuml
+skinparam actorStyle "awesome"
+left to right direction
+
+title Diagramma dei Casi d'Uso - Versione 4
+
+actor Configuratore
+actor Volontario
+actor Fruitore #FF6666
+
+' --- Casi d'uso Configuratore ---
+(Accesso) as UC_Accesso
+(Modifica Credenziali) as UC_ModCred
+(Creazione del corpo dati) as UC_Corpo
+(Gestione numero max di iscrizioni) as UC_NumMax
+(Visualizzazione dei luoghi di interesse) as UC_ViewLuoghi
+(Visualizzazione dei tipi di visita di un luogo di interesse) as UC_ViewVisite
+(Inserimento luoghi di interesse) as UC_AddLuogo
+(Inserimento Tipo di visita ad un luogo esistente) as UC_AddVisita
+(Visualizzazione volontari) as UC_ViewVolontari
+(Inserimento volontario) as UC_AddVolontario
+(Inserimento delle date da precludere) as UC_Date
+(Chiusura raccolta disponibilità) as UC_CloseDisp
+(Produzione piano visite) as UC_Piano
+(Rimozione luogo di interesse) as UC_RemoveLuogo
+(Rimozione tipo di visita) as UC_RemoveVisita
+(Rimozione volontario) as UC_RemoveVol
+(Apertura raccolta disponibilità) as UC_OpenDisp
+
+' --- Associazioni Configuratore ---
+Configuratore --> UC_Accesso
+Configuratore --> UC_Corpo
+Configuratore --> UC_NumMax
+Configuratore --> UC_ViewLuoghi
+Configuratore --> UC_ViewVisite
+Configuratore --> UC_AddLuogo
+Configuratore --> UC_AddVisita
+Configuratore --> UC_ViewVolontari
+Configuratore --> UC_AddVolontario
+Configuratore --> UC_Date
+Configuratore --> UC_CloseDisp
+Configuratore --> UC_Piano
+Configuratore --> UC_RemoveLuogo
+Configuratore --> UC_RemoveVisita
+Configuratore --> UC_RemoveVol
+Configuratore --> UC_OpenDisp
+
+' --- Include Configuratore ---
+UC_Accesso .right.> UC_ModCred : <<include>>
+UC_ModCred .down.> UC_Accesso : <<include>>
+UC_ViewVisite .down.> UC_ViewLuoghi : <<include>>
+UC_AddLuogo .down.> UC_ViewLuoghi : <<include>>
+UC_AddVisita .right.> UC_ViewVisite : <<include>>
+UC_AddVisita .down.> UC_AddVolontario : <<include>>
+UC_AddVolontario .down.> UC_ViewVolontari : <<include>>
+UC_RemoveLuogo .down.> UC_ViewLuoghi : <<include>> 
+UC_RemoveVisita .down.> UC_ViewVisite : <<include>> 
+UC_RemoveVol .down.> UC_ViewVolontari : <<include>> 
+
+' --- Casi d'uso Volontario ---
+(Accesso) as UC_AccessoVol
+(Modifica password) as UC_ModPassVol
+(Visualizzazione tipi di visita assegnati) as UC_ViewVisiteVol
+(Inserimento delle disponibilità) as UC_AddDisponibilita
+(Visualizzazione delle visite confermate) as UC_ViewVisiteConfVol #FF6666
+
+' --- Associazioni Volontario ---
+Volontario --> UC_AccessoVol
+Volontario --> UC_ViewVisiteVol
+Volontario --> UC_AddDisponibilita
+Volontario --> UC_ViewVisiteConfVol #FF6666
+
+' --- Include Volontario ---
+UC_AccessoVol .right.> UC_ModPassVol : <<include>>
+UC_ModPassVol .down.> UC_AccessoVol : <<include>>
+
+' --- Nuovi casi d'uso Fruitore (v4) ---
+(Registrazione) as UC_RegFruitore #FF6666
+(Accesso) as UC_AccessoFruitore #FF6666
+(Visualizzazione visite disponibili) as UC_ViewVisiteDisp #FF6666
+(Prenotazione visita) as UC_PrenVisita #FF6666
+(Visualizzazione prenotazioni) as UC_ViewPrenotazioni #FF6666
+(Disdire prenotazione) as UC_Disdetta #FF6666
+
+' --- Associazioni Fruitore ---
+Fruitore --> UC_RegFruitore #FF6666
+Fruitore --> UC_AccessoFruitore #FF6666
+Fruitore --> UC_ViewVisiteDisp #FF6666
+Fruitore --> UC_PrenVisita #FF6666
+Fruitore --> UC_ViewPrenotazioni #FF6666
+Fruitore --> UC_Disdetta #FF6666
+
+' --- Include Fruitore ---
+UC_RegFruitore .down.> UC_AccessoFruitore #FF6666 : <<include>> 
+UC_PrenVisita .down.> UC_ViewVisiteDisp #FF6666 : <<include>> 
+@enduml
