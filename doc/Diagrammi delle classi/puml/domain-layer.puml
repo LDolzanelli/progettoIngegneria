@@ -1,0 +1,220 @@
+@startuml Domain Layer - Centro Visite
+
+!theme toy
+skinparam backgroundColor #fff3e0
+skinparam roundcorner 10
+skinparam maxMessageSize 50
+skinparam wrapWidth 150
+skinparam minClassWidth 80
+skinparam packageStyle rectangle
+skinparam defaultFontSize 9
+!define PLANTUML_LIMIT_SIZE 32768
+skinparam dpi 150
+left to right direction
+
+skinparam class {
+    BackgroundColor #ffffff
+    BorderColor #f57c00
+    FontSize 12
+    FontStyle bold
+}
+
+skinparam enum {
+    BackgroundColor #ffe0b2
+    BorderColor #f57c00
+}
+
+title Domain Layer - Modelli e DTOs
+
+package "Domain Models" {
+    
+    class User {
+        - Integer id
+        - String nickname
+        - String password
+        - Role role
+        - boolean firstLogin
+        + User(id, nickname, password, role, firstLogin)
+        + User(nickname, password, role)
+    }
+    
+    class Booking {
+        - String bookingCode
+        - User user
+        - List<String> visitorsNames
+        + Booking(bookingCode, user, visitorsNames)
+        + int getNumberOfVisitors()
+    }
+    
+    class Visit {
+        - Integer id
+        - LocalDate date
+        - User volunteer
+        - VisitType visitType
+        - List<Booking> bookings
+        - VisitStatus visitStatus
+        + Visit(id, date, volunteer, visitType, bookings, status)
+        + Visit(date, volunteer, visitType, bookings, status)
+        + int visitorsNumber()
+        + int getAvailableSeats()
+        + int daysUntilVisit(LocalDate today)
+    }
+    
+    class VisitType {
+        - Integer id
+        - String title
+        - String description
+        - String meetingPoint
+        - LocalDate startDate
+        - LocalDate endDate
+        - LocalTime startTime
+        - int duration
+        - int maxParticipants
+        - int minParticipants
+        - boolean isFree
+        - List<DaysOfWeek> daysAvailable
+        - List<User> volunteers
+        + VisitType(...)
+    }
+    
+    class Location {
+        - Integer id
+        - String name
+        - String description
+        - LocationAddress address
+        - List<VisitType> visitTypes
+        + Location(...)
+        + void removeVisitType(VisitType)
+    }
+    
+    class LocationAddress {
+        - String street
+        - String city
+        - String province
+        - String postalCode
+    }
+    
+    class AreaOfInterest {
+        - Set<TownProvinceDTO> areas
+        + AreaOfInterest(Set<TownProvinceDTO>)
+        + AreaOfInterest()
+        + void addArea(TownProvinceDTO)
+    }
+    
+    class VolunteerAvailableDate {
+        - Integer id
+        - User volunteer
+        - LocalDate date
+        - boolean isAvailable
+    }
+    
+    class BlockedDates {
+        - Integer id
+        - LocalDate date
+        - String reason
+    }
+}
+
+package "Enums" {
+    enum Role {
+        VOLONTARIO
+        OPERATORE
+        COORDINATORE
+        AMMINISTRATORE
+    }
+    
+    enum VisitStatus {
+        SCHEDULED
+        CONFIRMED
+        CANCELLED
+        COMPLETED
+    }
+    
+    enum DaysOfWeek {
+        MONDAY
+        TUESDAY
+        WEDNESDAY
+        THURSDAY
+        FRIDAY
+        SATURDAY
+        SUNDAY
+    }
+}
+
+package "DTOs" {
+    class BookingRequestDTO {
+        - String visitId
+        - List<String> visitorsNames
+    }
+    
+    class ChangeCredentialsDTO {
+        - String oldPassword
+        - String newPassword
+    }
+    
+    class LoginResponseDTO {
+        - String nickname
+        - Role role
+        - boolean firstLogin
+    }
+    
+    class VisitTypeDTO {
+        - Integer id
+        - String title
+        - String description
+        - LocalDate startDate
+        - LocalDate endDate
+        - LocalTime startTime
+        - int duration
+        - int maxParticipants
+        - int minParticipants
+        - boolean isFree
+        - List<DaysOfWeek> daysAvailable
+    }
+    
+    class TownProvinceDTO {
+        - String town
+        - String province
+    }
+    
+    class VolunteerVisitSummaryDTO {
+        - Integer visitId
+        - LocalDate date
+        - String visitType
+        - int participantsCount
+        - VisitStatus status
+    }
+}
+
+' Relazioni tra le entità del dominio con notazione UML standard
+User ||--o{ Booking : "1 to 0..*"
+User ||--o{ Visit : "1 to 0..*"
+User }o--|| Role : "0..* to 1"
+
+Booking }o--|| User : "0..* to 1"
+Visit ||--o{ Booking : "1 to 0..*"
+Visit }o--|| User : "0..* to 1"
+Visit }o--|| VisitType : "0..* to 1"
+Visit }o--|| VisitStatus : "0..* to 1"
+
+VisitType ||--o{ Visit : "1 to 0..*"
+VisitType }o--o{ DaysOfWeek : "0..* to 0..*"
+VisitType }o--o{ User : "0..* to 0..*"
+
+Location ||--o{ VisitType : "1 to 0..*"
+Location *--|| LocationAddress : "1 to 1"
+
+VolunteerAvailableDate }o--|| User : "0..* to 1"
+
+AreaOfInterest *--o{ TownProvinceDTO : "1 to 0..*"
+
+' Note esplicative
+note top of User : <b>Entità centrale</b>\nRappresenta tutti gli utenti\n(visitatori, volontari, operatori)
+
+note top of Visit : <b>Entità aggregato</b>\nCombina prenotazioni,\nvolontario e tipo visita
+
+note bottom of VisitType : <b>Template per visite</b>\nDefinisce caratteristiche\ne disponibilità
+
+note bottom of Location : <b>Destinazione</b>\nContiene i tipi di visita\nofferti in quel luogo
+
+@enduml

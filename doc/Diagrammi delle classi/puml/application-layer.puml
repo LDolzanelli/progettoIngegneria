@@ -1,0 +1,274 @@
+@startuml Application Layer - Centro Visite
+
+!theme toy
+skinparam backgroundColor #e8f5e8
+skinparam roundcorner 10
+skinparam maxMessageSize 50
+skinparam wrapWidth 150
+skinparam minClassWidth 80
+skinparam packageStyle rectangle
+skinparam defaultFontSize 9
+!define PLANTUML_LIMIT_SIZE 32768
+skinparam dpi 150
+left to right direction
+
+skinparam interface {
+    BackgroundColor #c8e6c9
+    BorderColor #388e3c
+    FontStyle italic
+}
+
+skinparam class {
+    BackgroundColor #ffffff
+    BorderColor #388e3c
+    FontSize 12
+    FontStyle bold
+}
+
+title Application Layer - Services e Port
+
+package "Ports In (Use Cases)" {
+    interface LoginUseCase {
+        + LoginResponseDTO login(LoginRequestDTO)
+    }
+    
+    interface RegisterUserUseCase {
+        + User registerUser(String nickname, String password, Role role)
+    }
+    
+    interface ChangeCredentialsUseCase {
+        + void changeCredentials(String nickname, ChangeCredentialsDTO)
+    }
+    
+    interface GetUserInfoUseCase {
+        + List<User> getAllUsers()
+        + Optional<User> findUserByNickname(String nickname)
+    }
+    
+    interface ManageLocationUseCase {
+        + Location saveLocation(Location location)
+        + List<Location> getAllLocations()
+        + void deleteLocation(Integer locationId)
+    }
+    
+    interface ManageVisitTypeUseCase {
+        + VisitType saveVisitType(VisitType visitType)
+        + List<VisitType> getAllVisitTypes()
+        + void deleteVisitType(Integer visitTypeId)
+    }
+    
+    interface BookingVisitsUseCase {
+        + String bookVisit(BookingRequestDTO request)
+        + void cancelBooking(String bookingCode)
+        + List<Booking> getUserBookings(String nickname)
+    }
+    
+    interface VisitPlanUseCase {
+        + List<Visit> getVisitsForPeriod(LocalDate start, LocalDate end)
+        + Visit createVisit(Visit visit)
+        + void confirmVisit(Integer visitId)
+    }
+    
+    interface ManageVolunteersUseCase {
+        + List<User> getAllVolunteers()
+        + void assignVolunteerToVisitType(Integer volunteerId, Integer visitTypeId)
+    }
+    
+    interface VolunteersAvailabilityUseCase {
+        + void setVolunteerAvailability(Integer volunteerId, LocalDate date, boolean available)
+        + List<VolunteerAvailableDate> getVolunteerAvailability(Integer volunteerId)
+    }
+    
+    interface BlockedDatesUseCase {
+        + void blockDate(LocalDate date, String reason)
+        + void unblockDate(LocalDate date)
+        + List<BlockedDates> getBlockedDates()
+    }
+    
+    interface ManageAreaOfInterestUseCase {
+        + void saveAreaOfInterest(String nickname, AreaOfInterest areas)
+    }
+    
+    interface QueryAreaOfInterestUseCase {
+        + AreaOfInterest getAreaOfInterest(String nickname)
+    }
+}
+
+package "Ports Out (Repository Contracts)" {
+    interface UserRepositoryPort {
+        + User save(User user)
+        + Optional<User> findByNickname(String nickname)
+        + List<User> findAll()
+        + List<User> findByRole(Role role)
+    }
+    
+    interface BookingRepositoryPort {
+        + Booking save(Booking booking)
+        + Optional<Booking> findByBookingCode(String code)
+        + List<Booking> findByUser(User user)
+        + void deleteByBookingCode(String code)
+    }
+    
+    interface VisitRepositoryPort {
+        + Visit save(Visit visit)
+        + List<Visit> findByDateBetween(LocalDate start, LocalDate end)
+        + List<Visit> findByVolunteer(User volunteer)
+        + Optional<Visit> findById(Integer id)
+    }
+    
+    interface LocationRepositoryPort {
+        + Location save(Location location)
+        + List<Location> findAll()
+        + Optional<Location> findById(Integer id)
+        + void deleteById(Integer id)
+    }
+    
+    interface VisitTypeRepositoryPort {
+        + VisitType save(VisitType visitType)
+        + List<VisitType> findAll()
+        + Optional<VisitType> findById(Integer id)
+        + void deleteById(Integer id)
+    }
+    
+    interface VolunteerAvailableDateRepositoryPort {
+        + VolunteerAvailableDate save(VolunteerAvailableDate date)
+        + List<VolunteerAvailableDate> findByVolunteer(User volunteer)
+        + Optional<VolunteerAvailableDate> findByVolunteerAndDate(User volunteer, LocalDate date)
+    }
+    
+    interface BlockedDatesRepositoryPort {
+        + BlockedDates save(BlockedDates blockedDate)
+        + List<BlockedDates> findAll()
+        + Optional<BlockedDates> findByDate(LocalDate date)
+        + void deleteByDate(LocalDate date)
+    }
+    
+    interface AreaOfInterestRepositoryPort {
+        + AreaOfInterest save(String nickname, AreaOfInterest areas)
+        + Optional<AreaOfInterest> findByNickname(String nickname)
+    }
+}
+
+package "Business Services" {
+    class UserService {
+        - UserRepositoryPort userRepository
+        - PasswordEncoder passwordEncoder
+        + LoginResponseDTO login(LoginRequestDTO)
+        + User registerUser(String, String, Role)
+        + void changeCredentials(String, ChangeCredentialsDTO)
+        + List<User> getAllUsers()
+        + Optional<User> findUserByNickname(String)
+    }
+    
+    class LocationService {
+        - LocationRepositoryPort locationRepository
+        + Location saveLocation(Location)
+        + List<Location> getAllLocations()
+        + void deleteLocation(Integer)
+    }
+    
+    class VisitTypeService {
+        - VisitTypeRepositoryPort visitTypeRepository
+        - UserRepositoryPort userRepository
+        + VisitType saveVisitType(VisitType)
+        + List<VisitType> getAllVisitTypes()
+        + void deleteVisitType(Integer)
+    }
+    
+    class BookingService {
+        - BookingRepositoryPort bookingRepository
+        - VisitRepositoryPort visitRepository
+        - UserRepositoryPort userRepository
+        + String bookVisit(BookingRequestDTO)
+        + void cancelBooking(String)
+        + List<Booking> getUserBookings(String)
+    }
+    
+    class VisitPlanService {
+        - VisitRepositoryPort visitRepository
+        - VolunteerService volunteerService
+        + List<Visit> getVisitsForPeriod(LocalDate, LocalDate)
+        + Visit createVisit(Visit)
+        + void confirmVisit(Integer)
+    }
+    
+    class VolunteerService {
+        - UserRepositoryPort userRepository
+        - VisitTypeRepositoryPort visitTypeRepository
+        + List<User> getAllVolunteers()
+        + void assignVolunteerToVisitType(Integer, Integer)
+    }
+    
+    class VolunteersAvailabilityService {
+        - VolunteerAvailableDateRepositoryPort availabilityRepository
+        - UserRepositoryPort userRepository
+        + void setVolunteerAvailability(Integer, LocalDate, boolean)
+        + List<VolunteerAvailableDate> getVolunteerAvailability(Integer)
+    }
+    
+    class BlockedDatesService {
+        - BlockedDatesRepositoryPort blockedDatesRepository
+        + void blockDate(LocalDate, String)
+        + void unblockDate(LocalDate)
+        + List<BlockedDates> getBlockedDates()
+    }
+    
+    class AreaOfInterestService {
+        - AreaOfInterestRepositoryPort areaRepository
+        + void saveAreaOfInterest(String, AreaOfInterest)
+        + AreaOfInterest getAreaOfInterest(String)
+    }
+    
+    class VisitSchedulerService {
+        - VisitPlanService visitPlanService
+        - VolunteersAvailabilityService availabilityService
+        + void scheduleVisitsForPeriod(LocalDate, LocalDate)
+        + List<User> getAvailableVolunteers(LocalDate)
+    }
+}
+
+' Implementazioni dei Port In (implementation)
+UserService ..|> LoginUseCase
+UserService ..|> RegisterUserUseCase  
+UserService ..|> ChangeCredentialsUseCase
+UserService ..|> GetUserInfoUseCase
+
+LocationService ..|> ManageLocationUseCase
+VisitTypeService ..|> ManageVisitTypeUseCase
+BookingService ..|> BookingVisitsUseCase
+VisitPlanService ..|> VisitPlanUseCase
+VolunteerService ..|> ManageVolunteersUseCase
+VolunteersAvailabilityService ..|> VolunteersAvailabilityUseCase
+BlockedDatesService ..|> BlockedDatesUseCase
+AreaOfInterestService ..|> ManageAreaOfInterestUseCase
+AreaOfInterestService ..|> QueryAreaOfInterestUseCase
+
+' Dipendenze dai Port Out (dependency)
+UserService ..> UserRepositoryPort : <<uses>>
+LocationService ..> LocationRepositoryPort : <<uses>>
+VisitTypeService ..> VisitTypeRepositoryPort : <<uses>>
+VisitTypeService ..> UserRepositoryPort : <<uses>>
+BookingService ..> BookingRepositoryPort : <<uses>>
+BookingService ..> VisitRepositoryPort : <<uses>>
+BookingService ..> UserRepositoryPort : <<uses>>
+VisitPlanService ..> VisitRepositoryPort : <<uses>>
+VolunteerService ..> UserRepositoryPort : <<uses>>
+VolunteerService ..> VisitTypeRepositoryPort : <<uses>>
+VolunteersAvailabilityService ..> VolunteerAvailableDateRepositoryPort : <<uses>>
+VolunteersAvailabilityService ..> UserRepositoryPort : <<uses>>
+BlockedDatesService ..> BlockedDatesRepositoryPort : <<uses>>
+AreaOfInterestService ..> AreaOfInterestRepositoryPort : <<uses>>
+
+' Collaborazioni tra servizi (association)
+VisitPlanService --> VolunteerService : collaborates 1..*
+VisitSchedulerService --> VisitPlanService : uses 1
+VisitSchedulerService --> VolunteersAvailabilityService : uses 1
+
+' Note esplicative
+note top of "Ports In (Use Cases)" : <b>Interfacce Business</b>\nDefiniscono i casi d'uso\ndell'applicazione
+
+note top of "Ports Out (Repository Contracts)" : <b>Contratti Persistenza</b>\nDefiniscono come accedere\nai dati (pattern Hexagonal)
+
+note bottom of "Business Services" : <b>Implementazioni</b>\nLogica business concrete\nche implementano i Use Cases
+
+@enduml

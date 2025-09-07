@@ -1,0 +1,312 @@
+@startuml UI Layer - Centro Visite
+
+!theme toy
+skinparam backgroundColor #e3f2fd
+skinparam roundcorner 10
+skinparam maxMessageSize 50
+skinparam wrapWidth 150
+skinparam minClassWidth 80
+skinparam packageStyle rectangle
+skinparam defaultFontSize 9
+!define PLANTUML_LIMIT_SIZE 32768
+skinparam dpi 150
+left to right direction
+
+skinparam class {
+    BackgroundColor #ffffff
+    BorderColor #1976d2
+    FontSize 12
+    FontStyle bold
+}
+
+skinparam interface {
+    BackgroundColor #bbdefb
+    BorderColor #1976d2
+    FontStyle italic
+}
+
+title UI Layer - REST API e Web Controllers
+
+package "REST Controllers" {
+    class UserController {
+        - LoginUseCase loginService
+        - ChangeCredentialsUseCase changeCredentialsService
+        - GetUserInfoUseCase userInfoService
+        - RegisterUserUseCase registerUserService
+        - ManageVolunteersUseCase manageVolunteersUseCase
+        + ResponseEntity<LoginResponseDTO> login(@RequestBody LoginRequestDTO)
+        + ResponseEntity<Void> changeCredentials(@RequestBody ChangeCredentialsDTO)
+        + ResponseEntity<List<User>> getAllUsers()
+        + ResponseEntity<User> registerUser(@RequestBody RegisterUserRequestDTO)
+        + ResponseEntity<List<User>> getAllVolunteers()
+    }
+    
+    class LocationController {
+        - ManageLocationUseCase manageLocationUseCase
+        + ResponseEntity<List<Location>> getAllLocations()
+        + ResponseEntity<Location> saveLocation(@RequestBody LocationRequestDTO)
+        + ResponseEntity<Void> deleteLocation(@PathVariable Integer id)
+    }
+    
+    class VisitTypeController {
+        - ManageVisitTypeUseCase manageVisitTypeUseCase
+        + ResponseEntity<List<VisitTypeDTO>> getAllVisitTypes()
+        + ResponseEntity<VisitType> saveVisitType(@RequestBody VisitTypeRequestDTO)
+        + ResponseEntity<Void> deleteVisitType(@PathVariable Integer id)
+    }
+    
+    class BookingController {
+        - BookingVisitsUseCase bookingService
+        + ResponseEntity<String> bookVisit(@RequestBody BookingRequestDTO)
+        + ResponseEntity<Void> cancelBooking(@PathVariable String bookingCode)
+        + ResponseEntity<List<Booking>> getUserBookings(@PathVariable String nickname)
+    }
+    
+    class VisitPlanController {
+        - VisitPlanUseCase visitPlanService
+        + ResponseEntity<List<Visit>> getVisitsForPeriod(@RequestParam LocalDate start, @RequestParam LocalDate end)
+        + ResponseEntity<Visit> createVisit(@RequestBody VisitRequestDTO)
+        + ResponseEntity<Void> confirmVisit(@PathVariable Integer visitId)
+    }
+    
+    class VisitsController {
+        - VisitDaysUseCase visitDaysService
+        + ResponseEntity<List<VisitDayDTO>> getAvailableVisitDays(@RequestParam LocalDate month)
+        + ResponseEntity<List<Visit>> getVisitsForDay(@RequestParam LocalDate date)
+    }
+    
+    class VolunteerAvailabilityController {
+        - VolunteersAvailabilityUseCase availabilityService
+        + ResponseEntity<Void> setAvailability(@RequestBody VolunteerAvailabilityDTO)
+        + ResponseEntity<List<VolunteerAvailableDate>> getAvailability(@PathVariable Integer volunteerId)
+    }
+    
+    class BlockedDatesController {
+        - BlockedDatesUseCase blockedDatesService
+        + ResponseEntity<Void> blockDate(@RequestBody BlockedDatesDTO)
+        + ResponseEntity<Void> unblockDate(@PathVariable LocalDate date)
+        + ResponseEntity<List<BlockedDates>> getBlockedDates()
+    }
+    
+    class AreaOfInterestController {
+        - ManageAreaOfInterestUseCase manageAreaService
+        - QueryAreaOfInterestUseCase queryAreaService
+        + ResponseEntity<Void> saveAreaOfInterest(@RequestBody AreaOfInterestDTO)
+        + ResponseEntity<AreaOfInterest> getAreaOfInterest(@PathVariable String nickname)
+    }
+    
+    class SystemConfigController {
+        - ChangeMaxNumberOfTicketsUseCase systemConfigService
+        + ResponseEntity<Void> changeMaxTickets(@RequestBody SystemConfigDTO)
+        + ResponseEntity<SystemConfigDTO> getSystemConfig()
+    }
+}
+
+package "Web View Controllers" {
+    class LoginController {
+        - RestTemplate restTemplate
+        + String showLoginForm(Model model)
+        + String handleLogin(@ModelAttribute LoginFormDTO form, RedirectAttributes redirectAttributes)
+    }
+    
+    class HomeViewController {
+        - RestTemplate restTemplate
+        + String showHome(Model model, HttpSession session)
+        + String showRoleBasedDashboard(Model model, HttpSession session)
+    }
+    
+    class BookingViewController {
+        - RestTemplate restTemplate
+        + String showBookingForm(Model model)
+        + String handleBooking(@ModelAttribute BookingFormDTO form, RedirectAttributes redirectAttributes)
+        + String showUserBookings(Model model, HttpSession session)
+        + String cancelBooking(@PathVariable String bookingCode, RedirectAttributes redirectAttributes)
+    }
+    
+    class VisitPlanViewController {
+        - RestTemplate restTemplate
+        + String showVisitPlan(Model model, @RequestParam(required=false) String month)
+        + String showVisitDetails(@PathVariable Integer visitId, Model model)
+    }
+    
+    class LocationViewController {
+        - RestTemplate restTemplate
+        + String showLocations(Model model)
+        + String showAddLocationForm(Model model)
+        + String handleAddLocation(@ModelAttribute LocationFormDTO form, RedirectAttributes redirectAttributes)
+    }
+    
+    class VisitTypeViewController {
+        - RestTemplate restTemplate
+        + String showVisitTypes(Model model)
+        + String showAddVisitTypeForm(Model model)
+        + String handleAddVisitType(@ModelAttribute VisitTypeFormDTO form, RedirectAttributes redirectAttributes)
+    }
+    
+    class VolunteerViewController {
+        - RestTemplate restTemplate
+        + String showVolunteers(Model model)
+        + String showAddVolunteerForm(Model model)
+        + String handleAddVolunteer(@ModelAttribute VolunteerFormDTO form, RedirectAttributes redirectAttributes)
+    }
+    
+    class VolunteerVisitsViewController {
+        - RestTemplate restTemplate
+        + String showVolunteerVisits(Model model, HttpSession session)
+        + String showVolunteerAvailability(Model model, HttpSession session)
+        + String updateAvailability(@ModelAttribute AvailabilityFormDTO form, HttpSession session, RedirectAttributes redirectAttributes)
+    }
+    
+    class VisitArchiveViewController {
+        - RestTemplate restTemplate
+        + String showArchive(Model model, @RequestParam(required=false) String year)
+        + String showArchivedVisitDetails(@PathVariable Integer visitId, Model model)
+    }
+    
+    class ChangeCredentialsController {
+        - RestTemplate restTemplate
+        + String showChangeCredentialsForm(Model model)
+        + String handleChangeCredentials(@ModelAttribute ChangeCredentialsFormDTO form, HttpSession session, RedirectAttributes redirectAttributes)
+    }
+    
+    class SystemConfigViewController {
+        - RestTemplate restTemplate
+        + String showSystemConfig(Model model)
+        + String updateSystemConfig(@ModelAttribute SystemConfigFormDTO form, RedirectAttributes redirectAttributes)
+    }
+    
+    class InsertAreasController {
+        - RestTemplate restTemplate
+        + String showInsertAreasForm(Model model)
+        + String handleInsertAreas(@ModelAttribute AreasFormDTO form, HttpSession session, RedirectAttributes redirectAttributes)
+    }
+}
+
+package "REST Mappers" {
+    class VisitTypeMapper {
+        + static VisitTypeDTO toDTO(VisitType visitType)
+        + static VisitType fromDTO(VisitTypeRequestDTO dto)
+        + static List<VisitTypeDTO> toDTOList(List<VisitType> visitTypes)
+    }
+    
+    class VisitMapper {
+        + static VisitDTO toDTO(Visit visit)
+        + static Visit fromDTO(VisitRequestDTO dto)
+        + static List<VisitDTO> toDTOList(List<Visit> visits)
+    }
+    
+    class UserMapper {
+        + static UserDTO toDTO(User user)
+        + static User fromDTO(UserRequestDTO dto)
+        + static List<UserDTO> toDTOList(List<User> users)
+    }
+}
+
+package "Exception Handling" {
+    class GlobalExceptionHandler {
+        + ResponseEntity<ErrorResponseDTO> handleIllegalArgumentException(IllegalArgumentException ex)
+        + ResponseEntity<ErrorResponseDTO> handleResourceNotFoundException(ResourceNotFoundException ex)
+        + ResponseEntity<ErrorResponseDTO> handleValidationException(MethodArgumentNotValidException ex)
+        + ResponseEntity<ErrorResponseDTO> handleGenericException(Exception ex)
+    }
+    
+    class ErrorResponseDTO {
+        - String message
+        - String timestamp
+        - int status
+        - String path
+    }
+}
+
+package "View DTOs" {
+    class LoginFormDTO {
+        - String nickname
+        - String password
+    }
+    
+    class BookingFormDTO {
+        - Integer visitId
+        - List<String> visitorsNames
+    }
+    
+    class LocationFormDTO {
+        - String name
+        - String description
+        - String street
+        - String city
+        - String province
+        - String postalCode
+    }
+    
+    class VisitTypeFormDTO {
+        - String title
+        - String description
+        - String meetingPoint
+        - LocalDate startDate
+        - LocalDate endDate
+        - LocalTime startTime
+        - Integer duration
+        - Integer maxParticipants
+        - Integer minParticipants
+        - Boolean isFree
+        - List<String> daysAvailable
+        - Integer locationId
+    }
+}
+
+' Dipendenze REST Controllers -> Use Cases (dependency)
+UserController ..> LoginUseCase : <<uses>>
+UserController ..> ChangeCredentialsUseCase : <<uses>>
+UserController ..> GetUserInfoUseCase : <<uses>>
+UserController ..> RegisterUserUseCase : <<uses>>
+UserController ..> ManageVolunteersUseCase : <<uses>>
+
+LocationController ..> ManageLocationUseCase : <<uses>>
+VisitTypeController ..> ManageVisitTypeUseCase : <<uses>>
+BookingController ..> BookingVisitsUseCase : <<uses>>
+VisitPlanController ..> VisitPlanUseCase : <<uses>>
+VisitsController ..> VisitDaysUseCase : <<uses>>
+VolunteerAvailabilityController ..> VolunteersAvailabilityUseCase : <<uses>>
+BlockedDatesController ..> BlockedDatesUseCase : <<uses>>
+AreaOfInterestController ..> ManageAreaOfInterestUseCase : <<uses>>
+AreaOfInterestController ..> QueryAreaOfInterestUseCase : <<uses>>
+SystemConfigController ..> ChangeMaxNumberOfTicketsUseCase : <<uses>>
+
+' View Controllers chiamano REST API (dependency)
+LoginController ..> UserController : <<calls>>
+HomeViewController ..> UserController : <<calls>>
+BookingViewController ..> BookingController : <<calls>>
+VisitPlanViewController ..> VisitPlanController : <<calls>>
+LocationViewController ..> LocationController : <<calls>>
+VisitTypeViewController ..> VisitTypeController : <<calls>>
+VolunteerViewController ..> UserController : <<calls>>
+VolunteerVisitsViewController ..> VolunteerAvailabilityController : <<calls>>
+VisitArchiveViewController ..> VisitPlanController : <<calls>>
+ChangeCredentialsController ..> UserController : <<calls>>
+SystemConfigViewController ..> SystemConfigController : <<calls>>
+InsertAreasController ..> AreaOfInterestController : <<calls>>
+
+' Mappers utilizzati da Controllers (dependency)
+VisitTypeController ..> VisitTypeMapper : <<uses>>
+VisitPlanController ..> VisitMapper : <<uses>>
+UserController ..> UserMapper : <<uses>>
+
+' Exception Handling (association)
+GlobalExceptionHandler --> ErrorResponseDTO : creates
+
+' View DTOs utilizzati dai View Controllers (dependency)
+LoginController ..> LoginFormDTO : <<uses>>
+BookingViewController ..> BookingFormDTO : <<uses>>
+LocationViewController ..> LocationFormDTO : <<uses>>
+VisitTypeViewController ..> VisitTypeFormDTO : <<uses>>
+
+' Note esplicative
+note top of "REST Controllers" : <b>API REST</b>\nEndpoint per operazioni CRUD\nUsano direttamente i Use Cases
+
+note top of "Web View Controllers" : <b>MVC Controllers</b>\nGenerano viste HTML\nChiamano API REST via RestTemplate
+
+note bottom of "REST Mappers" : <b>Pattern Mapper</b>\nConversione tra Domain Models\ne DTOs per API REST
+
+note bottom of "View DTOs" : <b>Form DTOs</b>\nOggetti per binding\ncon form HTML
+
+@enduml

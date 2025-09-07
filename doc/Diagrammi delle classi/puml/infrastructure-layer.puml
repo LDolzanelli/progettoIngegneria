@@ -1,0 +1,269 @@
+@startuml Infrastructure Layer - Centro Visite
+
+!theme toy
+skinparam backgroundColor #fce4ec
+skinparam roundcorner 10
+skinparam maxMessageSize 50
+skinparam wrapWidth 150
+skinparam minClassWidth 80
+skinparam packageStyle rectangle
+skinparam defaultFontSize 9
+!define PLANTUML_LIMIT_SIZE 32768
+skinparam dpi 150
+left to right direction
+
+skinparam class {
+    BackgroundColor #ffffff
+    BorderColor #c2185b
+    FontSize 12
+    FontStyle bold
+}
+
+title Infrastructure Layer - Configuration e Cross-Cutting Concerns
+
+package "Spring Boot Configuration" {
+    class DestinazioniApplication {
+        + static void main(String[] args)
+        @SpringBootApplication
+        @EnableJpaRepositories
+        @EntityScan
+    }
+    
+    class SecurityConfiguration {
+        - CustomAuthenticationSuccessHandler successHandler
+        + SecurityFilterChain filterChain(HttpSecurity http)
+        + PasswordEncoder passwordEncoder()
+        + AuthenticationManager authenticationManager(AuthenticationConfiguration config)
+    }
+    
+    class RestTemplateConfig {
+        + RestTemplate restTemplate()
+        + RestTemplate restTemplateWithTimeout()
+    }
+    
+    class ClockConfig {
+        + Clock systemClock()
+        + AdjustableClock adjustableClock()
+    }
+    
+    class TestDateTimeConfig {
+        + Clock testClock()
+        + LocalDateTime fixedDateTime()
+    }
+}
+
+package "Security" {
+    class CustomAuthenticationSuccessHandler {
+        + void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication)
+        - String determineTargetUrl(Authentication authentication)
+        - boolean isFirstLogin(Authentication authentication)
+    }
+    
+    class CustomUserDetailsService {
+        - UserRepositoryPort userRepository
+        + UserDetails loadUserByUsername(String nickname)
+        - UserDetails buildUserDetails(User user)
+    }
+    
+    class CustomUserDetails {
+        - User user
+        + Collection<? extends GrantedAuthority> getAuthorities()
+        + String getPassword()
+        + String getUsername()
+        + boolean isAccountNonExpired()
+        + boolean isAccountNonLocked()
+        + boolean isCredentialsNonExpired()
+        + boolean isEnabled()
+        + boolean isFirstLogin()
+    }
+    
+    interface PasswordEncoder {
+        + String encode(CharSequence rawPassword)
+        + boolean matches(CharSequence rawPassword, String encodedPassword)
+    }
+}
+
+package "Database Configuration" {
+    class DataSourceConfig {
+        + DataSource dataSource()
+        + LocalContainerEntityManagerFactoryBean entityManagerFactory()
+        + PlatformTransactionManager transactionManager()
+    }
+    
+    class LiquibaseConfig {
+        + SpringLiquibase liquibase(DataSource dataSource)
+        + DatabaseChangeLog changeLog()
+    }
+    
+    class JpaConfig {
+        + JpaTransactionManager transactionManager(EntityManagerFactory emf)
+        + JpaVendorAdapter jpaVendorAdapter()
+        + Properties jpaProperties()
+    }
+}
+
+package "Application Properties" {
+    class DatabaseProperties {
+        - String url
+        - String username
+        - String password
+        - String driverClassName
+        - HikariConfig hikari
+    }
+    
+    class SecurityProperties {
+        - int sessionTimeout
+        - boolean rememberMe
+        - String secretKey
+    }
+    
+    class ApplicationProperties {
+        - String name
+        - String version
+        - String profile
+        - LoggingProperties logging
+    }
+}
+
+package "Exception Handling" {
+    class ApplicationException {
+        - String message
+        - String errorCode
+        + ApplicationException(String message)
+        + ApplicationException(String message, Throwable cause)
+    }
+    
+    class ResourceNotFoundException {
+        - String resourceName
+        - Object resourceId
+        + ResourceNotFoundException(String resourceName, Object resourceId)
+    }
+    
+    class ValidationException {
+        - List<String> errors
+        + ValidationException(String message)
+        + ValidationException(List<String> errors)
+    }
+    
+    class BusinessLogicException {
+        - String businessRule
+        + BusinessLogicException(String rule, String message)
+    }
+}
+
+package "Utilities" {
+    class AdjustableClock {
+        - Clock baseClock
+        - Duration offset
+        + Instant instant()
+        + void adjustTime(Duration adjustment)
+        + void resetTime()
+        + LocalDateTime now()
+    }
+    
+    class DateTimeUtils {
+        + static LocalDate parseDate(String dateString)
+        + static String formatDate(LocalDate date)
+        + static boolean isWorkingDay(LocalDate date)
+        + static LocalDate getNextWorkingDay(LocalDate date)
+    }
+    
+    class ValidationUtils {
+        + static boolean isValidEmail(String email)
+        + static boolean isValidNickname(String nickname)
+        + static boolean isValidPassword(String password)
+        + static void validateNotNull(Object obj, String fieldName)
+    }
+    
+    class CryptoUtils {
+        + static String generateSalt()
+        + static String hashPassword(String password, String salt)
+        + static boolean verifyPassword(String password, String hash, String salt)
+    }
+}
+
+package "Scheduling" {
+    class ScheduledTasks {
+        - VisitSchedulerService visitScheduler
+        - BlockedDatesService blockedDatesService
+        + void scheduleMonthlyVisits()
+        + void cleanupExpiredBookings()
+        + void sendVisitReminders()
+        @Scheduled(cron = "0 0 1 * * ?")
+    }
+    
+    class TaskExecutorConfig {
+        + TaskExecutor taskExecutor()
+        + ScheduledExecutorService scheduledExecutor()
+    }
+}
+
+package "Monitoring & Logging" {
+    class LoggingConfig {
+        + Logger applicationLogger()
+        + Logger auditLogger()
+        + Logger performanceLogger()
+    }
+    
+    class MetricsConfig {
+        + MeterRegistry meterRegistry()
+        + Counter visitBookingCounter()
+        + Timer visitProcessingTimer()
+    }
+    
+    class HealthIndicators {
+        + HealthIndicator databaseHealthIndicator()
+        + HealthIndicator externalServiceHealthIndicator()
+    }
+}
+
+' Relazioni principali con notazione UML standard
+DestinazioniApplication *-- SecurityConfiguration : <<configures>>
+DestinazioniApplication *-- RestTemplateConfig : <<configures>>
+DestinazioniApplication *-- ClockConfig : <<configures>>
+DestinazioniApplication *-- DataSourceConfig : <<configures>>
+
+SecurityConfiguration ..> CustomAuthenticationSuccessHandler : <<uses>>
+SecurityConfiguration ..> PasswordEncoder : <<configures>>
+CustomUserDetailsService --> CustomUserDetails : creates 1..*
+CustomUserDetailsService ..> UserRepositoryPort : <<uses>>
+
+DataSourceConfig ..> DatabaseProperties : <<uses>>
+LiquibaseConfig ..> DataSourceConfig : <<depends on>>
+JpaConfig ..> DataSourceConfig : <<depends on>>
+
+ClockConfig --> AdjustableClock : provides 1
+TestDateTimeConfig --> AdjustableClock : configures 1
+
+ScheduledTasks ..> VisitSchedulerService : <<uses>>
+ScheduledTasks ..> BlockedDatesService : <<uses>>
+TaskExecutorConfig --> ScheduledTasks : configures 1..*
+
+LoggingConfig ..> ApplicationProperties : <<uses>>
+MetricsConfig ..> ApplicationProperties : <<uses>>
+
+' Eccezioni (inheritance)
+ApplicationException --|> RuntimeException
+ResourceNotFoundException --|> ApplicationException
+ValidationException --|> ApplicationException  
+BusinessLogicException --|> ApplicationException
+
+' Utilities utilizzate da vari componenti (dependency)
+SecurityConfiguration ..> CryptoUtils : <<may use>>
+CustomUserDetailsService ..> ValidationUtils : <<may use>>
+ScheduledTasks ..> DateTimeUtils : <<may use>>
+
+' Note esplicative
+note top of "Spring Boot Configuration" : <b>Configurazione Applicazione</b>\nBean Spring, Security,\nRESTTemplate, Clock
+
+note top of "Security" : <b>Spring Security</b>\nAutenticazione, autorizzazione\nCustom UserDetails
+
+note top of "Database Configuration" : <b>Data Access</b>\nDataSource, JPA, Liquibase\nTransaction Management
+
+note bottom of "Utilities" : <b>Utility Classes</b>\nFunzioni di supporto\nper date, validazione, crypto
+
+note bottom of "Scheduling" : <b>Task Scheduling</b>\nOperazioni automatiche\nperiodiche del sistema
+
+note bottom of "Monitoring & Logging" : <b>Observability</b>\nLogging, metrics,\nhealth checks
+
+@enduml

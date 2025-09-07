@@ -1,0 +1,344 @@
+@startuml Adapters Layer - Centro Visite
+
+!theme toy
+skinparam backgroundColor #f3e5f5
+skinparam roundcorner 10
+skinparam maxMessageSize 50
+skinparam wrapWidth 150
+skinparam minClassWidth 80
+skinparam packageStyle rectangle
+skinparam defaultFontSize 9
+!define PLANTUML_LIMIT_SIZE 32768
+skinparam dpi 150
+left to right direction
+
+skinparam class {
+    BackgroundColor #ffffff
+    BorderColor #7b1fa2
+    FontSize 12
+    FontStyle bold
+}
+
+skinparam interface {
+    BackgroundColor #e1bee7
+    BorderColor #7b1fa2
+    FontStyle italic
+}
+
+title Adapters Layer - JPA Adapters e Entities
+
+package "JPA Adapters" {
+    class JpaUserRepositoryAdapter {
+        - UserRepository jpaRepo
+        + Optional<User> findById(int id)
+        + User save(User user)
+        + Optional<User> findByNickname(String nickname)
+        + List<User> findAll()
+        + List<User> findByRole(Role role)
+        - UserEntity toEntity(User user)
+        - User toDomainModel(UserEntity entity)
+        - List<User> toDomainModel(List<UserEntity> entities)
+    }
+    
+    class JpaBookingAdapter {
+        - BookingRepository jpaRepo
+        - UserRepository userRepo
+        + Booking save(Booking booking)
+        + Optional<Booking> findByBookingCode(String code)
+        + List<Booking> findByUser(User user)
+        + void deleteByBookingCode(String code)
+        - BookingEntity toEntity(Booking booking)
+        - Booking toDomainModel(BookingEntity entity)
+    }
+    
+    class JpaVisitRepositoryAdapter {
+        - VisitRepository jpaRepo
+        + Visit save(Visit visit)
+        + List<Visit> findByDateBetween(LocalDate start, LocalDate end)
+        + List<Visit> findByVolunteer(User volunteer)
+        + Optional<Visit> findById(Integer id)
+        - VisitEntity toEntity(Visit visit)
+        - Visit toDomainModel(VisitEntity entity)
+    }
+    
+    class JpaLocationRepositoryAdapter {
+        - LocationRepository jpaRepo
+        + Location save(Location location)
+        + List<Location> findAll()
+        + Optional<Location> findById(Integer id)
+        + void deleteById(Integer id)
+        - LocationEntity toEntity(Location location)
+        - Location toDomainModel(LocationEntity entity)
+    }
+    
+    class JpaVisitTypeRepositoryAdapter {
+        - VisitTypeRepository jpaRepo
+        + VisitType save(VisitType visitType)
+        + List<VisitType> findAll()
+        + Optional<VisitType> findById(Integer id)
+        + void deleteById(Integer id)
+        - VisitTypeEntity toEntity(VisitType visitType)
+        - VisitType toDomainModel(VisitTypeEntity entity)
+    }
+    
+    class JpaVolunteerAvailableDateRepositoryAdapter {
+        - VolunteerAvailableDateRepository jpaRepo
+        + VolunteerAvailableDate save(VolunteerAvailableDate date)
+        + List<VolunteerAvailableDate> findByVolunteer(User volunteer)
+        + Optional<VolunteerAvailableDate> findByVolunteerAndDate(User volunteer, LocalDate date)
+        - VolunteerAvailableDateEntity toEntity(VolunteerAvailableDate date)
+        - VolunteerAvailableDate toDomainModel(VolunteerAvailableDateEntity entity)
+    }
+    
+    class JpaBlockedDatesRepositoryAdapter {
+        - BlockedDatesRepository jpaRepo
+        + BlockedDates save(BlockedDates blockedDate)
+        + List<BlockedDates> findAll()
+        + Optional<BlockedDates> findByDate(LocalDate date)
+        + void deleteByDate(LocalDate date)
+        - BlockedDatesEntity toEntity(BlockedDates blockedDate)
+        - BlockedDates toDomainModel(BlockedDatesEntity entity)
+    }
+    
+    class JpaAreaOfInterestRepositoryAdapter {
+        - AreaOfInterestRepository jpaRepo
+        + AreaOfInterest save(String nickname, AreaOfInterest areas)
+        + Optional<AreaOfInterest> findByNickname(String nickname)
+        - AreaOfInterestEntity toEntity(String nickname, AreaOfInterest areas)
+        - AreaOfInterest toDomainModel(AreaOfInterestEntity entity)
+    }
+}
+
+package "Spring Data Repositories" {
+    interface UserRepository {
+        + Optional<UserEntity> findByNickname(String nickname)
+        + List<UserEntity> findByRole(String role)
+    }
+    
+    interface BookingRepository {
+        + Optional<BookingEntity> findByBookingCode(String code)
+        + List<BookingEntity> findByUserNickname(String nickname)
+        + void deleteByBookingCode(String code)
+    }
+    
+    interface VisitRepository {
+        + List<VisitEntity> findByDateBetween(LocalDate start, LocalDate end)
+        + List<VisitEntity> findByVolunteerNickname(String nickname)
+        + List<VisitEntity> findByVisitTypeId(Integer visitTypeId)
+    }
+    
+    interface LocationRepository {
+        + List<LocationEntity> findAll()
+        + Optional<LocationEntity> findByName(String name)
+    }
+    
+    interface VisitTypeRepository {
+        + List<VisitTypeEntity> findByLocationId(Integer locationId)
+        + List<VisitTypeEntity> findByVolunteersNickname(String nickname)
+    }
+    
+    interface VolunteerAvailableDateRepository {
+        + List<VolunteerAvailableDateEntity> findByVolunteerNickname(String nickname)
+        + Optional<VolunteerAvailableDateEntity> findByVolunteerNicknameAndDate(String nickname, LocalDate date)
+    }
+    
+    interface BlockedDatesRepository {
+        + Optional<BlockedDatesEntity> findByDate(LocalDate date)
+        + void deleteByDate(LocalDate date)
+    }
+    
+    interface AreaOfInterestRepository {
+        + Optional<AreaOfInterestEntity> findByUserNickname(String nickname)
+    }
+}
+
+package "JPA Entities" {
+    class UserEntity {
+        @Id @GeneratedValue
+        - Integer id
+        @NotNull @Size(max=50)
+        - String nickname
+        @NotNull @Size(max=255)
+        - String password
+        @NotNull @Size(max=20)
+        - String role
+        @ColumnDefault("true")
+        - Boolean firstLogin
+        @OneToMany(mappedBy="user")
+        - Set<BookingEntity> bookings
+        @OneToMany(mappedBy="volunteer")
+        - Set<VisitEntity> volunteerVisits
+    }
+    
+    class BookingEntity {
+        @EmbeddedId
+        - BookingId id
+        @MapsId("bookingCode")
+        - String bookingCode
+        @ManyToOne @MapsId("userId")
+        - UserEntity user
+        @ElementCollection
+        - List<String> visitorsNames
+        @ManyToOne
+        - VisitEntity visit
+    }
+    
+    class VisitEntity {
+        @Id @GeneratedValue
+        - Integer id
+        @NotNull
+        - LocalDate date
+        @ManyToOne
+        - UserEntity volunteer
+        @ManyToOne
+        - VisitTypeEntity visitType
+        @OneToMany(mappedBy="visit")
+        - Set<BookingEntity> bookings
+        @Enumerated(EnumType.STRING)
+        - VisitStatus visitStatus
+    }
+    
+    class LocationEntity {
+        @Id @GeneratedValue
+        - Integer id
+        @NotNull @Size(max=100)
+        - String name
+        @Size(max=1000)
+        - String description
+        @Embedded
+        - LocationAddressEntity address
+        @OneToMany(mappedBy="location")
+        - Set<VisitTypeEntity> visitTypes
+    }
+    
+    class VisitTypeEntity {
+        @Id @GeneratedValue
+        - Integer id
+        @NotNull @Size(max=100)
+        - String title
+        @Size(max=1000)
+        - String description
+        @Size(max=200)
+        - String meetingPoint
+        @NotNull
+        - LocalDate startDate
+        @NotNull
+        - LocalDate endDate
+        @NotNull
+        - LocalTime startTime
+        @NotNull @Positive
+        - Integer duration
+        @NotNull @Positive
+        - Integer maxParticipants
+        @NotNull @Positive
+        - Integer minParticipants
+        @NotNull
+        - Boolean isFree
+        @ElementCollection @Enumerated(EnumType.STRING)
+        - Set<DaysOfWeek> daysAvailable
+        @ManyToOne
+        - LocationEntity location
+        @ManyToMany
+        - Set<UserEntity> volunteers
+    }
+    
+    class LocationAddressEntity {
+        @Embeddable
+        @Size(max=200)
+        - String street
+        @NotNull @Size(max=100)
+        - String city
+        @NotNull @Size(max=50)
+        - String province
+        @Size(max=10)
+        - String postalCode
+    }
+    
+    class VolunteerAvailableDateEntity {
+        @Id @GeneratedValue
+        - Integer id
+        @ManyToOne
+        - UserEntity volunteer
+        @NotNull
+        - LocalDate date
+        @NotNull
+        - Boolean isAvailable
+    }
+    
+    class BlockedDatesEntity {
+        @Id @GeneratedValue
+        - Integer id
+        @NotNull
+        - LocalDate date
+        @Size(max=255)
+        - String reason
+    }
+    
+    class AreaOfInterestEntity {
+        @Id @GeneratedValue
+        - Integer id
+        @NotNull
+        - String userNickname
+        @ElementCollection
+        - Set<String> towns
+        @ElementCollection
+        - Set<String> provinces
+    }
+    
+    class BookingId {
+        @Embeddable
+        - String bookingCode
+        - Integer userId
+    }
+}
+
+' Relazioni Adapters -> Repositories (dependency)
+JpaUserRepositoryAdapter ..> UserRepository : <<uses>>
+JpaBookingAdapter ..> BookingRepository : <<uses>>
+JpaBookingAdapter ..> UserRepository : <<uses>>
+JpaVisitRepositoryAdapter ..> VisitRepository : <<uses>>
+JpaLocationRepositoryAdapter ..> LocationRepository : <<uses>>
+JpaVisitTypeRepositoryAdapter ..> VisitTypeRepository : <<uses>>
+JpaVolunteerAvailableDateRepositoryAdapter ..> VolunteerAvailableDateRepository : <<uses>>
+JpaBlockedDatesRepositoryAdapter ..> BlockedDatesRepository : <<uses>>
+JpaAreaOfInterestRepositoryAdapter ..> AreaOfInterestRepository : <<uses>>
+
+' Relazioni Repositories -> Entities (association)
+UserRepository --> UserEntity : manages 1..*
+BookingRepository --> BookingEntity : manages 1..*
+VisitRepository --> VisitEntity : manages 1..*
+LocationRepository --> LocationEntity : manages 1..*
+VisitTypeRepository --> VisitTypeEntity : manages 1..*
+VolunteerAvailableDateRepository --> VolunteerAvailableDateEntity : manages 1..*
+BlockedDatesRepository --> BlockedDatesEntity : manages 1..*
+AreaOfInterestRepository --> AreaOfInterestEntity : manages 1..*
+
+' Relazioni JPA tra Entities
+UserEntity ||--o{ BookingEntity : "1 to 0..*"
+UserEntity ||--o{ VisitEntity : "1 to 0..*"
+UserEntity }o--o{ VisitTypeEntity : "0..* to 0..*"
+
+BookingEntity }o--|| UserEntity : "0..* to 1"
+BookingEntity }o--|| VisitEntity : "0..* to 1"
+BookingEntity ||--|| BookingId : "1 to 1"
+
+VisitEntity }o--|| UserEntity : "0..* to 1"
+VisitEntity }o--|| VisitTypeEntity : "0..* to 1"
+VisitEntity ||--o{ BookingEntity : "1 to 0..*"
+
+LocationEntity ||--o{ VisitTypeEntity : "1 to 0..*"
+LocationEntity ||--|| LocationAddressEntity : "1 to 1"
+
+VisitTypeEntity }o--|| LocationEntity : "0..* to 1"
+VisitTypeEntity }o--o{ UserEntity : "0..* to 0..*"
+
+VolunteerAvailableDateEntity }o--|| UserEntity : "0..* to 1"
+
+' Note esplicative
+note top of "JPA Adapters" : <b>Pattern Adapter</b>\nConvertono tra domain models\ne JPA entities
+
+note top of "Spring Data Repositories" : <b>Spring Data JPA</b>\nRepository automatici\ncon query personalizzate
+
+note bottom of "JPA Entities" : <b>Entità JPA</b>\nAnnotazioni Hibernate\nMapping relazionale
+
+@enduml

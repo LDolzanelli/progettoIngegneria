@@ -1,0 +1,112 @@
+@startuml Architettura Generale - Centro Visite
+
+!theme toy
+skinparam packageStyle frame
+skinparam backgroundColor #f8f9fa
+skinparam roundcorner 10
+skinparam maxMessageSize 50
+skinparam wrapWidth 150
+skinparam minClassWidth 80
+skinparam defaultFontSize 9
+!define PLANTUML_LIMIT_SIZE 32768
+skinparam dpi 150
+
+' Colori personalizzati per ogni layer
+skinparam package {
+    BackgroundColor<<UI>> #e3f2fd
+    BorderColor<<UI>> #1976d2
+    BackgroundColor<<APP>> #e8f5e8
+    BorderColor<<APP>> #388e3c
+    BackgroundColor<<DOMAIN>> #fff3e0
+    BorderColor<<DOMAIN>> #f57c00
+    BackgroundColor<<ADAPTERS>> #f3e5f5
+    BorderColor<<ADAPTERS>> #7b1fa2
+    BackgroundColor<<INFRA>> #fce4ec
+    BorderColor<<INFRA>> #c2185b
+}
+
+skinparam interface {
+    BackgroundColor #ffffcc
+    BorderColor #ff9800
+    FontStyle italic
+}
+
+skinparam component {
+    BackgroundColor #ffffff
+    BorderColor #424242
+    FontSize 12
+    FontStyle bold
+}
+
+title AArchitettura Generale - Centro Visite
+
+
+' Layout ordinato dall'alto verso il basso
+package "UI Layer" as UI <<UI>> {
+    [REST Controllers] as REST
+    [Web MVC Controllers] as WEB
+}
+
+package "Application Layer" as APP <<APP>> {
+    [Business Services] as SERVICES
+    () "Ports In\n(Use Cases)" as PORTS_IN
+    () "Ports Out\n(Repository Contracts)" as PORTS_OUT
+}
+
+package "Domain Layer" as DOMAIN <<DOMAIN>> {
+    [Domain Models] as MODELS
+    [DTOs] as DTOS
+    [Enums] as ENUMS
+}
+
+package "Adapters Layer" as ADAPTERS <<ADAPTERS>> {
+    [JPA Repository Adapters] as JPA_ADAPTERS
+    [Spring Data Repositories] as JPA_REPOS
+    [Database Entities] as ENTITIES
+}
+
+package "Infrastructure" as INFRA <<INFRA>> {
+    [Spring Boot Application] as SPRING
+    [Security Configuration] as SECURITY
+    [Database Configuration] as DB_CONFIG
+}
+
+' Relazioni principali con notazione UML standard
+REST ..> PORTS_IN : <<uses>>
+WEB --> REST : <<calls>>
+
+SERVICES ..|> PORTS_IN : <<implements>>
+SERVICES ..> PORTS_OUT : <<uses>>
+
+SERVICES --> MODELS : <<uses>>
+SERVICES --> DTOS : <<uses>>
+
+JPA_ADAPTERS ..|> PORTS_OUT : <<implements>>
+JPA_ADAPTERS ..> JPA_REPOS : <<uses>>
+JPA_REPOS --> ENTITIES : manages 1..*
+
+ENTITIES ..> MODELS : <<maps to>>
+
+SPRING *-- SECURITY : <<configures>>
+SPRING *-- DB_CONFIG : <<configures>>
+SPRING ..> SERVICES : <<injects>>
+SPRING ..> JPA_ADAPTERS : <<injects>>
+
+' Note esplicative per chiarire i ruoli
+note top of PORTS_IN : <b>Contratti Business</b>\nDefiniscono cosa può fare\nil sistema (interfacce)
+
+note top of PORTS_OUT : <b>Contratti Persistenza</b>\nDefiniscono come accedere\nai dati (interfacce)
+
+note top of REST : <b>API Controllers</b>\nUsano Use Cases via DI\nNon dipendono da Services
+
+note top of WEB : <b>View Controllers</b>\nChiamano REST API\nNon accedono ai Services
+
+note top of SERVICES : <b>Implementazioni</b>\nEseguono la logica business\n(classi concrete)
+
+note top of JPA_ADAPTERS : <b>Implementazioni</b>\nConvertono tra dominio\ne persistenza (classi concrete)
+
+note bottom of ENTITIES : <b>Entità JPA</b>\nUserEntity, BookingEntity\nVisitEntity, LocationEntity
+
+note bottom of MODELS : <b>Entità Core</b>\nUser, Booking, Visit\nLocation, VisitType
+
+@enduml
