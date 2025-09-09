@@ -29,18 +29,27 @@ public class VolunteersAvailabilityService
     private final VolunteerAvailableDateRepositoryPort repository;
     private final Clock clock;
 
-    // ==== CONTROLLI DI STATO ====
 
-    /**
-     * Controlla se è possibile abilitare la disponibilità dei volontari per il mese
-     * i+2.
-     * Con i = mese corrente, i vincoli sono:
-     * 1. La disponibilità dei volontari deve essere chiusa per il mese i+1.
-     * 2. Il piano di visita per il mese i+1 deve essere stato creato.
-     * 3. Il giorno corrente deve essere compreso tra il 16 del mese i e il 15 del
-     * mese i+1.
+    /*
+     Controlla se è possibile abilitare la disponibilità dei volontari per il mese
+     i+2.
+     Con i = mese corrente, i vincoli sono:
+     1. La disponibilità dei volontari deve essere chiusa per il mese i+1.
+     2. Il piano di visita per il mese i+1 deve essere stato creato.
+     3. Il giorno corrente deve essere compreso tra il 16 del mese i e il 15 del
+     mese i+1.
      */
     @Override
+    /*@ also
+      @ requires statePort != null && visitPlanStatePort != null && clock != null;
+      @ ensures \result == (!statePort.isVolunteerAvailabilityOpen(LocalDate.now(clock).plusMonths(1).getMonthValue(), 
+      @                                                           LocalDate.now(clock).plusMonths(1).getYear()) &&
+      @                    visitPlanStatePort.isVisitPlanCreated(LocalDate.now(clock).plusMonths(1).getMonthValue(),
+      @                                                         LocalDate.now(clock).plusMonths(1).getYear()) &&
+      @                    !statePort.isVolunteerAvailabilityOpen(LocalDate.now(clock).plusMonths(2).getMonthValue(),
+      @                                                          LocalDate.now(clock).plusMonths(2).getYear()) &&
+      @                    LocalDate.now(clock).getDayOfMonth() >= 16);
+      @*/
     public boolean canEnableAvailability() {
         LocalDate now = LocalDate.now(clock);
         int today = now.getDayOfMonth();
@@ -60,14 +69,20 @@ public class VolunteersAvailabilityService
     }
 
 
-    /**
-     * Controlla se è possibile disabilitare la disponibilità dei volontari per il
-     * mese i+1.
-     * Con i = mese corrente, i vincoli sono:
-     * 1. La disponibilità dei volontari deve essere aperta per il mese i+1.
-     * 2. Il giorno corrente deve essere dopo il 15 del mese i.
+    /*
+      Controlla se è possibile disabilitare la disponibilità dei volontari per il
+      mese i+1.
+      Con i = mese corrente, i vincoli sono:
+      1. La disponibilità dei volontari deve essere aperta per il mese i+1.
+      2. Il giorno corrente deve essere dopo il 15 del mese i.
      */
     @Override
+    /*@ also
+      @ requires statePort != null && clock != null;
+      @ ensures \result == (statePort.isVolunteerAvailabilityOpen(LocalDate.now(clock).plusMonths(1).getMonthValue(),
+      @                                                          LocalDate.now(clock).plusMonths(1).getYear()) &&
+      @                    LocalDate.now(clock).getDayOfMonth() > 15);
+      @*/
     public boolean canDisableAvailability() {
         LocalDate now = LocalDate.now(clock);
         int today = now.getDayOfMonth();
@@ -78,6 +93,12 @@ public class VolunteersAvailabilityService
 
 
     @Override
+    /*@ also
+      @ requires canEnableAvailability();
+      @ ensures statePort.isVolunteerAvailabilityOpen(YearMonth.now(clock).plusMonths(2).getMonthValue(),
+      @                                               YearMonth.now(clock).plusMonths(2).getYear());
+      @ signals (IllegalStateException e) !canEnableAvailability();
+      @*/
     public void enableAvailability() {
         if (!canEnableAvailability()) {
             YearMonth target = YearMonth.now(clock).plusMonths(2);
@@ -92,6 +113,12 @@ public class VolunteersAvailabilityService
 
 
     @Override
+    /*@ also
+      @ requires canDisableAvailability();
+      @ ensures !statePort.isVolunteerAvailabilityOpen(YearMonth.now(clock).plusMonths(1).getMonthValue(),
+      @                                                YearMonth.now(clock).plusMonths(1).getYear());
+      @ signals (IllegalStateException e) !canDisableAvailability();
+      @*/
     public void disableAvailability() {
         if (!canDisableAvailability()) {
             YearMonth target = YearMonth.now(clock).plusMonths(1);
@@ -105,18 +132,33 @@ public class VolunteersAvailabilityService
 
 
     @Override
+    /*@ also
+      @ ensures 1 <= \result && \result <= 12;
+      @ ensures \result == YearMonth.now(clock).plusMonths(2).getMonthValue();
+      @*/
     public int getMonthToEnable() {
         return YearMonth.now(clock).plusMonths(2).getMonthValue();
     }
 
 
     @Override
+    /*@ also
+      @ ensures 1 <= \result && \result <= 12;
+      @ ensures \result == YearMonth.now(clock).plusMonths(1).getMonthValue();
+      @*/
     public int getMonthToDisable() {
         return YearMonth.now(clock).plusMonths(1).getMonthValue();
     }
 
 
     @Override
+    /*@ also
+      @ ensures \result == (LocalDate.now(clock).getDayOfMonth() >= 16 ?
+      @                    statePort.isVolunteerAvailabilityOpen(LocalDate.now(clock).plusMonths(2).getMonthValue(),
+      @                                                         LocalDate.now(clock).plusMonths(2).getYear()) :
+      @                    statePort.isVolunteerAvailabilityOpen(LocalDate.now(clock).plusMonths(1).getMonthValue(),
+      @                                                         LocalDate.now(clock).plusMonths(1).getYear()));
+      @*/
     public boolean isAvailabilityEnabled() {
 
         LocalDate now = LocalDate.now(clock);
@@ -131,6 +173,13 @@ public class VolunteersAvailabilityService
 
 
     @Override
+    /*@ also
+      @ requires volunteerId > 0 && availableDates != null;
+      @ requires isAvailabilityEnabled();
+      @ ensures (\forall LocalDate date; availableDates.contains(date);
+      @         getAvailability(volunteerId, getTargetMonth()).contains(date));
+      @ signals (IllegalStateException e) !isAvailabilityEnabled();
+      @*/
     public void updateAvailability(int volunteerId, Set<LocalDate> availableDates) {
 
         Month target = getTargetMonth();
@@ -147,6 +196,11 @@ public class VolunteersAvailabilityService
 
 
     @Override
+    /*@ also
+      @ requires volunteerId > 0;
+      @ ensures \result != null;
+      @ ensures (\forall LocalDate date; \result.contains(date); date != null);
+      @*/
     public Set<LocalDate> getAvailability(int volunteerId) {
         return repository.findByVolunteerId(volunteerId).stream().map(VolunteerAvailableDate::getAvailableDate)
                 .collect(Collectors.toSet());
@@ -156,6 +210,12 @@ public class VolunteersAvailabilityService
     // gestisce anni diversi?
     // valutare se sostituire Month con un YearMonth
     @Override
+    /*@ also
+      @ requires volunteerId > 0 && month != null;
+      @ ensures \result != null;
+      @ ensures (\forall LocalDate date; \result.contains(date); 
+      @         date != null && date.getMonth() == month);
+      @*/
     public Set<LocalDate> getAvailability(int volunteerId, Month month) {
         return repository.findByVolunteerId(volunteerId).stream().filter(v -> v.getAvailableDate().getMonth() == month)
                 .map(VolunteerAvailableDate::getAvailableDate).collect(Collectors.toSet());
@@ -163,6 +223,12 @@ public class VolunteersAvailabilityService
 
 
     @Override
+    /*@ also
+      @ ensures \result != null;
+      @ ensures \result == Month.of(LocalDate.now(clock).getDayOfMonth() < 16 ?
+      @                            ((LocalDate.now(clock).getMonthValue() % 12) + 1) :
+      @                            (((LocalDate.now(clock).getMonthValue() + 1) % 12) + 1));
+      @*/
     public Month getTargetMonth() {
         LocalDate today = LocalDate.now(clock);
         int base = today.getDayOfMonth() < 16 ? today.getMonthValue() : today.plusMonths(1).getMonthValue();

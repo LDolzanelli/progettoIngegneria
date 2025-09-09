@@ -32,6 +32,14 @@ public class VisitDayService implements VisitDaysUseCase {
     private final Clock clock;
 
     @Override
+    /*@ also
+      @ requires visitRepository != null && visitTypeRepository != null && 
+      @          blockedDatesRepository != null && clock != null;
+      @ ensures (\forall VisitType vt; visitTypeRepository.findAll().contains(vt);
+      @          (\exists Visit v; visitRepository.findAll().contains(v) &&
+      @           v.getVisitType().equals(vt) && v.getDate().getMonthValue() == month &&
+      @           v.getVisitStatus() == VisitStatus.PROPOSED));
+      @*/
     public void createDefaultVisitDays(int month) {
 
         BlockedDates blockedDates = blockedDatesRepository.loadAll();
@@ -48,15 +56,15 @@ public class VisitDayService implements VisitDaysUseCase {
         LocalDate startOfMonth = targetMonth.atDay(1);
         LocalDate endOfMonth = targetMonth.atEndOfMonth();
 
-        List<VisitType> visitTypes = visitTypeRepository.findAll().stream()
-                .filter(visitType -> !visitType.getStartDate().isAfter(endOfMonth)
-                        && !visitType.getEndDate().isBefore(startOfMonth))
-                .toList();
+        List<VisitType> visitTypes =
+                visitTypeRepository.findAll().stream().filter(visitType -> !visitType.getStartDate().isAfter(endOfMonth)
+                        && !visitType.getEndDate().isBefore(startOfMonth)).toList();
 
         for (VisitType visitType : visitTypes) {
             createVisitsForType(visitType, startOfMonth, endOfMonth, blockedDates);
         }
     }
+
 
     private void createVisitsForType(VisitType visitType, LocalDate startOfMonth, LocalDate endOfMonth,
             BlockedDates blockedDates) {
@@ -77,13 +85,27 @@ public class VisitDayService implements VisitDaysUseCase {
         }
     }
 
+
     @Override
+    /*@ also
+      @ ensures (\forall Visit v; v.getDate().getMonthValue() == month;
+      @          visitRepository.findAll().contains(v) && v.getVisitStatus() != null);
+      @*/
     public void updateVisitDays(int month) {
         // TODO: implementare la logica per aggiornare i giorni di visita (con il piano
         // di visita)
     }
 
+
     @Override
+    /*@ also
+      @ ensures \result.size() >= 0;
+      @ ensures (\forall Visit v; \result.contains(v);
+      @          v.getVolunteer().getNickname().equals(volunteerNickname) &&
+      @          v.getVisitStatus() == VisitStatus.CONFIRMED);
+      @ ensures userInfoService.findByNickname(volunteerNickname).isPresent();
+      @ ensures userInfoService.findByNickname(volunteerNickname).get().getRole() == Role.VOLUNTEER;
+      @*/
     public List<Visit> getConfirmedVisitsPerVolunteer(String volunteerNickname) {
 
         User volunteer = userInfoService.findByNickname(volunteerNickname)
@@ -97,7 +119,13 @@ public class VisitDayService implements VisitDaysUseCase {
 
     }
 
+
     @Override
+    /*@ also
+      @ ensures \result != null;
+      @ ensures \result.getId() == visitId;
+      @ ensures visitRepository.findById(visitId).isPresent();
+      @*/
     public Visit getVisitById(int visitId) {
         return visitRepository.findById(visitId)
                 .orElseThrow(() -> new IllegalArgumentException("Visita non trovata con id: " + visitId));

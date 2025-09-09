@@ -1,6 +1,5 @@
 package it.unibs.ingsw.destinazioni.application.services;
 
-import java.time.Clock;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,174 +24,171 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class BookingService implements BookingVisitsUseCase {
 
-    private final BookingRepositoryPort bookingRepository;
-    private final GetUserInfoUseCase userInfoService;
-    private final VisitRepositoryPort visitRepository;
-    private final Clock clock;
+  private final BookingRepositoryPort bookingRepository;
+  private final GetUserInfoUseCase userInfoService;
+  private final VisitRepositoryPort visitRepository;
 
-    @Override
-    /*@ also
-      @ requires bookingRepository != null && userInfoService != null && visitRepository != null;
-      @ ensures (\exists Booking b; getBookingsByVisit(visit).contains(b);
-      @          b.getUser().getId().equals(user.getId()) && 
-      @          b.getVisitorsNames().size() == visitorsNames.size());
-      @ ensures visit.getAvailableSeats() == \old(visit.getAvailableSeats()) - visitorsNames.size();
-      @*/
-    public void bookVisit(Visit visit, User user, List<String> visitorsNames) {
-        String bookingCode;
+  @Override
+  /*@ also
+    @ requires bookingRepository != null && userInfoService != null && visitRepository != null;
+    @ ensures (\exists Booking b; getBookingsByVisit(visit).contains(b);
+    @          b.getUser().getId().equals(user.getId()) && 
+    @          b.getVisitorsNames().size() == visitorsNames.size());
+    @ ensures visit.getAvailableSeats() == \old(visit.getAvailableSeats()) - visitorsNames.size();
+    @*/
+  public void bookVisit(Visit visit, User user, List<String> visitorsNames) {
+    String bookingCode;
 
-        do {
-            bookingCode = BookingCodeGenerator.generateBookingCode();
-        } while (bookingRepository.findByBookingCode(bookingCode).isPresent());
+    do {
+      bookingCode = BookingCodeGenerator.generateBookingCode();
+    } while (bookingRepository.findByBookingCode(bookingCode).isPresent());
 
-        userInfoService.findById(user.getId())
-                .orElseThrow(() -> new IllegalArgumentException("User with id " + user.getId() + " not found"));
+    userInfoService.findById(user.getId())
+        .orElseThrow(() -> new IllegalArgumentException("User with id " + user.getId() + " not found"));
 
-        visitRepository.findById(visit.getId())
-                .orElseThrow(() -> new IllegalArgumentException("Visit with id " + visit.getId() + " not found"));
+    visitRepository.findById(visit.getId())
+        .orElseThrow(() -> new IllegalArgumentException("Visit with id " + visit.getId() + " not found"));
 
-        if (user.getRole() != Role.FINAL_USER) {
-            throw new IllegalArgumentException("Only users with role FINAL_USER can book a visit");
-        }
-
-        int visitorsCount = visitorsNames.size();
-
-        if (visitorsCount > visit.getAvailableSeats()) {
-            throw new BookingException(BookingErrorCode.NOT_ENOUGH_SEATS,
-                    "Not enough available seats for this visit, available: " + visit.getAvailableSeats()
-                            + ", requested: " + visitorsCount);
-        }
-
-        Booking booking = new Booking(bookingCode, user, visitorsNames);
-
-        var updatedBookings = new ArrayList<>(visit.getBookings());
-
-        updatedBookings.add(booking);
-        visit.setBookings(updatedBookings);
-
-        updateVisit(visit);
+    if (user.getRole() != Role.FINAL_USER) {
+      throw new IllegalArgumentException("Only users with role FINAL_USER can book a visit");
     }
 
+    int visitorsCount = visitorsNames.size();
 
-    @Override
-    /*@ also
-      @ ensures \result.size() >= 0;
-      @ ensures (\forall Booking b; \result.contains(b); 
-      @          (\exists int visitId; visitId == visit.getId(); 
-      @           bookingRepository.findAllByVisitId(visitId).contains(b)));
-      @*/
-    public List<Booking> getBookingsByVisit(Visit visit) {
-
-        visitRepository.findById(visit.getId())
-                .orElseThrow(() -> new IllegalArgumentException("Visit with id " + visit.getId() + " not found"));
-
-        return bookingRepository.findAllByVisitId(visit.getId());
+    if (visitorsCount > visit.getAvailableSeats()) {
+      throw new BookingException(BookingErrorCode.NOT_ENOUGH_SEATS,
+          "Not enough available seats for this visit, available: " + visit.getAvailableSeats() + ", requested: "
+              + visitorsCount);
     }
 
+    Booking booking = new Booking(bookingCode, user, visitorsNames);
 
-    @Override
-    /*@ also
-      @ ensures \result.size() >= 0;
-      @ ensures (\forall Booking b; \result.contains(b); b.getUser().getId().equals(user.getId()));
-      @*/
-    public List<Booking> getBookingsByUser(User user) {
-        userInfoService.findById(user.getId())
-                .orElseThrow(() -> new IllegalArgumentException("User with id " + user.getId() + " not found"));
+    var updatedBookings = new ArrayList<>(visit.getBookings());
 
-        return bookingRepository.findAllByUserId(user.getId());
+    updatedBookings.add(booking);
+    visit.setBookings(updatedBookings);
+
+    updateVisit(visit);
+  }
+
+
+  @Override
+  /*@ also
+    @ ensures \result.size() >= 0;
+    @ ensures (\forall Booking b; \result.contains(b); 
+    @          (\exists int visitId; visitId == visit.getId(); 
+    @           bookingRepository.findAllByVisitId(visitId).contains(b)));
+    @*/
+  public List<Booking> getBookingsByVisit(Visit visit) {
+
+    visitRepository.findById(visit.getId())
+        .orElseThrow(() -> new IllegalArgumentException("Visit with id " + visit.getId() + " not found"));
+
+    return bookingRepository.findAllByVisitId(visit.getId());
+  }
+
+
+  @Override
+  /*@ also
+    @ ensures \result.size() >= 0;
+    @ ensures (\forall Booking b; \result.contains(b); b.getUser().getId().equals(user.getId()));
+    @*/
+  public List<Booking> getBookingsByUser(User user) {
+    userInfoService.findById(user.getId())
+        .orElseThrow(() -> new IllegalArgumentException("User with id " + user.getId() + " not found"));
+
+    return bookingRepository.findAllByUserId(user.getId());
+  }
+
+
+  @Override
+  /*@ also
+    @ ensures !(\exists Booking b; getBookingsByUser(getBookingByCode(bookingCode).getUser()).contains(b);
+    @           b.getBookingCode().equals(bookingCode));
+    @ ensures getVisitByBookingCode(bookingCode).getAvailableSeats() > 
+    @         \old(getVisitByBookingCode(bookingCode).getAvailableSeats());
+    @*/
+  public void cancelBooking(String bookingCode, int userId) {
+    Booking booking = bookingRepository.findByBookingCode(bookingCode).orElseThrow(
+        () -> new BookingException(BookingErrorCode.BOOKING_NOT_FOUND, "No booking found with code: " + bookingCode));
+
+    if (booking.getUser().getId() != userId) {
+      throw new BookingException(BookingErrorCode.USER_NOT_AUTHORIZED,
+          "User with id " + userId + " is not authorized to cancel this booking");
     }
 
-
-    @Override
-    /*@ also
-      @ ensures !(\exists Booking b; getBookingsByUser(getBookingByCode(bookingCode).getUser()).contains(b);
-      @           b.getBookingCode().equals(bookingCode));
-      @ ensures getVisitByBookingCode(bookingCode).getAvailableSeats() > 
-      @         \old(getVisitByBookingCode(bookingCode).getAvailableSeats());
-      @*/
-    public void cancelBooking(String bookingCode, int userId) {
-        Booking booking = bookingRepository.findByBookingCode(bookingCode)
-                .orElseThrow(() -> new BookingException(BookingErrorCode.BOOKING_NOT_FOUND,
-                        "No booking found with code: " + bookingCode));
-
-        if (booking.getUser().getId() != userId) {
-            throw new BookingException(BookingErrorCode.USER_NOT_AUTHORIZED,
-                    "User with id " + userId + " is not authorized to cancel this booking");
-        }
-
-        if (!isThisBookingCancellable(bookingCode)) {
-            throw new BookingException(BookingErrorCode.BOOKING_NOT_CANCELLABLE, "Booking with code " + bookingCode
-                    + " is not cancellable (less than 3 days to the visit or visit status does not allow cancellations)");
-        }
-
-        Visit visit = visitRepository.findByBookingCode(bookingCode)
-                .orElseThrow(() -> new IllegalArgumentException("No visit found for booking code: " + bookingCode));
-
-        List<Booking> updatedBookings =
-                visit.getBookings().stream().filter(b -> !b.getBookingCode().equals(bookingCode)).toList();
-
-        visit.setBookings(updatedBookings);
-
-        updateVisit(visit);
+    if (!isThisBookingCancellable(bookingCode)) {
+      throw new BookingException(BookingErrorCode.BOOKING_NOT_CANCELLABLE, "Booking with code " + bookingCode
+          + " is not cancellable (less than 3 days to the visit or visit status does not allow cancellations)");
     }
 
+    Visit visit = visitRepository.findByBookingCode(bookingCode)
+        .orElseThrow(() -> new IllegalArgumentException("No visit found for booking code: " + bookingCode));
 
-    @Override
-    /*@ also
-      @ ensures \result == (getVisitByBookingCode(bookingCode).getVisitStatus() == VisitStatus.PROPOSED ||
-      @                    getVisitByBookingCode(bookingCode).getVisitStatus() == VisitStatus.FULL);
-      @*/
-    public boolean isThisBookingCancellable(String bookingCode) {
-        Visit visit = visitRepository.findByBookingCode(bookingCode)
-                .orElseThrow(() -> new BookingException(BookingErrorCode.BOOKING_NOT_FOUND,
-                        "No booking found with code: " + bookingCode));
+    List<Booking> updatedBookings =
+        visit.getBookings().stream().filter(b -> !b.getBookingCode().equals(bookingCode)).toList();
 
-        // LocalDate today = LocalDate.now(clock);  // Rimossa variabile inutilizzata
+    visit.setBookings(updatedBookings);
 
-        return /*
-                * visit.daysUntilVisit(today) > 3
-                * &&
-                */ (visit.getVisitStatus() == VisitStatus.PROPOSED || visit.getVisitStatus() == VisitStatus.FULL);
-    }
+    updateVisit(visit);
+  }
 
 
-    @Override
-    /*@ also
-      @ ensures \result.getBookingCode().equals(bookingCode);
-      @ ensures bookingRepository.findByBookingCode(bookingCode).isPresent();
-      @*/
-    public Booking getBookingByCode(String bookingCode) {
-        return bookingRepository.findByBookingCode(bookingCode)
-                .orElseThrow(() -> new BookingException(BookingErrorCode.BOOKING_NOT_FOUND,
-                        "Booking with code " + bookingCode + " not found"));
+  @Override
+  /*@ also
+    @ ensures \result == (getVisitByBookingCode(bookingCode).getVisitStatus() == VisitStatus.PROPOSED ||
+    @                    getVisitByBookingCode(bookingCode).getVisitStatus() == VisitStatus.FULL);
+    @*/
+  public boolean isThisBookingCancellable(String bookingCode) {
+    Visit visit = visitRepository.findByBookingCode(bookingCode).orElseThrow(
+        () -> new BookingException(BookingErrorCode.BOOKING_NOT_FOUND, "No booking found with code: " + bookingCode));
 
-    }
+    // LocalDate today = LocalDate.now(clock);  // Rimossa variabile inutilizzata
 
-
-    private void updateVisit(Visit visit) {
-        LocalDate visitDate = visit.getDate();
-        VisitStatus status = visit.getVisitStatus();
-        var visitType = visit.getVisitType();
-
-        if (visitDate == null || status == null || visitType == null)
-            throw new IllegalArgumentException("Visit data incomplete");
-
-        VisitSchedulerService.setStatusToFullIfProposedVisitFull(visit);
-        VisitSchedulerService.setStatusToProposedIfFullVisitNoLongerFull(visit);
-
-        visitRepository.save(visit);
-    }
+    return /*
+            * visit.daysUntilVisit(today) > 3
+            * &&
+            */ (visit.getVisitStatus() == VisitStatus.PROPOSED || visit.getVisitStatus() == VisitStatus.FULL);
+  }
 
 
-    @Override
-    /*@ also
-      @ ensures \result != null;
-      @ ensures getBookingsByVisit(\result).stream().anyMatch(b -> b.getBookingCode().equals(bookingCode));
-      @*/
-    public Visit getVisitByBookingCode(String bookingCode) {
+  @Override
+  /*@ also
+    @ ensures \result.getBookingCode().equals(bookingCode);
+    @ ensures bookingRepository.findByBookingCode(bookingCode).isPresent();
+    @*/
+  public Booking getBookingByCode(String bookingCode) {
+    return bookingRepository.findByBookingCode(bookingCode)
+        .orElseThrow(() -> new BookingException(BookingErrorCode.BOOKING_NOT_FOUND,
+            "Booking with code " + bookingCode + " not found"));
 
-        return visitRepository.findByBookingCode(bookingCode)
-                .orElseThrow(() -> new IllegalArgumentException("Visit not found"));
-    }
+  }
+
+
+  private void updateVisit(Visit visit) {
+    LocalDate visitDate = visit.getDate();
+    VisitStatus status = visit.getVisitStatus();
+    var visitType = visit.getVisitType();
+
+    if (visitDate == null || status == null || visitType == null)
+      throw new IllegalArgumentException("Visit data incomplete");
+
+    VisitSchedulerService.setStatusToFullIfProposedVisitFull(visit);
+    VisitSchedulerService.setStatusToProposedIfFullVisitNoLongerFull(visit);
+
+    visitRepository.save(visit);
+  }
+
+
+  @Override
+  /*@ also
+    @ ensures \result != null;
+    @ ensures getBookingsByVisit(\result).stream().anyMatch(b -> b.getBookingCode().equals(bookingCode));
+    @*/
+  public Visit getVisitByBookingCode(String bookingCode) {
+
+    return visitRepository.findByBookingCode(bookingCode)
+        .orElseThrow(() -> new IllegalArgumentException("Visit not found"));
+  }
 
 }

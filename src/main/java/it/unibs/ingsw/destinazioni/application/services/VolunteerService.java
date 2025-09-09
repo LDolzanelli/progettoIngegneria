@@ -21,6 +21,12 @@ public class VolunteerService implements ManageVolunteersUseCase {
     private final UserRepositoryPort userRepository;
 
     @Override
+    /*@ also
+      @ requires visitTypeService != null;
+      @ ensures \result == (\forall VisitType vt; visitTypeService.listAll().contains(vt);
+      @                    (!vt.getVolunteers().stream().anyMatch(v -> v.getId().equals(volunteer.getId())) ||
+      @                     visitTypeService.canBeRemoved(vt.getId())));
+      @*/
     public boolean canBeRemoved(User volunteer) {
         if (volunteer.getRole() != Role.VOLUNTEER) {
             throw new IllegalArgumentException("L'utente non è un volontario");
@@ -33,10 +39,21 @@ public class VolunteerService implements ManageVolunteersUseCase {
                 return false;
             }
         }
-        return true; 
+        return true;
     }
 
+
     @Override
+    /*@ also
+      @ requires visitTypeService != null && userRepository != null;
+      @ ensures !userRepository.findByNickname(volunteer.getNickname()).isPresent();
+      @ ensures (\forall VisitType vt; visitTypeService.listAll().contains(vt);
+      @          !vt.getVolunteers().stream().anyMatch(v -> 
+      @           v.getNickname().equals(volunteer.getNickname())));
+      @ ensures (\forall VisitType vt; \old(vt.getVolunteers().size()) == 1 &&
+      @          \old(vt.getVolunteers().get(0).getNickname().equals(volunteer.getNickname()));
+      @          !visitTypeService.listAll().contains(vt));
+      @*/
     public void removeVolunteer(User volunteer) {
         if (!canBeRemoved(volunteer)) {
             throw new IllegalArgumentException("Il volontario non può essere rimosso");
