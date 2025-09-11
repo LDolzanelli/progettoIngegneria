@@ -14,7 +14,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.client.RestTemplate;
 
-import it.unibs.ingsw.destinazioni.config.AdjustableClock;
 import it.unibs.ingsw.destinazioni.domain.dto.LoginResponseDTO;
 import lombok.RequiredArgsConstructor;
 
@@ -25,7 +24,7 @@ public class HomeController {
     private final RestTemplate restTemplate;
     private final Clock clock;
 
-    @GetMapping("/")
+    @GetMapping({"/", "/home"})
     public String home(@AuthenticationPrincipal UserDetails principal, Model model) {
         String nickname = principal.getUsername();
 
@@ -103,7 +102,7 @@ public class HomeController {
         }
 
 
-        return "/home";
+        return "home";
     }
 }
 

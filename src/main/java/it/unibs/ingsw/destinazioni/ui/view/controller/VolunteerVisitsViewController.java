@@ -1,15 +1,17 @@
 package it.unibs.ingsw.destinazioni.ui.view.controller;
 
-import lombok.RequiredArgsConstructor;
+import java.util.List;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.client.RestTemplate;
-import java.util.List;
-import it.unibs.ingsw.destinazioni.domain.dto.VolunteerVisitSummaryDTO;
+
 import it.unibs.ingsw.destinazioni.domain.dto.VisitInformationDTO;
+import it.unibs.ingsw.destinazioni.domain.dto.VolunteerVisitSummaryDTO;
+import lombok.RequiredArgsConstructor;
 
 @Controller
 @RequiredArgsConstructor
@@ -31,8 +33,9 @@ public class VolunteerVisitsViewController {
 
         model.addAttribute("visits", visits);
         model.addAttribute("volunteerNickname", volunteerNickname);
-        return "/confirmed-visits";
+        return "confirmed-visits";
     }
+
 
     @GetMapping("/visit-details/{visitId}")
     public String visitDetails(@PathVariable Integer visitId, Model model) {
@@ -46,6 +49,6 @@ public class VolunteerVisitsViewController {
         }
 
         model.addAttribute("visit", visit);
-        return "/visit-details";
+        return "visit-details";
     }
 }
