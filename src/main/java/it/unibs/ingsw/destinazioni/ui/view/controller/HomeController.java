@@ -11,42 +11,41 @@ import org.springframework.web.client.RestTemplate;
 @Controller
 public class HomeController {
 
-    private final RestTemplate restTemplate = new RestTemplate();
+  private final RestTemplate restTemplate = new RestTemplate();
 
+  @GetMapping({ "/", "/home" })
+  public String home(@AuthenticationPrincipal UserDetails principal, Model model) {
+    String nickname = principal.getUsername();
 
-    @GetMapping("/")
-    public String home(@AuthenticationPrincipal UserDetails principal, Model model) {
-        String nickname = principal.getUsername();
+    String url = "http://localhost:8080/api/";
+    String urlNickname = url + "users/info/" + nickname;
 
-        String url = "http://localhost:8080/api/";
-        String urlNickname = url + "users/info/" + nickname;
+    LoginResponseDTO userInfo;
 
-        LoginResponseDTO userInfo;
-
-        try {
-            userInfo = restTemplate.getForObject(urlNickname, LoginResponseDTO.class);
-        } catch (Exception e) {
-            throw new IllegalStateException("Errore nel recupero dell'utente: " + nickname, e);
-        }
-
-        //Al primo login viene controllato il ruolo.
-        if (userInfo.firstLogin()) {
-            String urlRedirect = "redirect:/change-credentials?role=";
-            return urlRedirect + userInfo.role();
-        }
-
-        //Se l'utente è un configuratore, e non esiste ancora un corpo dati, viene reindirizzato ad una pagina
-        //che gli permette di inserire location
-        if (userInfo.role().equalsIgnoreCase("configurator")) {
-            String urlArea = url + "area-of-interest/isEmpty";
-            Boolean exists = restTemplate.getForObject(urlArea, Boolean.class);
-            if(Boolean.TRUE.equals(exists)) {
-                return "redirect:/insert-areas-of-interest";
-            }
-        }
-
-        model.addAttribute("username", userInfo.nickname());
-        return "home";
+    try {
+      userInfo = restTemplate.getForObject(urlNickname, LoginResponseDTO.class);
+    } catch (Exception e) {
+      throw new IllegalStateException("Errore nel recupero dell'utente: " + nickname, e);
     }
-}
 
+    // Al primo login viene controllato il ruolo.
+    if (userInfo.firstLogin()) {
+      String urlRedirect = "redirect:/change-credentials?role=";
+      return urlRedirect + userInfo.role();
+    }
+
+    // Se l'utente è un configuratore, e non esiste ancora un corpo dati, viene
+    // reindirizzato ad una pagina
+    // che gli permette di inserire location
+    if (userInfo.role().equalsIgnoreCase("configurator")) {
+      String urlArea = url + "area-of-interest/isEmpty";
+      Boolean exists = restTemplate.getForObject(urlArea, Boolean.class);
+      if (Boolean.TRUE.equals(exists)) {
+        return "redirect:/insert-areas-of-interest";
+      }
+    }
+
+    model.addAttribute("username", userInfo.nickname());
+    return "home";
+  }
+}
