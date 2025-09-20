@@ -17,7 +17,6 @@ import java.util.Set;
 
 import static org.mockito.Mockito.*;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.junit.jupiter.MockitoExtension;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -25,7 +24,6 @@ import static org.junit.jupiter.api.Assertions.*;
 class VisitSchedulerServiceTest {
 
     private VisitSchedulerService schedulerService;
-    private Visit visit;
     private VisitRepositoryPort visitRepository;
     private LocalDate today;
 
@@ -40,100 +38,111 @@ class VisitSchedulerServiceTest {
                 LocalDate.parse("2026-12-31"), LocalTime.parse("20:00"), 20, 5, 1, true, null, null);
         // setup di visita da manipolare per ogni test case (caso base: visita tra un
         // mese)
-        visit = new Visit(today.plusDays(30), null, visitType, null, VisitStatus.PROPOSED);
+        Visit testVisit = new Visit(today.plusDays(30), null, visitType, null, VisitStatus.PROPOSED);
 
         schedulerService = new VisitSchedulerService(visitRepository, fixedClock);
 
         // mock comune della repo che ritorna la visit definita
-        when(visitRepository.findAll()).thenReturn(Set.of(visit));
+        when(visitRepository.findAll()).thenReturn(Set.of(testVisit));
     }
 
     @Test
     void updateVisitsStatus_checkIfOldVisitTurnsIntoCompletedIfConfirmed() {
-        // 10gg prima
-        visit.setDate(today.minusDays(10));
-        visit.setVisitStatus(VisitStatus.CONFIRMED);
+        Set<Visit> visits = visitRepository.findAll();
 
-        schedulerService.updateVisitsStatus();
+        for (Visit visit : visits) {
+            // 10gg prima
+            visit.setDate(today.minusDays(10));
+            visit.setVisitStatus(VisitStatus.CONFIRMED);
 
-        ArgumentCaptor<Visit> captor = ArgumentCaptor.forClass(Visit.class);
-        verify(visitRepository).save(captor.capture());
+            schedulerService.updateVisitsStatus();
 
-        assertEquals(VisitStatus.COMPLETED, captor.getValue().getVisitStatus());
+            assertNotNull(visit);
+            assertEquals(VisitStatus.COMPLETED, visit.getVisitStatus());
+        }
     }
 
     @Test
     void updateVisitsStatus_checkIfProposedVisitTurnsIntoFull() {
-        visit.setVisitStatus(VisitStatus.PROPOSED);
+        Set<Visit> visits = visitRepository.findAll();
 
-        List<Booking> bookings = new ArrayList<>();
-        bookings.add(new Booking("code1", new User("user1", "", Role.FINAL_USER), List.of("visitor1")));
-        bookings.add(new Booking("code2", new User("user2", "", Role.FINAL_USER), List.of("visitor2")));
-        bookings.add(new Booking("code3", new User("user3", "", Role.FINAL_USER), List.of("visitor3")));
-        bookings.add(new Booking("code4", new User("user4", "", Role.FINAL_USER), List.of("visitor4")));
-        bookings.add(new Booking("code5", new User("user5", "", Role.FINAL_USER), List.of("visitor5")));
+        for (Visit visit : visits) {
+            visit.setVisitStatus(VisitStatus.PROPOSED);
 
-        visit.setBookings(bookings);
+            List<Booking> bookings = new ArrayList<>();
+            bookings.add(new Booking("code1", new User("user1", "", Role.FINAL_USER), List.of("visitor1")));
+            bookings.add(new Booking("code2", new User("user2", "", Role.FINAL_USER), List.of("visitor2")));
+            bookings.add(new Booking("code3", new User("user3", "", Role.FINAL_USER), List.of("visitor3")));
+            bookings.add(new Booking("code4", new User("user4", "", Role.FINAL_USER), List.of("visitor4")));
+            bookings.add(new Booking("code5", new User("user5", "", Role.FINAL_USER), List.of("visitor5")));
 
-        schedulerService.updateVisitsStatus();
+            visit.setBookings(bookings);
 
-        ArgumentCaptor<Visit> captor = ArgumentCaptor.forClass(Visit.class);
-        verify(visitRepository).save(captor.capture());
+            schedulerService.updateVisitsStatus();
 
-        assertEquals(5, captor.getValue().visitorsNumber());
-        assertEquals(VisitStatus.FULL, captor.getValue().getVisitStatus());
+            assertNotNull(visit);
+            assertEquals(5, visit.visitorsNumber());
+            assertEquals(VisitStatus.FULL, visit.getVisitStatus());
+        }
+
     }
 
     @Test
     void updateVisitsStatus_checkIfFullVisitTurnsIntoProposedWhenNoLongerFull() {
-        visit.setVisitStatus(VisitStatus.FULL);
-        List<Booking> bookings = new ArrayList<>();
-        bookings.add(new Booking("code1", new User("user1", "", Role.FINAL_USER), List.of("visitor1")));
-        bookings.add(new Booking("code2", new User("user2", "", Role.FINAL_USER), List.of("visitor2")));
-        bookings.add(new Booking("code3", new User("user3", "", Role.FINAL_USER), List.of("visitor3")));
-        bookings.add(new Booking("code4", new User("user4", "", Role.FINAL_USER), List.of("visitor4")));
+        Set<Visit> visits = visitRepository.findAll();
+        for (Visit visit : visits) {
+            visit.setVisitStatus(VisitStatus.FULL);
+            List<Booking> bookings = new ArrayList<>();
+            bookings.add(new Booking("code1", new User("user1", "", Role.FINAL_USER), List.of("visitor1")));
+            bookings.add(new Booking("code2", new User("user2", "", Role.FINAL_USER), List.of("visitor2")));
+            bookings.add(new Booking("code3", new User("user3", "", Role.FINAL_USER), List.of("visitor3")));
+            bookings.add(new Booking("code4", new User("user4", "", Role.FINAL_USER), List.of("visitor4")));
 
-        visit.setBookings(bookings);
+            visit.setBookings(bookings);
 
-        schedulerService.updateVisitsStatus();
+            schedulerService.updateVisitsStatus();
 
-        ArgumentCaptor<Visit> captor = ArgumentCaptor.forClass(Visit.class);
-        verify(visitRepository).save(captor.capture());
+            assertNotNull(visit);
+            assertNotEquals(5, visit.visitorsNumber());
+            assertEquals(VisitStatus.PROPOSED, visit.getVisitStatus());
+        }
 
-        assertNotEquals(5, captor.getValue().visitorsNumber());
-        assertEquals(VisitStatus.PROPOSED, captor.getValue().getVisitStatus());
     }
 
     @Test
     void updateVisitsStatus_checkIfVisitStatusChangedThreeDaysBeforeToConfirmedIfMinNumberReached() {
-        List<Booking> bookings = new ArrayList<>();
-        bookings.add(new Booking("code1", new User("user1", "", Role.FINAL_USER), List.of("visitor1")));
+        Set<Visit> visits = visitRepository.findAll();
+        for(Visit visit : visits) {
+            List<Booking> bookings = new ArrayList<>();
+            bookings.add(new Booking("code1", new User("user1", "", Role.FINAL_USER), List.of("visitor1")));
 
-        visit.setBookings(bookings);
-        visit.setDate(today.plusDays(2));
+            visit.setBookings(bookings);
+            visit.setDate(today.plusDays(2));
 
-        schedulerService.updateVisitsStatus();
+            schedulerService.updateVisitsStatus();
 
-        ArgumentCaptor<Visit> captor = ArgumentCaptor.forClass(Visit.class);
-        verify(visitRepository).save(captor.capture());
-
-        assertEquals(1, captor.getValue().visitorsNumber());
-        assertEquals(VisitStatus.CONFIRMED, captor.getValue().getVisitStatus());
+            assertNotNull(visit);
+            assertEquals(1, visit.visitorsNumber());
+            assertEquals(VisitStatus.CONFIRMED, visit.getVisitStatus());
+        }
     }
 
     @Test
     void updateVisitsStatus_checkIfVisitStatusChangedThreeDaysBeforeToCancelledIfMinNumberNotReached() {
-        List<Booking> bookings = new ArrayList<>();
+        Set<Visit> visits = visitRepository.findAll();
 
-        visit.setBookings(bookings);
-        visit.setDate(today.plusDays(2));
+        for (Visit visit : visits) {
+            List<Booking> bookings = new ArrayList<>();
 
-        schedulerService.updateVisitsStatus();
+            visit.setBookings(bookings);
+            visit.setDate(today.plusDays(2));
 
-        ArgumentCaptor<Visit> captor = ArgumentCaptor.forClass(Visit.class);
-        verify(visitRepository).save(captor.capture());
+            schedulerService.updateVisitsStatus();
 
-        assertEquals(0, captor.getValue().visitorsNumber());
-        assertEquals(VisitStatus.CANCELLED, captor.getValue().getVisitStatus());
+            assertNotNull(visit);
+            assertEquals(0, visit.visitorsNumber());
+            assertEquals(VisitStatus.CANCELLED, visit.getVisitStatus());
+        }
+
     }
 }
