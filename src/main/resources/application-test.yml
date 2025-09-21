@@ -17,3 +17,5 @@ spring:
     database:
       replace: none
     
+  liquibase:
+    enabled: false

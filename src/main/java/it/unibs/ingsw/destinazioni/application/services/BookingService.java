@@ -8,8 +8,10 @@ import org.springframework.stereotype.Service;
 
 import it.unibs.ingsw.destinazioni.application.exceptions.BookingException;
 import it.unibs.ingsw.destinazioni.application.exceptions.codes.BookingErrorCode;
-import it.unibs.ingsw.destinazioni.application.port.in.BookingVisitsUseCase;
-import it.unibs.ingsw.destinazioni.application.port.in.GetUserInfoUseCase;
+import it.unibs.ingsw.destinazioni.application.port.in.booking.BookingQueryUseCase;
+import it.unibs.ingsw.destinazioni.application.port.in.booking.CancelBookingUseCase;
+import it.unibs.ingsw.destinazioni.application.port.in.booking.CreateBookingUseCase;
+import it.unibs.ingsw.destinazioni.application.port.in.user.GetUserInfoUseCase;
 import it.unibs.ingsw.destinazioni.application.port.out.BookingRepositoryPort;
 import it.unibs.ingsw.destinazioni.application.port.out.VisitRepositoryPort;
 import it.unibs.ingsw.destinazioni.application.util.BookingCodeGenerator;
@@ -22,7 +24,7 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class BookingService implements BookingVisitsUseCase {
+public class BookingService implements CreateBookingUseCase, BookingQueryUseCase, CancelBookingUseCase {
 
   private final BookingRepositoryPort bookingRepository;
   private final GetUserInfoUseCase userInfoService;

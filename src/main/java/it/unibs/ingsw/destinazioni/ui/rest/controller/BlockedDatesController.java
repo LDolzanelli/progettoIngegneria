@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import it.unibs.ingsw.destinazioni.application.port.in.BlockedDatesUseCase;
+import it.unibs.ingsw.destinazioni.application.port.in.blockeddates.BlockedDatesUseCase;
 import it.unibs.ingsw.destinazioni.domain.dto.BlockedDatesDTO;
 import it.unibs.ingsw.destinazioni.domain.model.BlockedDates;
 import jakarta.servlet.http.HttpServletRequest;

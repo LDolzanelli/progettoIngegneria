@@ -14,8 +14,9 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import it.unibs.ingsw.destinazioni.application.port.in.GetUserInfoUseCase;
-import it.unibs.ingsw.destinazioni.application.port.in.VisitPlanUseCase;
+import it.unibs.ingsw.destinazioni.application.port.in.user.GetUserInfoUseCase;
+import it.unibs.ingsw.destinazioni.application.port.in.visitplan.CreateVisitPlanUseCase;
+import it.unibs.ingsw.destinazioni.application.port.in.visitplan.VisitPlanQueryUseCase;
 import it.unibs.ingsw.destinazioni.application.port.out.BlockedDatesRepositoryPort;
 import it.unibs.ingsw.destinazioni.application.port.out.VisitPlanStatePort;
 import it.unibs.ingsw.destinazioni.application.port.out.VisitRepositoryPort;
@@ -34,7 +35,7 @@ import lombok.Setter;
 
 @Service
 @RequiredArgsConstructor
-public class VisitPlanService implements VisitPlanUseCase {
+public class VisitPlanService implements CreateVisitPlanUseCase, VisitPlanQueryUseCase {
 
     private final VisitPlanStatePort statePort;
     private final VolunteerAvailabilityStatePort availabilityStatePort;
@@ -90,9 +91,6 @@ public class VisitPlanService implements VisitPlanUseCase {
         int nextYear = nextMonth.getYear();
 
         List<User> volunteers = userService.getUsersByRole(Role.VOLUNTEER);
-
-        List<VisitType> visitTypes = new ArrayList();
-        visitTypes.addAll(visitTypeRepository.findAll());
 
         List<VolunteerAvailableDate> monthAvailabilities =
                 initMonthAvailabilities(volunteers, nextMonthValue, nextYear);
@@ -254,7 +252,7 @@ public class VisitPlanService implements VisitPlanUseCase {
         if (volunteer.isPresent())
             return volunteer.get();
         else
-            throw new RuntimeException("Volunteer with id " + id + " not found in volunteer list!");
+            throw new IllegalArgumentException("Volunteer with id " + id + " not found in volunteer list!");
     }
 
 
@@ -273,7 +271,8 @@ public class VisitPlanService implements VisitPlanUseCase {
                 (v1, v2) -> Integer.compare(visitCountFromVolunteer(v1, volunteerVisitCounts),
                         visitCountFromVolunteer(v2, volunteerVisitCounts));
 
-        return volunteers.stream().min(volunteerComparator).get(); // volontario a cui sono state assegnate meno visite
+        return volunteers.stream().min(volunteerComparator)
+                .orElseThrow(() -> new IllegalArgumentException("No volunteers available"));
 
     }
 
@@ -290,12 +289,13 @@ public class VisitPlanService implements VisitPlanUseCase {
             List<VolunteerAvailableDate> volunteerAvailabilities, List<VolunteerVisitCount> volunteerVisitCounts) {
         visit.setVolunteer(volunteer);
         visit.setVisitStatus(VisitStatus.PROPOSED);
-        volunteerVisitCounts.stream() //
-                .filter(vvc -> vvc.getVolunteer().getId() == volunteer.getId()).findFirst().get() //
+        volunteerVisitCounts.stream().filter(vvc -> Objects.equals(vvc.getVolunteer().getId(), volunteer.getId()))
+                .findFirst().orElseThrow(() -> new IllegalArgumentException("Volunteer not found in visit counts"))
                 .increment();
-        VolunteerAvailableDate usedAvailability = volunteerAvailabilities.stream().filter(Objects::nonNull) //
-                .filter(av -> av.getVolunteerId() == volunteer.getId() && av.getAvailableDate().equals(visit.getDate()))
-                .findFirst().get();
+        VolunteerAvailableDate usedAvailability = volunteerAvailabilities.stream().filter(Objects::nonNull)
+                .filter(av -> Objects.equals(av.getVolunteerId(), volunteer.getId())
+                        && av.getAvailableDate().equals(visit.getDate()))
+                .findFirst().orElseThrow(() -> new IllegalArgumentException("Volunteer availability not found"));
 
         volunteerAvailabilities.remove(usedAvailability);
 
@@ -310,9 +310,9 @@ public class VisitPlanService implements VisitPlanUseCase {
             // selezionato
             List<VolunteerAvailableDate> volunteerAvailabilities = new ArrayList<>();
 
-            volunteerAvailabilityRepository.findByVolunteerId(v.getId()).stream().filter(va -> {
-                return va.getAvailableDate().getMonthValue() == month && va.getAvailableDate().getYear() == year;
-            }).forEach(volunteerAvailabilities::add);
+            volunteerAvailabilityRepository.findByVolunteerId(v.getId()).stream().filter(
+                    va -> va.getAvailableDate().getMonthValue() == month && va.getAvailableDate().getYear() == year)
+                    .forEach(volunteerAvailabilities::add);
 
             if (!volunteerAvailabilities.isEmpty())
                 monthAvailabilities.addAll(volunteerAvailabilities);
@@ -329,7 +329,7 @@ public class VisitPlanService implements VisitPlanUseCase {
                 .filter(visit -> visit.getDate().getMonthValue() == month && visit.getDate().getYear() == year)
                 .forEach(monthVisits::add);
 
-        Comparator visitCompare = Comparator.comparing(Visit::getDate);
+        Comparator<Visit> visitCompare = Comparator.comparing(Visit::getDate);
         monthVisits.sort(visitCompare);
 
         return monthVisits;

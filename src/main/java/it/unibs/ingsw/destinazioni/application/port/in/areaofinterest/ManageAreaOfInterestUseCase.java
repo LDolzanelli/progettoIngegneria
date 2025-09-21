@@ -1,4 +1,4 @@
-package it.unibs.ingsw.destinazioni.application.port.in;
+package it.unibs.ingsw.destinazioni.application.port.in.areaofinterest;
 
 /**
  * Interface per la gestione delle aree di interesse nel sistema.

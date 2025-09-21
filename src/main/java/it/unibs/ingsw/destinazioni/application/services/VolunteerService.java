@@ -5,8 +5,11 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import it.unibs.ingsw.destinazioni.application.port.in.ManageVisitTypeUseCase;
-import it.unibs.ingsw.destinazioni.application.port.in.ManageVolunteersUseCase;
+import it.unibs.ingsw.destinazioni.application.port.in.visittype.VisitTypeCommandUseCase;
+import it.unibs.ingsw.destinazioni.application.port.in.visittype.VisitTypeQueryUseCase;
+import it.unibs.ingsw.destinazioni.application.port.in.visittype.VisitTypeValidationUseCase;
+import it.unibs.ingsw.destinazioni.application.port.in.volunteer.RemoveVolunteerUseCase;
+import it.unibs.ingsw.destinazioni.application.port.in.volunteer.VolunteerValidationUseCase;
 import it.unibs.ingsw.destinazioni.application.port.out.UserRepositoryPort;
 import it.unibs.ingsw.destinazioni.domain.model.User;
 import it.unibs.ingsw.destinazioni.domain.model.VisitType;
@@ -15,27 +18,29 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class VolunteerService implements ManageVolunteersUseCase {
+public class VolunteerService implements VolunteerValidationUseCase, RemoveVolunteerUseCase {
 
-    private final ManageVisitTypeUseCase visitTypeService;
     private final UserRepositoryPort userRepository;
+    private final VisitTypeQueryUseCase queryVisitTypeUseCase;
+    private final VisitTypeValidationUseCase visitTypeValidationUseCase;
+    private final VisitTypeCommandUseCase visitTypeCRUD;
 
     @Override
     /*@ also
-      @ requires visitTypeService != null;
-      @ ensures \result == (\forall VisitType vt; visitTypeService.listAll().contains(vt);
+      @ requires queryVisitTypeUseCase != null && visitTypeValidationUseCase != null;
+      @ ensures \result == (\forall VisitType vt; queryVisitTypeUseCase.listAll().contains(vt);
       @                    (!vt.getVolunteers().stream().anyMatch(v -> v.getId().equals(volunteer.getId())) ||
-      @                     visitTypeService.canBeRemoved(vt.getId())));
+      @                     visitTypeValidationUseCase.canBeRemoved(vt.getId())));
       @*/
     public boolean canBeRemoved(User volunteer) {
         if (volunteer.getRole() != Role.VOLUNTEER) {
             throw new IllegalArgumentException("L'utente non è un volontario");
         }
 
-        for (var visitType : visitTypeService.listAll()) {
+        for (var visitType : queryVisitTypeUseCase.listAll()) {
             boolean assegnato = visitType.getVolunteers().stream().anyMatch(v -> v.getId().equals(volunteer.getId()));
 
-            if (assegnato && !visitTypeService.canBeRemoved(visitType.getId())) {
+            if (assegnato && !visitTypeValidationUseCase.canBeRemoved(visitType.getId())) {
                 return false;
             }
         }
@@ -45,22 +50,22 @@ public class VolunteerService implements ManageVolunteersUseCase {
 
     @Override
     /*@ also
-      @ requires visitTypeService != null && userRepository != null;
+      @ requires queryVisitTypeUseCase != null && visitTypeCRUD != null && userRepository != null;
       @ ensures !userRepository.findByNickname(volunteer.getNickname()).isPresent();
-      @ ensures (\forall VisitType vt; visitTypeService.listAll().contains(vt);
+      @ ensures (\forall VisitType vt; queryVisitTypeUseCase.listAll().contains(vt);
       @          !vt.getVolunteers().stream().anyMatch(v -> 
       @           v.getNickname().equals(volunteer.getNickname())));
       @ ensures (\forall VisitType vt; \old(vt.getVolunteers().size()) == 1 &&
       @          \old(vt.getVolunteers().get(0).getNickname().equals(volunteer.getNickname()));
-      @          !visitTypeService.listAll().contains(vt));
+      @          !queryVisitTypeUseCase.listAll().contains(vt));
       @*/
     public void removeVolunteer(User volunteer) {
         if (!canBeRemoved(volunteer)) {
             throw new IllegalArgumentException("Il volontario non può essere rimosso");
         }
 
-        List<VisitType> visitTypes = visitTypeService.listAll().stream().filter(visitType -> visitType.getVolunteers()
-                .stream().anyMatch(v -> v.getNickname().equals(volunteer.getNickname()))).toList();
+        List<VisitType> visitTypes = queryVisitTypeUseCase.listAll().stream().filter(visitType -> visitType
+                .getVolunteers().stream().anyMatch(v -> v.getNickname().equals(volunteer.getNickname()))).toList();
 
         for (VisitType visitType : visitTypes) {
 
@@ -69,9 +74,9 @@ public class VolunteerService implements ManageVolunteersUseCase {
             visitType.setVolunteers(volunteers);
 
             if (visitType.getVolunteers().isEmpty()) {
-                visitTypeService.removeVisitType(visitType.getId());
+                visitTypeCRUD.removeVisitType(visitType.getId());
             } else {
-                visitTypeService.updateVisitType(visitType);
+                visitTypeCRUD.updateVisitType(visitType);
             }
         }
 

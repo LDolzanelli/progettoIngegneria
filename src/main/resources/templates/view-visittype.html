@@ -24,26 +24,61 @@
       padding-top: 2rem;
       padding-bottom: 2rem;
     }
+    #visitTypesGrid {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+    }
     .glass-card {
       background: rgba(255, 255, 255, 0.85);
       backdrop-filter: blur(12px);
       border-radius: 1.5rem;
-      padding: 2rem;
+      padding: 1.75rem;
       box-shadow: 0 8px 25px rgba(0,0,0,0.1);
-      margin-bottom: 2rem;
+      margin-bottom: 1.5rem;
       width: 100%;
-      max-width: 900px;
+      max-width: 650px;
       display: flex;
       flex-direction: column;
       justify-content: flex-start;
     }
     .card-title {
-      font-weight: 600;
-      margin-bottom: 0.5rem;
-    }
-    .card-text {
+      font-weight: 700;
       margin-bottom: 0.75rem;
-      font-size: 0.95rem;
+      color: #2c3e50;
+      font-size: 1.25rem;
+    }
+    .card-description {
+      margin-bottom: 1rem;
+      font-size: 1rem;
+      color: #495057;
+      line-height: 1.5;
+    }
+    .visit-details {
+      background: rgba(248, 249, 250, 0.6);
+      border-radius: 0.75rem;
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+    .detail-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.5rem;
+      font-size: 0.9rem;
+    }
+    .detail-row:last-child {
+      margin-bottom: 0;
+    }
+    .detail-label {
+      font-weight: 600;
+      color: #6c757d;
+      flex-shrink: 0;
+      margin-right: 1rem;
+    }
+    .detail-value {
+      color: #495057;
+      text-align: right;
     }
     .btn-sm {
       border-radius: 0.5rem;
@@ -60,6 +95,24 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
+    }
+    @media (max-width: 768px) {
+      .glass-card {
+        max-width: 95%;
+        padding: 1.25rem;
+      }
+      main.container {
+        padding-left: 1rem;
+        padding-right: 1rem;
+      }
+      .detail-row {
+        flex-direction: column;
+        gap: 0.25rem;
+      }
+      .detail-value {
+        text-align: left;
+        font-weight: 500;
+      }
     }
   </style>
 </head>
@@ -87,28 +140,70 @@
     Nessun tipo di visita disponibile.
   </div>
 
-  <div id="visitTypesGrid" class="w-100">
+  <div id="visitTypesGrid" class="d-flex flex-column align-items-center w-100">
     <div class="glass-card mb-4" th:each="vt : ${visitTypes}">
       <h5 class="card-title" th:text="${vt.title}">Titolo</h5>
-      <p class="card-text" th:text="${vt.description}">Descrizione</p>
-      <p class="card-text">
-        <small class="text-muted">
-          Dal <span th:text="${vt.startDate}"></span> al <span th:text="${vt.endDate}"></span><br/>
-          Punto d'incontro: <span th:text="${vt.meetingPoint}"></span><br/>
-          Inizio: <span th:text="${vt.startTime}"></span><br/>
-          Durata: <span th:text="${vt.duration}"></span> minuti<br/>
-          Min partecipanti: <span th:text="${vt.minParticipants}"></span><br/>
-          Max partecipanti: <span th:text="${vt.maxParticipants}"></span><br/>
-          La visita è <span th:text="${vt.free} ? 'gratuita' : 'a pagamento'"></span><br/>
-          Giorni disponibili: <span class="days-available" th:text="${vt.daysAvailable}"></span><br/>
-          Volontari: <span th:text="${#strings.arrayJoin(vt.volunteers, ', ')}"></span>
-        </small>
-      </p>
-      <div class="d-flex mt-auto gap-2">
-        <a th:href="@{|/add-volunteers?visitTypeId=${vt.id}|}" class="btn btn-primary btn-sm" th:if="${role == 'configurator'}" th:classappend="${!vt.canBeModified} ? ' disabled' : ''">Aggiungi volontari</a>
+      <p class="card-description" th:text="${vt.description}">Descrizione</p>
+      
+      <div class="visit-details">
+        <div class="detail-row">
+          <span class="detail-label">Periodo:</span>
+          <span class="detail-value">
+            Dal <span th:text="${vt.startDate}"></span> al <span th:text="${vt.endDate}"></span>
+          </span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Punto d'incontro:</span>
+          <span class="detail-value" th:text="${vt.meetingPoint}"></span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Orario:</span>
+          <span class="detail-value" th:text="${vt.startTime}"></span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Durata:</span>
+          <span class="detail-value"><span th:text="${vt.duration}"></span> minuti</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Partecipanti:</span>
+          <span class="detail-value">
+            <span th:text="${vt.minParticipants}"></span> - <span th:text="${vt.maxParticipants}"></span>
+          </span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Costo:</span>
+          <span class="detail-value" th:text="${vt.free} ? 'Gratuita' : 'A pagamento'"></span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Giorni:</span>
+          <span class="detail-value days-available" th:text="${vt.daysAvailable}"></span>
+        </div>
+        <div class="detail-row" th:if="${vt.volunteers != null and !#lists.isEmpty(vt.volunteers)}">
+          <span class="detail-label">Volontari:</span>
+          <span class="detail-value" th:text="${#strings.arrayJoin(vt.volunteers, ', ')}"></span>
+        </div>
+      </div>
+      
+      <div class="d-flex mt-auto gap-2 justify-content-end">
+        <a th:href="@{|/add-volunteers?visitTypeId=${vt.id}|}" 
+           class="btn btn-primary btn-sm" 
+           th:if="${role == 'configurator'}" 
+           th:classappend="${!vt.canBeModified} ? ' disabled' : ''">
+          Aggiungi volontari
+        </a>
         <div th:if="${role == 'configurator'}">
-          <button type="button" class="btn btn-danger btn-sm" th:if="${vt.canBeRemoved}" th:attr="onclick=|deleteVisitType(${vt.id})|">Rimuovi</button>
-          <button type="button" class="btn btn-secondary btn-sm" th:unless="${vt.canBeRemoved}" disabled>Non rimovibile</button>
+          <button type="button" 
+                  class="btn btn-danger btn-sm" 
+                  th:if="${vt.canBeRemoved}" 
+                  th:attr="onclick=|deleteVisitType(${vt.id})|">
+            Rimuovi
+          </button>
+          <button type="button" 
+                  class="btn btn-secondary btn-sm" 
+                  th:unless="${vt.canBeRemoved}" 
+                  disabled>
+            Non rimovibile
+          </button>
         </div>
       </div>
     </div>
@@ -125,6 +220,19 @@
       function getParamFromUrl(name) {
         const params = new URLSearchParams(window.location.search);
         return params.get(name);
+      }
+
+      function formatDate(dateString) {
+        if (!dateString) return dateString;
+        try {
+          const date = new Date(dateString);
+          const day = date.getDate().toString().padStart(2, '0');
+          const month = (date.getMonth() + 1).toString().padStart(2, '0');
+          const year = date.getFullYear();
+          return `${day}-${month}-${year}`;
+        } catch (error) {
+          return dateString; // Ritorna la data originale se c'è un errore
+        }
       }
 
       async function loadVisitTypes() {
@@ -161,38 +269,56 @@
           }
 
           visitTypes.forEach((vt) => {
-            const cardCol = document.createElement("div");
-            cardCol.className = "col-md-4 mb-3";
+            const cardDiv = document.createElement("div");
+            cardDiv.className = "glass-card mb-4";
 
-            const period = `Dal ${vt.startDate} al ${vt.endDate}`;
-            const details = `
-                    <strong>Punto d'incontro:</strong> ${vt.meetingPoint}<br/>
-                    <strong>Durata:</strong> ${vt.duration} minuti<br/>
-                    <strong>Ora inizio:</strong> ${vt.startTime}<br/>
-                    <strong>Min partecipanti:</strong> ${
-                      vt.minParticipants
-                    }<br/>
-                    <strong>Max partecipanti:</strong> ${
-                      vt.maxParticipants
-                    }<br/>
-                    <strong>Gratuita:</strong> ${vt.free ? "Sì" : "No"}<br/>
-                    <strong>Giorni disponibili:</strong> ${
-                      vt.daysAvailable
-                    }<br/>
-                    <strong>Volontari:</strong> ${vt.volunteers}<br/>
-                `;
+            const formattedStartDate = formatDate(vt.startDate);
+            const formattedEndDate = formatDate(vt.endDate);
 
-            cardCol.innerHTML = `
-                    <div class="card h-100 shadow-sm">
-                        <div class="card-body">
-                            <h5 class="card-title">${vt.title}</h5>
-                            <p class="card-text">${vt.description ?? ""}</p>
-                            <p class="card-text"><small class="text-muted">${period}</small></p>
-                            <p class="card-text"><small class="text-muted">${details}</small></p>
-                        </div>
-                    </div>
-                `;
-            grid.appendChild(cardCol);
+            const volunteersSection = vt.volunteers && vt.volunteers.length > 0 
+              ? `<div class="detail-row">
+                   <span class="detail-label">Volontari:</span>
+                   <span class="detail-value">${vt.volunteers}</span>
+                 </div>` 
+              : '';
+
+            cardDiv.innerHTML = `
+              <h5 class="card-title">${vt.title}</h5>
+              <p class="card-description">${vt.description || ""}</p>
+              
+              <div class="visit-details">
+                <div class="detail-row">
+                  <span class="detail-label">Periodo:</span>
+                  <span class="detail-value">Dal ${formattedStartDate} al ${formattedEndDate}</span>
+                </div>
+                <div class="detail-row">
+                  <span class="detail-label">Punto d'incontro:</span>
+                  <span class="detail-value">${vt.meetingPoint}</span>
+                </div>
+                <div class="detail-row">
+                  <span class="detail-label">Orario:</span>
+                  <span class="detail-value">${vt.startTime}</span>
+                </div>
+                <div class="detail-row">
+                  <span class="detail-label">Durata:</span>
+                  <span class="detail-value">${vt.duration} minuti</span>
+                </div>
+                <div class="detail-row">
+                  <span class="detail-label">Partecipanti:</span>
+                  <span class="detail-value">${vt.minParticipants} - ${vt.maxParticipants}</span>
+                </div>
+                <div class="detail-row">
+                  <span class="detail-label">Costo:</span>
+                  <span class="detail-value">${vt.free ? "Gratuita" : "A pagamento"}</span>
+                </div>
+                <div class="detail-row">
+                  <span class="detail-label">Giorni:</span>
+                  <span class="detail-value days-available">${vt.daysAvailable}</span>
+                </div>
+                ${volunteersSection}
+              </div>
+            `;
+            grid.appendChild(cardDiv);
           });
         } catch (error) {
           console.error("Errore caricamento dati:", error);
@@ -201,6 +327,20 @@
       }
 
       document.addEventListener("DOMContentLoaded", () => {
+        // Formatta le date nei dati Thymeleaf
+        const formatThymeleafDates = () => {
+          const detailValues = document.querySelectorAll('.detail-value');
+          detailValues.forEach(element => {
+            const text = element.textContent;
+            // Cerca pattern di date nel formato yyyy-mm-dd
+            const datePattern = /(\d{4}-\d{2}-\d{2})/g;
+            if (datePattern.test(text)) {
+              const newText = text.replace(datePattern, (match) => formatDate(match));
+              element.textContent = newText;
+            }
+          });
+        };
+
         const daysElements = document.querySelectorAll(".days-available");
         const dayMap = {
           MONDAY: "Lunedì",
@@ -247,7 +387,10 @@
 
         const isThymeleafDataPresent =
           document.getElementById("thymeleafDataPresent")?.value === "true";
-        if (!isThymeleafDataPresent) {
+        
+        if (isThymeleafDataPresent) {
+          formatThymeleafDates();
+        } else {
           loadVisitTypes();
         }
       });

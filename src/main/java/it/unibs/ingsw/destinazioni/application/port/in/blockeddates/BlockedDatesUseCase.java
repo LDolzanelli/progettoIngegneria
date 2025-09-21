@@ -1,4 +1,4 @@
-package it.unibs.ingsw.destinazioni.application.port.in;
+package it.unibs.ingsw.destinazioni.application.port.in.blockeddates;
 
 import java.time.LocalDate;
 import java.time.YearMonth;

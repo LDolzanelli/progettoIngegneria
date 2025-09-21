@@ -1,4 +1,4 @@
-package it.unibs.ingsw.destinazioni.application.port.in;
+package it.unibs.ingsw.destinazioni.application.port.in.login;
 
 import it.unibs.ingsw.destinazioni.domain.dto.LoginRequestDTO;
 import it.unibs.ingsw.destinazioni.domain.dto.LoginResponseDTO;

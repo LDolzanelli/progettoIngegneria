@@ -1,4 +1,4 @@
-package it.unibs.ingsw.destinazioni.application.port.in;
+package it.unibs.ingsw.destinazioni.application.port.in.configuration;
 
 /**
  * Interface per la gestione del numero massimo di biglietti per utente.

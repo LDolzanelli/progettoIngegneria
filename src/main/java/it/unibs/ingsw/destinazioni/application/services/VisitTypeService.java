@@ -9,7 +9,10 @@ import java.util.Set;
 
 import org.springframework.stereotype.Service;
 
-import it.unibs.ingsw.destinazioni.application.port.in.ManageVisitTypeUseCase;
+import it.unibs.ingsw.destinazioni.application.port.in.visittype.AssignVolunteerToVisitTypeUseCase;
+import it.unibs.ingsw.destinazioni.application.port.in.visittype.VisitTypeCommandUseCase;
+import it.unibs.ingsw.destinazioni.application.port.in.visittype.VisitTypeQueryUseCase;
+import it.unibs.ingsw.destinazioni.application.port.in.visittype.VisitTypeValidationUseCase;
 import it.unibs.ingsw.destinazioni.application.port.out.LocationRepositoryPort;
 import it.unibs.ingsw.destinazioni.application.port.out.UserRepositoryPort;
 import it.unibs.ingsw.destinazioni.application.port.out.VisitPlanStatePort;
@@ -22,7 +25,8 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class VisitTypeService implements ManageVisitTypeUseCase {
+public class VisitTypeService implements VisitTypeCommandUseCase, VisitTypeQueryUseCase, VisitTypeValidationUseCase,
+    AssignVolunteerToVisitTypeUseCase {
 
   private final VisitTypeRepositoryPort repository;
   private final LocationRepositoryPort locationRepository;

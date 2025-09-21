@@ -1,10 +1,15 @@
 package it.unibs.ingsw.destinazioni.ui.rest.controller;
 
-import it.unibs.ingsw.destinazioni.application.port.in.ChangeMaxNumberOfTicketsUseCase;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import it.unibs.ingsw.destinazioni.application.port.in.configuration.ChangeMaxNumberOfTicketsUseCase;
 import it.unibs.ingsw.destinazioni.domain.dto.ChangeMaxNumberTicketsDTO;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -17,6 +22,7 @@ public class SystemConfigController {
         ticketsUseCase.setMaxNumberOfTickets(dto.newMaxNumberTickets());
         return ResponseEntity.ok().build();
     }
+
 
     @GetMapping("/getMaxTickets")
     public ResponseEntity<Integer> getMaxTickets() {

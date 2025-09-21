@@ -1,4 +1,4 @@
-package it.unibs.ingsw.destinazioni.application.port.in;
+package it.unibs.ingsw.destinazioni.application.port.in.areaofinterest;
 
 import java.util.List;
 import java.util.Map;

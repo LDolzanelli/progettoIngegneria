@@ -1,27 +1,29 @@
 package it.unibs.ingsw.destinazioni.ui.rest.controller;
 
-import it.unibs.ingsw.destinazioni.application.port.in.VolunteerAvailabilityControlUseCase;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
-import it.unibs.ingsw.destinazioni.application.port.in.VolunteersAvailabilityUseCase;
-import it.unibs.ingsw.destinazioni.application.port.in.GetUserInfoUseCase;
-import it.unibs.ingsw.destinazioni.domain.dto.AvailabilityDatesDTO;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
-import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import it.unibs.ingsw.destinazioni.application.port.in.user.GetUserInfoUseCase;
+import it.unibs.ingsw.destinazioni.application.port.in.volunteer.VolunteerAvailabilityControlUseCase;
+import it.unibs.ingsw.destinazioni.application.port.in.volunteer.VolunteersAvailabilityUseCase;
+import it.unibs.ingsw.destinazioni.domain.dto.AvailabilityDatesDTO;
+import lombok.RequiredArgsConstructor;
 
 
 @RestController
@@ -87,6 +89,7 @@ public class VolunteerAvailabilityController {
         Month month = volunteersUseCase.getTargetMonth();
         return ResponseEntity.ok(month.getValue());
     }
+
 
     @GetMapping("/is-enabled")
     public ResponseEntity<Boolean> isAvailabilityEnabled() {

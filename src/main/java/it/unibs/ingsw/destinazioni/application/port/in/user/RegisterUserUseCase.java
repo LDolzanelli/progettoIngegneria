@@ -1,4 +1,4 @@
-package it.unibs.ingsw.destinazioni.application.port.in;
+package it.unibs.ingsw.destinazioni.application.port.in.user;
 
 import it.unibs.ingsw.destinazioni.domain.model.User;
 

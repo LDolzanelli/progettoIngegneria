@@ -7,8 +7,8 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import it.unibs.ingsw.destinazioni.application.port.in.GetUserInfoUseCase;
-import it.unibs.ingsw.destinazioni.application.port.in.VisitDaysUseCase;
+import it.unibs.ingsw.destinazioni.application.port.in.user.GetUserInfoUseCase;
+import it.unibs.ingsw.destinazioni.application.port.in.visit.VisitDaysUseCase;
 import it.unibs.ingsw.destinazioni.application.port.out.BlockedDatesRepositoryPort;
 import it.unibs.ingsw.destinazioni.application.port.out.VisitRepositoryPort;
 import it.unibs.ingsw.destinazioni.application.port.out.VisitTypeRepositoryPort;

@@ -6,8 +6,8 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
-import it.unibs.ingsw.destinazioni.application.port.in.ManageAreaOfInterestUseCase;
-import it.unibs.ingsw.destinazioni.application.port.in.QueryAreaOfInterestUseCase;
+import it.unibs.ingsw.destinazioni.application.port.in.areaofinterest.ManageAreaOfInterestUseCase;
+import it.unibs.ingsw.destinazioni.application.port.in.areaofinterest.QueryAreaOfInterestUseCase;
 import it.unibs.ingsw.destinazioni.application.port.out.AreaOfInterestRepositoryPort;
 import it.unibs.ingsw.destinazioni.domain.dto.TownProvinceDTO;
 import it.unibs.ingsw.destinazioni.domain.model.AreaOfInterest;
