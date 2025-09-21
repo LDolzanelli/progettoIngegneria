@@ -57,7 +57,7 @@
                 <p><strong>Ora:</strong> <span th:text="${visit.startTime}"></span></p>
                 <p><strong>Durata:</strong> <span th:text="${visit.duration}"></span> minuti</p>
                 <p><strong>Luogo:</strong> <span th:text="${visit.locationName}"></span></p>
-                <p><strong>Indirizzo:</strong> <span th:text="${visit.locationAddress}"></span></p>
+                <p><strong>Indirizzo:</strong> <span th:text="|${visit.street}, ${visit.streetNumber}, ${visit.town}, ${visit.province}|"></span></p>
                 <p><strong>Punto di Ritrovo:</strong> <span th:text="${visit.meetingPoint}"></span></p>
                 <p><strong>Stato:</strong> <span th:text="${visit.status}"></span></p>
                 <p><strong>Partecipanti:</strong> <span th:text="${visit.numberOfParticipants}"></span> / <span th:text="${visit.maxParticipants}"></span></p>

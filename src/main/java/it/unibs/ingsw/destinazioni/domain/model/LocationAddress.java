@@ -1,10 +1,12 @@
 package it.unibs.ingsw.destinazioni.domain.model;
+
 import lombok.Getter;
 import lombok.Setter;
 
 
 
-@Getter @Setter
+@Getter
+@Setter
 public class LocationAddress {
 
     private String street;
@@ -17,9 +19,5 @@ public class LocationAddress {
         this.streetNumber = streetNumber;
         this.town = town;
         this.province = province;
-    }
-
-    public String getFullAddress() {
-        return String.format("Via %s, %s, %s, %s", street, streetNumber, town, province);
     }
 }

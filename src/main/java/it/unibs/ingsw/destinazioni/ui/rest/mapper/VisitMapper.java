@@ -37,7 +37,8 @@ public class VisitMapper {
         return new VisitInformationDTO(visit.getId(), volunteerNickname, visit.getDate().format(dateFormatter),
                 visitType.getStartTime().toString(), visitType.getDuration(), visit.visitorsNumber(),
                 visitType.getMaxParticipants(), visitType.getTitle(), visitType.getDescription(), location.getName(),
-                location.getAddress().getFullAddress(), visitType.getMeetingPoint(),
+                location.getAddress().getStreet(), location.getAddress().getStreetNumber(),
+                location.getAddress().getTown(), location.getAddress().getProvince(), visitType.getMeetingPoint(),
                 visit.getVisitStatus().getItalianName(), visit.getDate().getDayOfWeek().toString(),
                 visitorsPerBookingCode, visitType.isFree());
     }
