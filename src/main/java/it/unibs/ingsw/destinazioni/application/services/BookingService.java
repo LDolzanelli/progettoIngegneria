@@ -1,11 +1,5 @@
 package it.unibs.ingsw.destinazioni.application.services;
 
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.springframework.stereotype.Service;
-
 import it.unibs.ingsw.destinazioni.application.exceptions.BookingException;
 import it.unibs.ingsw.destinazioni.application.exceptions.codes.BookingErrorCode;
 import it.unibs.ingsw.destinazioni.application.port.in.booking.BookingQueryUseCase;
@@ -21,6 +15,11 @@ import it.unibs.ingsw.destinazioni.domain.model.Visit;
 import it.unibs.ingsw.destinazioni.domain.model.enums.Role;
 import it.unibs.ingsw.destinazioni.domain.model.enums.VisitStatus;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
