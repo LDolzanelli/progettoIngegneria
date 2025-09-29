@@ -1,7 +1,6 @@
-package it.unibs.ingsw.destinazioni.application.service;
+package it.unibs.ingsw.destinazioni.application.services;
 
 import it.unibs.ingsw.destinazioni.application.port.out.VisitRepositoryPort;
-import it.unibs.ingsw.destinazioni.application.services.VisitSchedulerService;
 import it.unibs.ingsw.destinazioni.domain.model.Booking;
 import it.unibs.ingsw.destinazioni.domain.model.User;
 import it.unibs.ingsw.destinazioni.domain.model.Visit;

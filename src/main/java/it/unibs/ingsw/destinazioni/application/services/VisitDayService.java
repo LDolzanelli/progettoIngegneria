@@ -56,9 +56,11 @@ public class VisitDayService implements VisitDaysUseCase {
         LocalDate startOfMonth = targetMonth.atDay(1);
         LocalDate endOfMonth = targetMonth.atEndOfMonth();
 
-        List<VisitType> visitTypes =
-                visitTypeRepository.findAll().stream().filter(visitType -> !visitType.getStartDate().isAfter(endOfMonth)
-                        && !visitType.getEndDate().isBefore(startOfMonth)).toList();
+        List<VisitType> visitTypes = visitTypeRepository.findAll() //
+                        .stream() //
+                        .filter(visitType -> !visitType.getStartDate().isAfter(endOfMonth) //
+                        && !visitType.getEndDate().isBefore(startOfMonth)) //
+                        .toList();
 
         for (VisitType visitType : visitTypes) {
             createVisitsForType(visitType, startOfMonth, endOfMonth, blockedDates);
@@ -107,7 +109,6 @@ public class VisitDayService implements VisitDaysUseCase {
       @ ensures userInfoService.findByNickname(volunteerNickname).get().getRole() == Role.VOLUNTEER;
       @*/
     public List<Visit> getConfirmedVisitsPerVolunteer(String volunteerNickname) {
-
         User volunteer = userInfoService.findByNickname(volunteerNickname)
                 .orElseThrow(() -> new IllegalArgumentException("Volontario non trovato: " + volunteerNickname));
 
@@ -116,7 +117,6 @@ public class VisitDayService implements VisitDaysUseCase {
 
         return visitRepository.findByVolunteer(volunteerNickname).stream()
                 .filter(visit -> visit.getVisitStatus() == VisitStatus.CONFIRMED).toList();
-
     }
 
 

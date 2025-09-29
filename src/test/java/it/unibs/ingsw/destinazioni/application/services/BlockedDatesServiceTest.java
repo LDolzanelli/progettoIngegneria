@@ -8,13 +8,16 @@ import org.mockito.Mockito;
 
 import java.time.*;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
 class BlockedDatesServiceTest {
 
     private BlockedDatesRepositoryPort repositoryMock;
 
     @BeforeEach
     void setUp() {
-         repositoryMock = Mockito.mock(BlockedDatesRepositoryPort.class);
+         repositoryMock = mock(BlockedDatesRepositoryPort.class);
     }
 
     @Test
@@ -26,8 +29,8 @@ class BlockedDatesServiceTest {
         YearMonth result = service.getMonthToUpdate();
         YearMonth expectedResult = YearMonth.of(2025, 11);
 
-        Assertions.assertNotNull(result);
-        Assertions.assertEquals(expectedResult, result);
+        assertNotNull(result);
+        assertEquals(expectedResult, result);
     }
 
     @Test
@@ -39,8 +42,8 @@ class BlockedDatesServiceTest {
         YearMonth result = service.getMonthToUpdate();
         YearMonth expectedResult = YearMonth.of(2025, 12);
 
-        Assertions.assertNotNull(result);
-        Assertions.assertEquals(expectedResult, result);
+        assertNotNull(result);
+        assertEquals(expectedResult, result);
     }
 
 }

@@ -1,6 +1,8 @@
 package it.unibs.ingsw.destinazioni.application.services;
 
 import it.unibs.ingsw.destinazioni.application.port.out.UserRepositoryPort;
+import it.unibs.ingsw.destinazioni.domain.dto.LoginRequestDTO;
+import it.unibs.ingsw.destinazioni.domain.dto.LoginResponseDTO;
 import it.unibs.ingsw.destinazioni.domain.model.User;
 import it.unibs.ingsw.destinazioni.domain.model.enums.Role;
 import org.junit.jupiter.api.Assertions;
@@ -13,6 +15,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 class UserServiceTest {
     private UserRepositoryPort userRepository;
@@ -22,7 +25,7 @@ class UserServiceTest {
 
     @BeforeEach
     void setUp() {
-        userRepository = Mockito.mock(UserRepositoryPort.class);
+        userRepository = mock(UserRepositoryPort.class);
         passwordEncoder = new BCryptPasswordEncoder();
 
         userService = new UserService(userRepository, passwordEncoder);
@@ -31,7 +34,7 @@ class UserServiceTest {
     @Test
     void registerNewUser_shouldThrowExceptionIfUsernamePresent() {
         User user = new User("testUser", "", null);
-        Mockito.when(userRepository.findByNickname("testUser")).thenReturn(Optional.of(user));
+        when(userRepository.findByNickname("testUser")).thenReturn(Optional.of(user));
 
         Assertions.assertThrows(IllegalArgumentException.class, () -> userService.registerNewUser(user));
     }
@@ -85,7 +88,7 @@ class UserServiceTest {
     void changePassword_ShouldThrowExceptionIfOldPasswordDoesNotMatch() {
         String password = "testPassword";
         User user = new User("testUser", passwordEncoder.encode(password), Role.CONFIGURATOR);
-        Mockito.when(userRepository.findByNickname("testUser")).thenReturn(Optional.of(user));
+        when(userRepository.findByNickname("testUser")).thenReturn(Optional.of(user));
 
         Assertions.assertThrows(IllegalArgumentException.class, //
                 () -> userService.changePassword("testUser", //
@@ -96,7 +99,7 @@ class UserServiceTest {
     void changePassword_EncodedPasswordsShouldMatch() {
         String oldPassword = "testPassword";
         User user = new User("testUser", passwordEncoder.encode(oldPassword), Role.CONFIGURATOR);
-        Mockito.when(userRepository.findByNickname("testUser")).thenReturn(Optional.of(user));
+        when(userRepository.findByNickname("testUser")).thenReturn(Optional.of(user));
 
         String newPassword = "newPassword";
 
@@ -112,7 +115,7 @@ class UserServiceTest {
         String oldPassword = "testPassword";
         User user = new User("testUser", passwordEncoder.encode(oldPassword), Role.CONFIGURATOR);
         user.setFirstLogin(true);
-        Mockito.when(userRepository.findByNickname("testUser")).thenReturn(Optional.of(user));
+        when(userRepository.findByNickname("testUser")).thenReturn(Optional.of(user));
 
         userService.changePassword("testUser", oldPassword, "newPassword");
 
@@ -121,34 +124,110 @@ class UserServiceTest {
     }
 
     @Test
-    void changeUsername() {
+    void changeUsername_ShouldReturnCorrectUsername() {
+        String oldUsername = "testUser";
+        User user = new User(oldUsername, "test", Role.CONFIGURATOR);
+        when(userRepository.findByNickname(oldUsername)).thenReturn(Optional.of(user));
+
+        String newUsername = "newUsername";
+        userService.changeUsername(oldUsername, newUsername);
+
+        Assertions.assertNotNull(user);
+        assertNotNull(user.getNickname());
+        Assertions.assertEquals(newUsername, user.getNickname());
     }
 
     @Test
-    void changeBothCredentials() {
+    void changeUsername_FirstLoginShouldBeFalseAfterChangingUsername() {
+        String oldUsername = "testUser";
+        User user = new User(oldUsername, "test", Role.CONFIGURATOR);
+        when(userRepository.findByNickname(oldUsername)).thenReturn(Optional.of(user));
+        user.setFirstLogin(true);
+
+        String newUsername = "newUsername";
+        userService.changeUsername(oldUsername, newUsername);
+
+        Assertions.assertNotNull(user);
+        Assertions.assertFalse(user.isFirstLogin());
     }
 
     @Test
-    void findById() {
+    void changeBothCredentials_ShouldReturnCorrectUsernameAndPassword() {
+        String oldUsername = "testUser";
+        String oldPassword = "testPassword";
+        User user = new User(oldUsername, passwordEncoder.encode(oldPassword), Role.CONFIGURATOR);
+        when(userRepository.findByNickname(oldUsername)).thenReturn(Optional.of(user));
+
+        String newUsername = "newUsername";
+        String newPassword = "newPassword";
+        when(userRepository.findByNickname(newUsername)).thenReturn(Optional.of(user));
+        userService.changeBothCredentials(oldUsername, newUsername, oldPassword, newPassword);
+
+        Assertions.assertNotNull(user);
+        assertNotNull(user.getNickname());
+        Assertions.assertEquals(newUsername, user.getNickname());
+        assertNotNull(user.getPassword());
+        assertTrue(passwordEncoder.matches(newPassword, user.getPassword()));
     }
 
     @Test
-    void findByNickname() {
+    void changeBothCredentials_ShouldThrowExceptionIfRoleVolunteerAndUsernameChanged() {
+        String oldUsername = "testUser";
+        String oldPassword = "testPassword";
+        User user = new User(oldUsername, passwordEncoder.encode(oldPassword), Role.VOLUNTEER);
+        when(userRepository.findByNickname(oldUsername)).thenReturn(Optional.of(user));
+
+        String newUsername = "newUsername";
+        String newPassword = "newPassword";
+        when(userRepository.findByNickname(newUsername)).thenReturn(Optional.of(user));
+        assertThrows(IllegalArgumentException.class, () -> //
+                userService.changeBothCredentials(oldUsername, newUsername, oldPassword, newPassword));
     }
 
     @Test
-    void login() {
+    void changeBothCredentials_FirstLoginShouldBeFalseAfterChangingCredentials() {
+        String oldUsername = "testUser";
+        String oldPassword = "testPassword";
+        User user = new User(oldUsername, passwordEncoder.encode(oldPassword), Role.CONFIGURATOR);
+        when(userRepository.findByNickname(oldUsername)).thenReturn(Optional.of(user));
+        user.setFirstLogin(true);
+
+        String newUsername = "newUsername";
+        String newPassword = "newPassword";
+
+        when(userRepository.findByNickname(newUsername)).thenReturn(Optional.of(user));
+        userService.changeBothCredentials(oldUsername, newUsername, oldPassword, newPassword);
+
+        Assertions.assertNotNull(user);
+        Assertions.assertFalse(user.isFirstLogin());
     }
 
     @Test
-    void getUsersByRole() {
+    void login_ShouldThrowExceptionWhenUserNotFound() {
+        LoginRequestDTO dto = new LoginRequestDTO("testUser", "testPassword");
+        when(userRepository.findByNickname(anyString())).thenReturn(Optional.empty());
+        assertThrows(IllegalArgumentException.class, () -> userService.login(dto));
     }
 
     @Test
-    void findAllByNicknames() {
+    void login_ShouldThrowExceptionWhenPasswordsDontMatch() {
+        LoginRequestDTO dto = new LoginRequestDTO("testUser", "testPassword");
+        User user = new User("testUser", "wrongPassword", Role.CONFIGURATOR);
+        when(userRepository.findByNickname(anyString())).thenReturn(Optional.of(user));
+
+        assertThrows(IllegalArgumentException.class, () -> userService.login(dto));
     }
 
     @Test
-    void getIdByNickname() {
+    void login_ShouldReturnCorrectLoginDetails() {
+        LoginRequestDTO dto = new LoginRequestDTO("testUser", "testPassword");
+        User user = new User("testUser", passwordEncoder.encode("testPassword"), Role.CONFIGURATOR);
+        when(userRepository.findByNickname(anyString())).thenReturn(Optional.of(user));
+
+        LoginResponseDTO loginResponse = userService.login(dto);
+        Assertions.assertNotNull(loginResponse);
+        Assertions.assertEquals(dto.nickname(), loginResponse.nickname());
+        Assertions.assertEquals(Role.CONFIGURATOR.getName(), loginResponse.role());
+        Assertions.assertTrue(user.isFirstLogin());
     }
 }

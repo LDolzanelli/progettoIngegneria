@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 class LocationServiceTest {
     private LocationRepositoryPort repository;
@@ -25,17 +26,17 @@ class LocationServiceTest {
 
     @BeforeEach
     void setUp() {
-        repository = Mockito.mock(LocationRepositoryPort.class);
-        visitTypeCRUD = Mockito.mock(VisitTypeCommandUseCase.class);
-        visitTypeValidation = Mockito.mock(VisitTypeValidationUseCase.class);
+        repository = mock(LocationRepositoryPort.class);
+        visitTypeCRUD = mock(VisitTypeCommandUseCase.class);
+        visitTypeValidation = mock(VisitTypeValidationUseCase.class);
 
         service = new LocationService(repository, visitTypeCRUD, visitTypeValidation);
     }
 
     @Test
     void listAll_ShouldReturnAllLocationsInRepository() {
-        Location locationTest = Mockito.mock(Location.class);
-        Mockito.when(repository.findAll()).thenReturn(List.of(locationTest));
+        Location locationTest = mock(Location.class);
+        when(repository.findAll()).thenReturn(List.of(locationTest));
 
         List<Location> locations = service.listAll();
         assertNotNull(locations);
@@ -45,24 +46,24 @@ class LocationServiceTest {
 
     @Test
     void canBeRemoved_ShouldReturnTrueIfVisitTypesIsEmpty() {
-        Location location = Mockito.mock(Location.class);
-        Mockito.when(repository.findById(Mockito.anyInt())).thenReturn(Optional.of(location));
+        Location location = mock(Location.class);
+        when(repository.findById(anyInt())).thenReturn(Optional.of(location));
 
-        Mockito.when(location.getVisitTypes()).thenReturn(List.of());
+        when(location.getVisitTypes()).thenReturn(List.of());
 
         Assertions.assertTrue(service.canBeRemoved(1));
     }
 
     @Test
     void canBeRemoved_ShouldReturnFalseIfLocationHasVisitTypes() {
-        Location location = Mockito.mock(Location.class);
-        Mockito.when(repository.findById(Mockito.anyInt())).thenReturn(Optional.of(location));
+        Location location = mock(Location.class);
+        when(repository.findById(anyInt())).thenReturn(Optional.of(location));
 
-        VisitType visitType = Mockito.mock(VisitType.class);
+        VisitType visitType = mock(VisitType.class);
         List<VisitType> visitTypes = List.of(visitType);
-        Mockito.when(location.getVisitTypes()).thenReturn(visitTypes);
+        when(location.getVisitTypes()).thenReturn(visitTypes);
 
-        Mockito.when(visitTypeValidation.canBeRemoved(Mockito.anyInt())).thenReturn(false);
+        when(visitTypeValidation.canBeRemoved(anyInt())).thenReturn(false);
         Assertions.assertFalse(service.canBeRemoved(1));
     }
 }
