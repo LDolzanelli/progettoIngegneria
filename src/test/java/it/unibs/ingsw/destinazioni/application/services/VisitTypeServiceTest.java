@@ -325,6 +325,4 @@ class VisitTypeServiceTest {
 
         verify(visitType).setVolunteers(argThat(list -> list.contains(volunteer)));
     }
-
-
 }

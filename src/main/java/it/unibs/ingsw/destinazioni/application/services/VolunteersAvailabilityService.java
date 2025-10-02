@@ -51,17 +51,17 @@ public class VolunteersAvailabilityService
     @                    LocalDate.now(clock).getDayOfMonth() >= 16);
     @*/
   public boolean canEnableAvailability() {
-    LocalDate now = LocalDate.now(clock);
-    int today = now.getDayOfMonth();
-    YearMonth current = YearMonth.from(now);
-    YearMonth next = current.plusMonths(1);
-    YearMonth nextPlusOne = current.plusMonths(2);
+    LocalDate today = LocalDate.now(clock);
+    int todayDateNumber = today.getDayOfMonth();
+    YearMonth currentYearMonth = YearMonth.from(today);
+    YearMonth nextYearMonth = currentYearMonth.plusMonths(1);
+    YearMonth nextPlusOneYearMonth = currentYearMonth.plusMonths(2);
 
-    boolean nextMonthAvailabilityNotOpen = !statePort.isVolunteerAvailabilityOpen(next.getMonthValue(), next.getYear());
-    boolean nextMonthVisitPlanCreated = visitPlanStatePort.isVisitPlanCreated(next.getMonthValue(), next.getYear());
+    boolean nextMonthAvailabilityNotOpen = !statePort.isVolunteerAvailabilityOpen(nextYearMonth.getMonthValue(), nextYearMonth.getYear());
+    boolean nextMonthVisitPlanCreated = visitPlanStatePort.isVisitPlanCreated(nextYearMonth.getMonthValue(), nextYearMonth.getYear());
     boolean nextTwoMonthsAvailabilityNotOpen =
-        !statePort.isVolunteerAvailabilityOpen(nextPlusOne.getMonthValue(), nextPlusOne.getYear());
-    boolean isTodayAfterSixteen = today >= 16;
+        !statePort.isVolunteerAvailabilityOpen(nextPlusOneYearMonth.getMonthValue(), nextPlusOneYearMonth.getYear());
+    boolean isTodayAfterSixteen = todayDateNumber >= 16;
 
     return nextMonthAvailabilityNotOpen && nextMonthVisitPlanCreated && nextTwoMonthsAvailabilityNotOpen
         && isTodayAfterSixteen;
@@ -83,11 +83,11 @@ public class VolunteersAvailabilityService
     @                    LocalDate.now(clock).getDayOfMonth() > 15);
     @*/
   public boolean canDisableAvailability() {
-    LocalDate now = LocalDate.now(clock);
-    int today = now.getDayOfMonth();
-    YearMonth next = YearMonth.from(now).plusMonths(1);
+    LocalDate today = LocalDate.now(clock);
+    int todayDateNumber = today.getDayOfMonth();
+    YearMonth nextYearMonth = YearMonth.from(today).plusMonths(1);
 
-    return statePort.isVolunteerAvailabilityOpen(next.getMonthValue(), next.getYear()) && today > 15;
+    return statePort.isVolunteerAvailabilityOpen(nextYearMonth.getMonthValue(), nextYearMonth.getYear()) && todayDateNumber > 15;
   }
 
 
@@ -99,15 +99,15 @@ public class VolunteersAvailabilityService
     @ signals (IllegalStateException e) !canEnableAvailability();
     @*/
   public void enableAvailability() {
+    YearMonth targetYearMonth = YearMonth.now(clock).plusMonths(2);
+
     if (!canEnableAvailability()) {
-      YearMonth target = YearMonth.now(clock).plusMonths(2);
       throw new IllegalStateException("Non è possibile abilitare la disponibilità dei volontari per il mese "
-          + target.getMonthValue() + "/" + target.getYear());
+          + targetYearMonth.getMonthValue() + "/" + targetYearMonth.getYear());
     }
 
-    YearMonth target = YearMonth.now(clock).plusMonths(2);
-    statePort.setVolunteerAvailabilityOpen(target.getMonthValue(), target.getYear(), true);
-    visitDaysUseCase.createDefaultVisitDays(target.getMonthValue());
+    statePort.setVolunteerAvailabilityOpen(targetYearMonth.getMonthValue(), targetYearMonth.getYear(), true);
+    visitDaysUseCase.createDefaultVisitDays(targetYearMonth.getMonthValue());
   }
 
 
@@ -119,14 +119,13 @@ public class VolunteersAvailabilityService
     @ signals (IllegalStateException e) !canDisableAvailability();
     @*/
   public void disableAvailability() {
-    if (!canDisableAvailability()) {
-      YearMonth target = YearMonth.now(clock).plusMonths(1);
-      throw new IllegalStateException("Non è possibile disabilitare la disponibilità dei volontari per il mese "
-          + target.getMonthValue() + "/" + target.getYear());
-    }
+    YearMonth targetYearMonth = YearMonth.now(clock).plusMonths(1);
 
-    YearMonth target = YearMonth.now(clock).plusMonths(1);
-    statePort.setVolunteerAvailabilityOpen(target.getMonthValue(), target.getYear(), false);
+    if (!canDisableAvailability()) {
+      throw new IllegalStateException("Non è possibile disabilitare la disponibilità dei volontari per il mese "
+          + targetYearMonth.getMonthValue() + "/" + targetYearMonth.getYear());
+    }
+    statePort.setVolunteerAvailabilityOpen(targetYearMonth.getMonthValue(), targetYearMonth.getYear(), false);
   }
 
 
@@ -160,11 +159,11 @@ public class VolunteersAvailabilityService
     @*/
   public boolean isAvailabilityEnabled() {
 
-    LocalDate now = LocalDate.now(clock);
+    LocalDate today = LocalDate.now(clock);
 
-    YearMonth next = now.getDayOfMonth() >= 16 ? YearMonth.from(now).plusMonths(2) : YearMonth.from(now).plusMonths(1);
+    YearMonth nextYearMonth = today.getDayOfMonth() >= 16 ? YearMonth.from(today).plusMonths(2) : YearMonth.from(today).plusMonths(1);
 
-    return statePort.isVolunteerAvailabilityOpen(next.getMonthValue(), next.getYear());
+    return statePort.isVolunteerAvailabilityOpen(nextYearMonth.getMonthValue(), nextYearMonth.getYear());
   }
 
   // ==== CRUD DISPONIBILITÀ VOLONTARI ====
@@ -180,14 +179,15 @@ public class VolunteersAvailabilityService
     @*/
   public void updateAvailability(int volunteerId, Set<LocalDate> availableDates) {
 
-    Month target = getTargetMonth();
+    Month targetMonth = getTargetMonth();
 
     if (!isAvailabilityEnabled()) {
-      throw new IllegalStateException("La disponibilità dei volontari non è abilitata per il mese " + target);
+      throw new IllegalStateException("La disponibilità dei volontari non è abilitata per il mese " + targetMonth);
     }
 
-    repository.findByVolunteerId(volunteerId).stream().filter(d -> d.getAvailableDate().getMonth() == target)
-        .forEach(repository::delete);
+    repository.findByVolunteerId(volunteerId).stream() //
+            .filter(d -> d.getAvailableDate().getMonth() == targetMonth) //
+            .forEach(repository::delete);
 
     availableDates.forEach(d -> repository.save(new VolunteerAvailableDate(volunteerId, d)));
   }
@@ -200,8 +200,9 @@ public class VolunteersAvailabilityService
     @ ensures (\forall LocalDate date; \result.contains(date); date != null);
     @*/
   public Set<LocalDate> getAvailability(int volunteerId) {
-    return repository.findByVolunteerId(volunteerId).stream().map(VolunteerAvailableDate::getAvailableDate)
-        .collect(Collectors.toSet());
+    return repository.findByVolunteerId(volunteerId).stream() //
+            .map(VolunteerAvailableDate::getAvailableDate) //
+            .collect(Collectors.toSet());
   }
 
 
@@ -215,8 +216,10 @@ public class VolunteersAvailabilityService
     @         date != null && date.getMonth() == month);
     @*/
   public Set<LocalDate> getAvailability(int volunteerId, Month month) {
-    return repository.findByVolunteerId(volunteerId).stream().filter(v -> v.getAvailableDate().getMonth() == month)
-        .map(VolunteerAvailableDate::getAvailableDate).collect(Collectors.toSet());
+    return repository.findByVolunteerId(volunteerId).stream() //
+            .filter(v -> v.getAvailableDate().getMonth() == month) //
+            .map(VolunteerAvailableDate::getAvailableDate) //
+            .collect(Collectors.toSet());
   }
 
 
@@ -229,8 +232,8 @@ public class VolunteersAvailabilityService
     @*/
   public Month getTargetMonth() {
     LocalDate today = LocalDate.now(clock);
-    int base = today.getDayOfMonth() < 16 ? today.getMonthValue() : today.plusMonths(1).getMonthValue();
-    int target = (base % 12) + 1;
-    return Month.of(target);
+    int baseMonthValue = today.getDayOfMonth() < 16 ? today.getMonthValue() : today.plusMonths(1).getMonthValue();
+    int targetMonthValue = (baseMonthValue % 12) + 1;
+    return Month.of(targetMonthValue);
   }
 }

@@ -38,9 +38,10 @@ public class VolunteerService implements VolunteerValidationUseCase, RemoveVolun
         }
 
         for (var visitType : queryVisitTypeUseCase.listAll()) {
-            boolean assegnato = visitType.getVolunteers().stream().anyMatch(v -> v.getId().equals(volunteer.getId()));
+            boolean isAnyVolunteerAssigned = visitType.getVolunteers().stream() //
+                    .anyMatch(visitTypeVolunteer -> visitTypeVolunteer.getId().equals(volunteer.getId()));
 
-            if (assegnato && !visitTypeValidationUseCase.canBeRemoved(visitType.getId())) {
+            if (isAnyVolunteerAssigned && !visitTypeValidationUseCase.canBeRemoved(visitType.getId())) {
                 return false;
             }
         }
@@ -64,8 +65,10 @@ public class VolunteerService implements VolunteerValidationUseCase, RemoveVolun
             throw new IllegalArgumentException("Il volontario non può essere rimosso");
         }
 
-        List<VisitType> visitTypes = queryVisitTypeUseCase.listAll().stream().filter(visitType -> visitType
-                .getVolunteers().stream().anyMatch(v -> v.getNickname().equals(volunteer.getNickname()))).toList();
+        List<VisitType> visitTypes = queryVisitTypeUseCase.listAll().stream() //
+                .filter(visitType -> visitType.getVolunteers().stream() //
+                        .anyMatch(v -> v.getNickname().equals(volunteer.getNickname()))) //
+                .toList();
 
         for (VisitType visitType : visitTypes) {
 
