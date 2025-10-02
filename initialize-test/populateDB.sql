@@ -77,11 +77,6 @@ INSERT INTO volunteers_visit_types (visit_type_id, volunteer_id) VALUES
 (3, 4), (3, 5),
 (4, 3), (4, 4), (4, 5);
 
-INSERT INTO month_collection_state (month, year, volunteers_availability_collection_enabled, visit_plan_created) VALUES
-(8, 2025, 0, 1),
-(9, 2025, 0, 0),
-(10, 2025, 0, 0);
-
 -- valori che sono generati dal sistema quando viene aperta la raccolta disponibilità di settembre. aggiunti manualmente
 -- per comodità di testing
 INSERT INTO visits
