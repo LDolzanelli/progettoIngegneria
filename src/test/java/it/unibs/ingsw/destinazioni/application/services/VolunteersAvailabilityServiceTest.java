@@ -1,6 +1,5 @@
 package it.unibs.ingsw.destinazioni.application.services;
 
-import it.unibs.ingsw.destinazioni.adapters.jpa.repository.VolunteerAvailableDateRepository;
 import it.unibs.ingsw.destinazioni.application.port.in.visit.VisitDaysUseCase;
 import it.unibs.ingsw.destinazioni.application.port.out.VisitPlanStatePort;
 import it.unibs.ingsw.destinazioni.application.port.out.VolunteerAvailabilityStatePort;
@@ -15,10 +14,10 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
-import static java.time.Month.*;
+import static java.time.Month.NOVEMBER;
+import static java.time.Month.OCTOBER;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 

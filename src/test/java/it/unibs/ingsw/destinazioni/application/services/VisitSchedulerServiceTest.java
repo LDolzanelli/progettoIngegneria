@@ -9,15 +9,17 @@ import it.unibs.ingsw.destinazioni.domain.model.enums.Role;
 import it.unibs.ingsw.destinazioni.domain.model.enums.VisitStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
+
 import java.time.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import static org.mockito.Mockito.*;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class VisitSchedulerServiceTest {
@@ -46,7 +48,7 @@ class VisitSchedulerServiceTest {
     }
 
     @Test
-    void updateVisitsStatus_checkIfOldVisitTurnsIntoCompletedIfConfirmed() {
+    void updateVisitsStatus_ConfirmedVisit_OldVisitShouldTurnToCompleted() {
         Set<Visit> visits = visitRepository.findAll();
 
         for (Visit visit : visits) {
@@ -62,7 +64,7 @@ class VisitSchedulerServiceTest {
     }
 
     @Test
-    void updateVisitsStatus_checkIfProposedVisitTurnsIntoFull() {
+    void updateVisitsStatus_ProposedVisitFull_ShouldTurnIntoFull() {
         Set<Visit> visits = visitRepository.findAll();
 
         for (Visit visit : visits) {
@@ -87,7 +89,7 @@ class VisitSchedulerServiceTest {
     }
 
     @Test
-    void updateVisitsStatus_checkIfFullVisitTurnsIntoProposedWhenNoLongerFull() {
+    void updateVisitsStatus_FullVisitNoLongerFull_ShouldTurnToProposed() {
         Set<Visit> visits = visitRepository.findAll();
         for (Visit visit : visits) {
             visit.setVisitStatus(VisitStatus.FULL);
@@ -109,7 +111,7 @@ class VisitSchedulerServiceTest {
     }
 
     @Test
-    void updateVisitsStatus_checkIfVisitStatusChangedThreeDaysBeforeToConfirmedIfMinNumberReached() {
+    void updateVisitsStatus_ThreeDaysBefore_VisitStatusShouldChangeToConfirmedIfMinNumberReached() {
         Set<Visit> visits = visitRepository.findAll();
         for(Visit visit : visits) {
             List<Booking> bookings = new ArrayList<>();
@@ -127,7 +129,7 @@ class VisitSchedulerServiceTest {
     }
 
     @Test
-    void updateVisitsStatus_checkIfVisitStatusChangedThreeDaysBeforeToCancelledIfMinNumberNotReached() {
+    void updateVisitsStatus_ThreeDaysBefore_VisitStatusShouldChangeToCancelledIfMinNumberNotReached() {
         Set<Visit> visits = visitRepository.findAll();
 
         for (Visit visit : visits) {

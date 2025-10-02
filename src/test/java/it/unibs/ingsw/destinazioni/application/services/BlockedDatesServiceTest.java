@@ -1,30 +1,38 @@
 package it.unibs.ingsw.destinazioni.application.services;
 
 import it.unibs.ingsw.destinazioni.application.port.out.BlockedDatesRepositoryPort;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
-import java.time.*;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.YearMonth;
+import java.time.ZoneId;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.Mockito.mock;
 
 class BlockedDatesServiceTest {
 
     private BlockedDatesRepositoryPort repositoryMock;
+
+    private BlockedDatesService service;
 
     @BeforeEach
     void setUp() {
          repositoryMock = mock(BlockedDatesRepositoryPort.class);
     }
 
-    @Test
-    void getMonthToUpdate_shouldReturnNovemberIfDateOctober15() {
-        Clock fixedClock = Clock.fixed(Instant.parse("2025-08-15T00:00:00Z"), ZoneId.systemDefault());
+    private void setUpFixedClockForService(String instantToParse) {
+        Clock fixedClock = Clock.fixed(Instant.parse(instantToParse), ZoneId.systemDefault());
 
-        BlockedDatesService service = new BlockedDatesService(repositoryMock, fixedClock);
+        service = new BlockedDatesService(repositoryMock, fixedClock);
+    }
+
+    @Test
+    void getMonthToUpdate_DateOctober15_ShouldReturnNovember() {
+        setUpFixedClockForService("2025-08-15T00:00:00Z");
 
         YearMonth result = service.getMonthToUpdate();
         YearMonth expectedResult = YearMonth.of(2025, 11);
@@ -34,10 +42,8 @@ class BlockedDatesServiceTest {
     }
 
     @Test
-    void getMonthToUpdate_shouldReturnDecemberIfDateOctober16() {
-        Clock fixedClock = Clock.fixed(Instant.parse("2025-08-16T00:00:00Z"), ZoneId.systemDefault());
-
-        BlockedDatesService service = new BlockedDatesService(repositoryMock, fixedClock);
+    void getMonthToUpdate_DateOctober16_ShouldReturnDecember() {
+        setUpFixedClockForService("2025-08-16T00:00:00Z");
 
         YearMonth result = service.getMonthToUpdate();
         YearMonth expectedResult = YearMonth.of(2025, 12);
@@ -45,5 +51,4 @@ class BlockedDatesServiceTest {
         assertNotNull(result);
         assertEquals(expectedResult, result);
     }
-
 }

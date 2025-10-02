@@ -8,7 +8,6 @@ import it.unibs.ingsw.destinazioni.domain.model.enums.Role;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -85,7 +84,7 @@ class UserServiceTest {
     }
 
     @Test
-    void changePassword_ShouldThrowExceptionIfOldPasswordDoesNotMatch() {
+    void changePassword_OldPasswordDoesNotMatch_ShouldThrowException() {
         String password = "testPassword";
         User user = new User("testUser", passwordEncoder.encode(password), Role.CONFIGURATOR);
         when(userRepository.findByNickname("testUser")).thenReturn(Optional.of(user));
@@ -111,7 +110,7 @@ class UserServiceTest {
     }
 
     @Test
-    void changePassword_FirstLoginShouldBeFalseAfterChangingPassword() {
+    void changePassword_AfterChangingPassword_FirstLoginShouldBeFalse() {
         String oldPassword = "testPassword";
         User user = new User("testUser", passwordEncoder.encode(oldPassword), Role.CONFIGURATOR);
         user.setFirstLogin(true);
@@ -138,7 +137,7 @@ class UserServiceTest {
     }
 
     @Test
-    void changeUsername_FirstLoginShouldBeFalseAfterChangingUsername() {
+    void changeUsername_AfterChangingUsername_FirstLoginShouldBeFalse() {
         String oldUsername = "testUser";
         User user = new User(oldUsername, "test", Role.CONFIGURATOR);
         when(userRepository.findByNickname(oldUsername)).thenReturn(Optional.of(user));
@@ -171,7 +170,7 @@ class UserServiceTest {
     }
 
     @Test
-    void changeBothCredentials_ShouldThrowExceptionIfRoleVolunteerAndUsernameChanged() {
+    void changeBothCredentials_RoleVolunteerAndUsernameChanged_ShouldThrowException() {
         String oldUsername = "testUser";
         String oldPassword = "testPassword";
         User user = new User(oldUsername, passwordEncoder.encode(oldPassword), Role.VOLUNTEER);
@@ -185,7 +184,7 @@ class UserServiceTest {
     }
 
     @Test
-    void changeBothCredentials_FirstLoginShouldBeFalseAfterChangingCredentials() {
+    void changeBothCredentials_AfterChangingCredentials_FirstLoginShouldBeFalse() {
         String oldUsername = "testUser";
         String oldPassword = "testPassword";
         User user = new User(oldUsername, passwordEncoder.encode(oldPassword), Role.CONFIGURATOR);
@@ -203,14 +202,14 @@ class UserServiceTest {
     }
 
     @Test
-    void login_ShouldThrowExceptionWhenUserNotFound() {
+    void login_UserNotFound_ShouldThrowException() {
         LoginRequestDTO dto = new LoginRequestDTO("testUser", "testPassword");
         when(userRepository.findByNickname(anyString())).thenReturn(Optional.empty());
         assertThrows(IllegalArgumentException.class, () -> userService.login(dto));
     }
 
     @Test
-    void login_ShouldThrowExceptionWhenPasswordsDontMatch() {
+    void login_PasswordsDontMatch_ShouldThrowException() {
         LoginRequestDTO dto = new LoginRequestDTO("testUser", "testPassword");
         User user = new User("testUser", "wrongPassword", Role.CONFIGURATOR);
         when(userRepository.findByNickname(anyString())).thenReturn(Optional.of(user));

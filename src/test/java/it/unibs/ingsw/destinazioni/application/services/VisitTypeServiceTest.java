@@ -7,14 +7,11 @@ import it.unibs.ingsw.destinazioni.domain.model.VisitType;
 import it.unibs.ingsw.destinazioni.domain.model.enums.Role;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-import org.springframework.cglib.core.Local;
 
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;

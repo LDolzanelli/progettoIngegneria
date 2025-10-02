@@ -5,10 +5,8 @@ import it.unibs.ingsw.destinazioni.application.port.out.*;
 import it.unibs.ingsw.destinazioni.domain.model.*;
 import it.unibs.ingsw.destinazioni.domain.model.enums.Role;
 import it.unibs.ingsw.destinazioni.domain.model.enums.VisitStatus;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.cglib.core.Local;
 
 import java.time.Clock;
 import java.time.Instant;
@@ -52,7 +50,7 @@ class VisitPlanServiceTest {
     }
 
     @Test
-    void canCreateVisitPlan_ShouldReturnTrueWhenConditionsApply() {
+    void canCreateVisitPlan_ConditionsApply_ShouldReturnTrue() {
         when(statePort.isVisitPlanCreated(anyInt(), anyInt()))
                 .thenReturn(false);
         when(availabilityStatePort.isVolunteerAvailabilityOpen(anyInt(), anyInt()))
@@ -62,7 +60,7 @@ class VisitPlanServiceTest {
     }
 
     @Test
-    void canCreateVisitPlan_ShouldReturnFalseWhenVisitPlanCreated() {
+    void canCreateVisitPlan_VisitPlanCreated_ShouldReturnFalse() {
         when(statePort.isVisitPlanCreated(anyInt(), anyInt()))
                 .thenReturn(true);
         when(availabilityStatePort.isVolunteerAvailabilityOpen(anyInt(), anyInt()))
@@ -72,7 +70,7 @@ class VisitPlanServiceTest {
     }
 
     @Test
-    void canCreateVisitPlan_ShouldReturnFalseWhenVolunteerAvailabilityOpen() {
+    void canCreateVisitPlan_VolunteerAvailabilityOpen_ShouldReturnFalse() {
         when(statePort.isVisitPlanCreated(anyInt(), anyInt()))
                 .thenReturn(false);
         when(availabilityStatePort.isVolunteerAvailabilityOpen(anyInt(), anyInt()))
@@ -82,7 +80,7 @@ class VisitPlanServiceTest {
     }
 
     @Test
-    void createVisit_ShouldThrowExceptionIfVisitPlanCannotBeCreated() {
+    void createVisit_VisitPlanCannotBeCreated_ShouldThrowException() {
         when(statePort.isVisitPlanCreated(anyInt(), anyInt()))
                 .thenReturn(true);
 

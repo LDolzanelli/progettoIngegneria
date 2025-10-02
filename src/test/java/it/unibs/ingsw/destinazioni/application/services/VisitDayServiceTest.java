@@ -11,12 +11,13 @@ import it.unibs.ingsw.destinazioni.domain.model.VisitType;
 import it.unibs.ingsw.destinazioni.domain.model.enums.DaysOfWeek;
 import it.unibs.ingsw.destinazioni.domain.model.enums.Role;
 import it.unibs.ingsw.destinazioni.domain.model.enums.VisitStatus;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
-import java.time.*;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -45,7 +46,7 @@ class VisitDayServiceTest {
     }
 
     @Test
-    void createDefaultVisitDays_ShouldThrowExceptionIfNotTwoMonthsFromNow() {
+    void createDefaultVisitDays_DateNotTwoMonthsFromNow_ShouldThrowException() {
         setUpClockForService("2025-08-16T00:00:00Z");
 
         Set<LocalDate> dates = Set.of(LocalDate.of(2025, 10, 10));
@@ -57,7 +58,7 @@ class VisitDayServiceTest {
     }
 
     @Test
-    void createDefaultVisitDays_ShouldThrowExceptionIfTodayDateBefore15() {
+    void createDefaultVisitDays_TodayDateBefore15_ShouldThrowException() {
         setUpClockForService("2025-08-10T00:00:00Z");
 
         assertThrows(IllegalArgumentException.class, () -> service.createDefaultVisitDays(10));
@@ -84,7 +85,7 @@ class VisitDayServiceTest {
     }
 
     @Test
-    void getConfirmedVisitsPerVolunteer_ShouldThrowExceptionWhenUserNotFound() {
+    void getConfirmedVisitsPerVolunteer_UserNotFound_ShouldThrowException() {
         setUpClockForService("2025-08-10T00:00:00Z");
         User user = new User("test", "test", Role.VOLUNTEER);
         when(userInfoServiceMock.findByNickname("wrongName")).thenReturn(Optional.empty());
@@ -94,7 +95,7 @@ class VisitDayServiceTest {
     }
 
     @Test
-    void getConfirmedVisitsPerVolunteer_ShouldThrowExceptionWhenUserNotVolunteer() {
+    void getConfirmedVisitsPerVolunteer_UserNotVolunteer_ShouldThrowException() {
         setUpClockForService("2025-08-10T00:00:00Z");
         User user = new User("test", "test", Role.CONFIGURATOR);
         when(userInfoServiceMock.findByNickname("test")).thenReturn(Optional.of(user));
