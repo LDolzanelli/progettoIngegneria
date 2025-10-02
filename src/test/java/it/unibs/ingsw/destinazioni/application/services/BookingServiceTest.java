@@ -3,18 +3,14 @@ package it.unibs.ingsw.destinazioni.application.services;
 import it.unibs.ingsw.destinazioni.application.port.in.user.GetUserInfoUseCase;
 import it.unibs.ingsw.destinazioni.application.port.out.BookingRepositoryPort;
 import it.unibs.ingsw.destinazioni.application.port.out.VisitRepositoryPort;
-import it.unibs.ingsw.destinazioni.domain.model.User;
 import it.unibs.ingsw.destinazioni.domain.model.Visit;
 import it.unibs.ingsw.destinazioni.domain.model.VisitType;
-import it.unibs.ingsw.destinazioni.domain.model.enums.Role;
 import it.unibs.ingsw.destinazioni.domain.model.enums.VisitStatus;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.Optional;
 import java.util.Set;
 
 import static org.mockito.Mockito.mock;

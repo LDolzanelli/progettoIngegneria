@@ -9,8 +9,6 @@ import it.unibs.ingsw.destinazioni.domain.model.enums.Role;
 import it.unibs.ingsw.destinazioni.domain.model.enums.VisitStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.*;
 import java.util.ArrayList;
@@ -21,7 +19,6 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@ExtendWith(MockitoExtension.class)
 class VisitSchedulerServiceTest {
 
     private VisitSchedulerService schedulerService;
