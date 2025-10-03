@@ -19,6 +19,6 @@ public class AreaOfInterest {
     }
 
     public void addArea(TownProvinceDTO dto) {
-        areas.add(dto); // Set garantisce unicità
+        areas.add(dto);
     }
 }

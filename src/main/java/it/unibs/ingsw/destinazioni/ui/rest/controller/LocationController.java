@@ -31,7 +31,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class LocationController {
 
-
     private final LocationQueryUseCase locationQueryService;
     private final LocationCommandUseCase manageLocationService;
     private final LocationValidationUseCase locationValidationService;

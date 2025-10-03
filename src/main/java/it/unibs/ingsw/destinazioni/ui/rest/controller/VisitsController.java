@@ -33,11 +33,11 @@ public class VisitsController {
         try {
             List<Visit> visits = visitDaysUseCase.getConfirmedVisitsPerVolunteer(volunteerNickname);
 
-            List<VolunteerVisitSummaryDTO> dtos = visits.stream()
-                    .map(visit -> new VolunteerVisitSummaryDTO(visit.getId(), visit.getDate().toString(),
-                            visit.getVisitType().getStartTime().toString(), visit.getVisitType().getTitle(),
-                            locationQueryService.getLocationForVisitType(visit.getVisitType()).getName(),
-                            visit.getVisitStatus().getItalianName(), visit.visitorsNumber()))
+            List<VolunteerVisitSummaryDTO> dtos = visits.stream() //
+                    .map(visit -> new VolunteerVisitSummaryDTO(visit.getId(), visit.getDate().toString(), //
+                            visit.getVisitType().getStartTime().toString(), visit.getVisitType().getTitle(), //
+                            locationQueryService.getLocationForVisitType(visit.getVisitType()).getName(), //
+                            visit.getVisitStatus().getItalianName(), visit.visitorsNumber())) //
                     .toList();
             return ResponseEntity.ok(dtos);
         } catch (Exception e) {

@@ -45,12 +45,11 @@ public class VisitTypeController {
             List<User> resolvedVolunteers = getUserInfoUseCase.findAllByNicknames(dto.volunteers());
             var visitType = mapper.toDomain(dto, resolvedVolunteers);
             VisitTypeCommandService.addVisitType(visitType, locationId);
+
             return ResponseEntity.ok().build();
         } catch (IllegalArgumentException e) {
-            e.printStackTrace();
             return ResponseEntity.badRequest().body("Dati non validi: " + e.getMessage());
         } catch (Exception e) {
-            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Errore interno: " + e.getMessage());
         }
     }
@@ -71,7 +70,9 @@ public class VisitTypeController {
     @GetMapping("/list/{locationId}")
     public ResponseEntity<Set<VisitTypeDTO>> listByLocation(@PathVariable int locationId) {
         Set<VisitType> visitTypes = VisitTypeQueryService.listByLocation(locationId);
-        Set<VisitTypeDTO> dtos = visitTypes.stream().map(mapper::toDTO).collect(Collectors.toSet());
+        Set<VisitTypeDTO> dtos = visitTypes.stream() //
+                .map(mapper::toDTO) //
+                .collect(Collectors.toSet());
         return ResponseEntity.ok(dtos);
     }
 
@@ -103,10 +104,10 @@ public class VisitTypeController {
     public ResponseEntity<Set<VisitTypeDTO>> listByVolunteer(@PathVariable int volunteerId) {
         try {
             Set<VisitType> visitTypes = VisitTypeQueryService.listByVolunteerId(volunteerId);
-            Set<VisitTypeDTO> dtos = visitTypes.stream().map(mapper::toDTO).collect(Collectors.toSet());
+            Set<VisitTypeDTO> dtos = visitTypes.stream() //
+                    .map(mapper::toDTO).collect(Collectors.toSet());
             return ResponseEntity.ok(dtos);
         } catch (Exception e) {
-            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }

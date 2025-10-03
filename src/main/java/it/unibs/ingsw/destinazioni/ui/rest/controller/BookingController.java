@@ -90,15 +90,18 @@ public class BookingController {
 
     @GetMapping("/my-bookings/{userId}")
     public ResponseEntity<List<BookingInformationDTO>> getMyBookingsWithCode(@PathVariable int userId) {
-        User user = userService.findById(userId).orElseThrow(() -> new IllegalArgumentException("User not found"));
+        User user = userService.findById(userId) //
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
         List<Booking> bookings = bookingQueryService.getBookingsByUser(user);
 
-        List<BookingInformationDTO> result = bookings.stream().map(b -> {
-            Visit visit = bookingQueryService.getVisitByBookingCode(b.getBookingCode());
-            VisitInformationDTO dto = visitMapper.toVisitInformationDTO(visit);
-            return new BookingInformationDTO(dto, b.getBookingCode());
-        }).toList();
+        List<BookingInformationDTO> result = bookings.stream() //
+                .map(b -> { //
+                    Visit visit = bookingQueryService.getVisitByBookingCode(b.getBookingCode()); //
+                    VisitInformationDTO dto = visitMapper.toVisitInformationDTO(visit); //
+                    return new BookingInformationDTO(dto, b.getBookingCode()); //
+                }) //
+                .toList();
 
         return ResponseEntity.ok(result);
     }
