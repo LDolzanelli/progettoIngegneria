@@ -2,6 +2,7 @@ package it.unibs.ingsw.destinazioni.ui.view.controller;
 
 import it.unibs.ingsw.destinazioni.domain.dto.TownProvinceDTO;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
@@ -18,6 +19,9 @@ import java.util.List;
 public class InsertAreasController {
 
     private final RestTemplate restTemplate;
+
+    @Value("${api.base-url}")
+    private String apiBaseUrl;
 
     @GetMapping
     public String showForm(@AuthenticationPrincipal UserDetails principal, Model model) {
@@ -40,7 +44,7 @@ public class InsertAreasController {
         try {
             for (int i = 0; i < towns.size(); i++) {
                 TownProvinceDTO dto = new TownProvinceDTO(towns.get(i), provinces.get(i));
-                restTemplate.postForEntity("http://localhost:8080/api/area-of-interest/addArea", dto, Void.class);
+                restTemplate.postForEntity(apiBaseUrl + "/area-of-interest/addArea", dto, Void.class);
             }
         } catch (HttpClientErrorException e) {
             model.addAttribute("error", "Errore durante l'inserimento: " + e.getResponseBodyAsString());

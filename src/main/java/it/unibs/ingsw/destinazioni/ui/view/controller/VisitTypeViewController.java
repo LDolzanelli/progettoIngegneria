@@ -4,6 +4,7 @@ import it.unibs.ingsw.destinazioni.domain.dto.VisitTypeDTO;
 import it.unibs.ingsw.destinazioni.domain.dto.VolunteerDTO;
 import it.unibs.ingsw.destinazioni.domain.model.User;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -31,6 +32,9 @@ public class VisitTypeViewController {
     private final RestTemplate restTemplate;
     private final Clock clock;
 
+    @Value("${api.base-url}")
+    private String apiBaseUrl;
+
     @GetMapping("/view-visittype")
     public String viewVisitTypes(@RequestParam(required = false) Long locationId,
             @RequestParam(required = false) Integer volunteerId, @AuthenticationPrincipal UserDetails principal,
@@ -40,7 +44,7 @@ public class VisitTypeViewController {
         String userRole = "finalUser";
 
         try {
-            String url = "http://localhost:8080/api/users/get-role/" + principal.getUsername();
+            String url = apiBaseUrl + "/users/get-role/" + principal.getUsername();
             ResponseEntity<String> role = restTemplate.getForEntity(url, String.class);
             userRole = role.getBody();
         } catch (Exception e) {
@@ -50,7 +54,7 @@ public class VisitTypeViewController {
         model.addAttribute("role", userRole);
 
         boolean canAddVisitTypes = Boolean.TRUE.equals(
-                restTemplate.getForObject("http://localhost:8080/api/visit-type/modification-state-active", Boolean.class));
+                restTemplate.getForObject(apiBaseUrl + "/visit-type/modification-state-active", Boolean.class));
         model.addAttribute("canAddVisits", canAddVisitTypes);
 
         try {
@@ -58,13 +62,13 @@ public class VisitTypeViewController {
 
             if (volunteerId != null) {
                 // caso volontario: carica le visite a lui assegnate
-                String url = "http://localhost:8080/api/visit-type/volunteer/" + volunteerId;
+                String url = apiBaseUrl + "/visit-type/volunteer/" + volunteerId;
                 ResponseEntity<VisitTypeDTO[]> response = restTemplate.getForEntity(url, VisitTypeDTO[].class);
                 visitTypes = response.getBody();
 
             } else if (locationId != null) {
                 // caso normale: carica le visite associate ad un luogo
-                String url = "http://localhost:8080/api/visit-type/list/" + locationId;
+                String url = apiBaseUrl + "/visit-type/list/" + locationId;
                 ResponseEntity<VisitTypeDTO[]> response = restTemplate.getForEntity(url, VisitTypeDTO[].class);
                 visitTypes = response.getBody();
 
@@ -91,7 +95,7 @@ public class VisitTypeViewController {
         model.addAttribute("currentDate", currentDate);
 
         try {
-            String url = "http://localhost:8080/api/users/list_volunteers";
+            String url = apiBaseUrl + "/users/list_volunteers";
             ResponseEntity<VolunteerDTO[]> response = restTemplate.getForEntity(url, VolunteerDTO[].class);
             List<VolunteerDTO> volunteers = Arrays.asList(response.getBody());
 
@@ -132,7 +136,7 @@ public class VisitTypeViewController {
         visitTypeDto.put("volunteers", volunteers);
 
         try {
-            restTemplate.postForEntity("http://localhost:8080/api/visit-type/add", visitTypeDto, Void.class);
+            restTemplate.postForEntity(apiBaseUrl + "/visit-type/add", visitTypeDto, Void.class);
             model.addAttribute("success", "Tipo di visita aggiunto con successo!");
         } catch (HttpClientErrorException e) {
             model.addAttribute("error", "Errore durante l'aggiunta del tipo di visita: " + e.getResponseBodyAsString());
@@ -146,14 +150,14 @@ public class VisitTypeViewController {
     @GetMapping("/add-volunteers")
     public String addVolunteersPage(@RequestParam int visitTypeId, Model model) {
         try {
-            String urlAssigned = "http://localhost:8080/api/visit-type/" + visitTypeId;
+            String urlAssigned = apiBaseUrl + "/visit-type/" + visitTypeId;
             ResponseEntity<VisitTypeDTO> response = restTemplate.getForEntity(urlAssigned, VisitTypeDTO.class);
             VisitTypeDTO visitType = response.getBody();
 
             model.addAttribute("visitTypeId", visitTypeId);
             model.addAttribute("assignedVolunteers", visitType.volunteers());
 
-            String urlAll = "http://localhost:8080/api/users/list_volunteers";
+            String urlAll = apiBaseUrl + "/users/list_volunteers";
             ResponseEntity<VolunteerDTO[]> allResponse = restTemplate.getForEntity(urlAll, VolunteerDTO[].class);
             List<VolunteerDTO> allVolunteers = Arrays.asList(allResponse.getBody());
 
@@ -176,7 +180,7 @@ public class VisitTypeViewController {
     public String addVolunteerSubmit(@RequestParam int visitTypeId, @RequestParam String volunteerNickname,
             RedirectAttributes redirectAttributes) {
         try {
-            String url = "http://localhost:8080/api/visit-type/add-volunteer/" + visitTypeId + "/" + volunteerNickname;
+            String url = apiBaseUrl + "/visit-type/add-volunteer/" + visitTypeId + "/" + volunteerNickname;
             restTemplate.postForEntity(url, null, Void.class);
 
             redirectAttributes.addFlashAttribute("success",

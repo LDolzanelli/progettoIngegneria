@@ -10,6 +10,8 @@ spring:
     servlet:
       content-type: text/html
 
+
+
   datasource:
     url: jdbc:mysql://localhost:3306/destinazioni
     username: destinazioni
@@ -23,3 +25,6 @@ spring:
 
   liquibase:
     enabled: false
+
+api:
+  base-url: http://localhost:8080/api

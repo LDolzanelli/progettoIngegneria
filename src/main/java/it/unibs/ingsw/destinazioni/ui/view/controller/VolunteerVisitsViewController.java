@@ -2,6 +2,7 @@ package it.unibs.ingsw.destinazioni.ui.view.controller;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,11 +19,13 @@ import lombok.RequiredArgsConstructor;
 public class VolunteerVisitsViewController {
 
     private final RestTemplate restTemplate;
-    private final String BASE_URL = "http://localhost:8080/api/visit";
+
+    @Value("${api.base-url}")
+    private String apiBaseUrl;
 
     @GetMapping("/confirmed-visits")
     public String confirmedVisits(@RequestParam String volunteerNickname, Model model) {
-        String url = BASE_URL + "/list-confirmed/" + volunteerNickname;
+        String url = apiBaseUrl + "/visit/list-confirmed/" + volunteerNickname;
         List<VolunteerVisitSummaryDTO> visits;
 
         try {
@@ -39,7 +42,7 @@ public class VolunteerVisitsViewController {
 
     @GetMapping("/visit-details/{visitId}")
     public String visitDetails(@PathVariable Integer visitId, Model model) {
-        String url = BASE_URL + "/details/" + visitId;
+        String url = apiBaseUrl + "/visit/details/" + visitId;
         VisitInformationDTO visit;
 
         try {

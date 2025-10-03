@@ -4,6 +4,7 @@ import it.unibs.ingsw.destinazioni.domain.dto.LoginResponseDTO;
 import it.unibs.ingsw.destinazioni.domain.dto.RegisterUserDTO;
 import jakarta.annotation.security.PermitAll;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
@@ -20,9 +21,13 @@ public class RegisterUserController {
 
     private final RestTemplate restTemplate;
 
+    @Value("${api.base-url}")
+    private String apiBaseUrl;
+
     @GetMapping
     public String showForm(@AuthenticationPrincipal UserDetails principal, Model model) {
-        boolean isConfigurator = principal != null && principal.getAuthorities().stream()
+        boolean isConfigurator = principal != null && principal.getAuthorities() //
+                .stream() //
                 .anyMatch(auth -> auth.getAuthority().equals("ROLE_CONFIGURATOR"));
 
         model.addAttribute("isConfigurator", isConfigurator);
@@ -42,7 +47,7 @@ public class RegisterUserController {
             LoginResponseDTO userInfo;
 
             try {
-                userInfo = restTemplate.getForObject("http://localhost:8080/api/users/info/" + authNickname, LoginResponseDTO.class);
+                userInfo = restTemplate.getForObject(apiBaseUrl + "/users/info/" + authNickname, LoginResponseDTO.class);
                 isConfigurator = userInfo.role().equalsIgnoreCase("configurator");
             } catch (Exception e) {
                 throw new IllegalStateException("Errore nel recupero dell'utente: " + nickname, e);
@@ -59,7 +64,7 @@ public class RegisterUserController {
         RegisterUserDTO dto = new RegisterUserDTO(nickname, password, confirmPassword, role);
 
         try {
-            restTemplate.postForEntity("http://localhost:8080/api/users/register", dto, Void.class);
+            restTemplate.postForEntity(apiBaseUrl + "/users/register", dto, Void.class);
         } catch (HttpClientErrorException e) {
             model.addAttribute("error", "Errore durante la registrazione: " + e.getResponseBodyAsString());
             model.addAttribute("isConfigurator", isConfigurator);

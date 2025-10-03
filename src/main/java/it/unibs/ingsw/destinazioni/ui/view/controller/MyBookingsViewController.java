@@ -3,6 +3,7 @@ package it.unibs.ingsw.destinazioni.ui.view.controller;
 import it.unibs.ingsw.destinazioni.domain.dto.BookingInformationDTO;
 import it.unibs.ingsw.destinazioni.domain.dto.VisitInformationDTO;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -23,13 +24,16 @@ public class MyBookingsViewController {
 
     private final RestTemplate restTemplate;
 
+    @Value("${api.base-url}")
+    private String apiBaseUrl;
+
     @GetMapping("/my-bookings")
     public String viewMyBookings(@AuthenticationPrincipal UserDetails principal, Model model) {
         model.addAttribute("username", principal.getUsername());
 
         int userId = 0;
         try {
-            String urlId = "http://localhost:8080/api/users/get-id/" + principal.getUsername();
+            String urlId = apiBaseUrl + "/users/get-id/" + principal.getUsername();
             ResponseEntity<Integer> idResponse = restTemplate.getForEntity(urlId, Integer.class);
             userId = idResponse.getBody() != null ? idResponse.getBody() : 0;
         } catch (Exception e) {
@@ -40,9 +44,9 @@ public class MyBookingsViewController {
         model.addAttribute("userId", userId);
 
         List<BookingInformationDTO> myBookings;
-        Map<String, VisitInformationDTO> visitInformationDTOSwithCode = new LinkedHashMap();
+        Map<String, VisitInformationDTO> visitInformationDTOSwithCode = new LinkedHashMap<>();
         try {
-            String urlBookings = "http://localhost:8080/api/booking/my-bookings/" + userId;
+            String urlBookings = apiBaseUrl + "/booking/my-bookings/" + userId;
             ResponseEntity<BookingInformationDTO[]> response = restTemplate.getForEntity(urlBookings, BookingInformationDTO[].class);
             myBookings = response.getBody() != null ? Arrays.asList(response.getBody()) : List.of();
         } catch (Exception e) {
