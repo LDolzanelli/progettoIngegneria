@@ -10,6 +10,7 @@ import it.unibs.ingsw.destinazioni.domain.model.VolunteerAvailableDate;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -70,6 +71,16 @@ public class JpaVolunteerAvailableDateRepositoryAdapter implements VolunteerAvai
         return repository.findAll()
                 .stream()
                 .filter(entity -> entity.getId().getAvailableDate().equals(date))
+                .map(this::toDomain)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<VolunteerAvailableDate> findByYearMonth(YearMonth yearMonth) {
+        return repository.findAll()
+                .stream()
+                .filter(entity -> entity.getId().getAvailableDate().getYear() == yearMonth.getYear())
+                .filter(entity -> entity.getId().getAvailableDate().getMonth() == yearMonth.getMonth())
                 .map(this::toDomain)
                 .collect(Collectors.toList());
     }

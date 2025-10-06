@@ -110,6 +110,17 @@ class UserServiceTest {
     }
 
     @Test
+    void findById_ShouldReturnUser() {
+        User user = new User(1, "testUser", "", Role.CONFIGURATOR, false);
+        when(userRepository.findById(1)).thenReturn(Optional.of(user));
+
+        assertNotNull(user);
+        assertNotNull(user.getId());
+        assertEquals(1, user.getId());
+        assertEquals("testUser", user.getNickname());
+    }
+
+    @Test
     void changePassword_AfterChangingPassword_FirstLoginShouldBeFalse() {
         String oldPassword = "testPassword";
         User user = new User("testUser", passwordEncoder.encode(oldPassword), Role.CONFIGURATOR);
