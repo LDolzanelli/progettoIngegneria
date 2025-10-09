@@ -1,0 +1,43 @@
+@startuml
+skinparam actorStyle awesome
+
+actor Volontario as volunteer
+box "View" #LemonChiffon
+entity "Web Server" as webServer
+participant "date-picker.html" as datepicker
+end box
+box "Controller" #lightgreen
+participant DatePickerController as dpController
+participant VolunteerAvailablilityController as vaController
+'participant VolunteerAvailabilityControlUseCase as vacUseCase
+end box
+box "Model" #sandybrown
+participant VolunteersAvailabilityService as vaService
+'participant VolunteerAvailableDateRepositoryPort as vadRepositoryPort
+'participant JpaVolunteerAvailableDateRepositoryPort as jpadRepositoryPort'
+participant JpaVolunteerAvailableDateRepositoryAdapter as jpadRepositoryAdapter
+end box
+
+box "Persistence" #mediumpurple
+'participant VolunteerAvailableDateRepositoryRepository as vadRepository
+participant VolunteerAvailableDateEntity as vadEntity
+database Database as db
+end box
+
+volunteer --> webServer : "GET /date-picker"
+webServer -> dpController : "showDatePicker()"
+dpController -> webServer : "date-picker"
+webServer --> volunteer : "200 OK date-picker.html"
+volunteer --> webServer : "GET /is-enabled"
+webServer -> vaController : "isAvailablityEnabled()"
+vaController -> vaService : "isAvailabilityEnabled()"
+vaService --> vaController : "raccolta disponibilitá abilitata"
+vaController --> webServer : "true"
+webServer --> volunteer : "200 OK true"
+volunteer --> webServer : "POST /update-own lista-date (JSON)"
+webServer --> vaController : "updateOwnAvailablity()"
+vaController -> vaService : "updateAvailability()"
+vaService -> jpadRepositoryAdapter : "save()"
+jpadRepositoryAdapter --> vadEntity : "~save()"
+vadEntity --> db : "scrittura su DB"
+@enduml
