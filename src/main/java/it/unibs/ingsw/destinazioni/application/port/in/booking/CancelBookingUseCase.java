@@ -1,6 +1,6 @@
 package it.unibs.ingsw.destinazioni.application.port.in.booking;
 
-import it.unibs.ingsw.destinazioni.application.exceptions.BookingException;
+import it.unibs.ingsw.destinazioni.application.exceptions.specific.BookingException;
 
 /**
  * Interface per la cancellazione delle prenotazioni delle visite.

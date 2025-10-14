@@ -6,7 +6,10 @@ import java.time.YearMonth;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
-
+import it.unibs.ingsw.destinazioni.application.exceptions.codes.UserErrorCode;
+import it.unibs.ingsw.destinazioni.application.exceptions.codes.VisitDayErrorCode;
+import it.unibs.ingsw.destinazioni.application.exceptions.specific.UserException;
+import it.unibs.ingsw.destinazioni.application.exceptions.specific.VisitDayException;
 import it.unibs.ingsw.destinazioni.application.port.in.user.GetUserInfoUseCase;
 import it.unibs.ingsw.destinazioni.application.port.in.visit.VisitDaysUseCase;
 import it.unibs.ingsw.destinazioni.application.port.out.BlockedDatesRepositoryPort;
@@ -20,6 +23,7 @@ import it.unibs.ingsw.destinazioni.domain.model.enums.DaysOfWeek;
 import it.unibs.ingsw.destinazioni.domain.model.enums.Role;
 import it.unibs.ingsw.destinazioni.domain.model.enums.VisitStatus;
 import lombok.RequiredArgsConstructor;
+
 
 @Service
 @RequiredArgsConstructor
@@ -48,9 +52,11 @@ public class VisitDayService implements VisitDaysUseCase {
         int year = now.getYear();
 
         if (month != now.plusMonths(2).getMonthValue() || now.getDayOfMonth() < 15) {
-            throw new IllegalArgumentException(
+            throw new VisitDayException(VisitDayErrorCode.CANT_BE_CREATED_AT_THIS_DATE,
                     "non è possibile creare visite per il mese i + 2 se non è dopo il 15 del mese corrente");
         }
+
+
 
         YearMonth targetMonth = YearMonth.of(year, month);
         LocalDate startOfMonth = targetMonth.atDay(1);
@@ -110,10 +116,11 @@ public class VisitDayService implements VisitDaysUseCase {
       @*/
     public List<Visit> getConfirmedVisitsPerVolunteer(String volunteerNickname) {
         User volunteer = userInfoService.findByNickname(volunteerNickname)
-                .orElseThrow(() -> new IllegalArgumentException("Volontario non trovato: " + volunteerNickname));
+                .orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND, volunteerNickname));
 
         if (volunteer.getRole() != Role.VOLUNTEER)
-            throw new IllegalArgumentException("L'utente non è un volontario: " + volunteerNickname);
+            throw new UserException(UserErrorCode.UNAUTHORIZED_REQUEST,
+                    "L'utente con nickname " + volunteerNickname + " non è un volontario");
 
         return visitRepository.findByVolunteer(volunteerNickname).stream()
                 .filter(visit -> visit.getVisitStatus() == VisitStatus.CONFIRMED).toList();
@@ -128,7 +135,8 @@ public class VisitDayService implements VisitDaysUseCase {
       @*/
     public Visit getVisitById(int visitId) {
         return visitRepository.findById(visitId)
-                .orElseThrow(() -> new IllegalArgumentException("Visita non trovata con id: " + visitId));
+                .orElseThrow(() -> new VisitDayException(VisitDayErrorCode.VISIT_NOT_FOUND,
+                        "Visita non trovata con id: " + visitId));
     }
 
 }

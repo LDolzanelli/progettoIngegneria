@@ -45,13 +45,10 @@ public class BookingController {
         String bookingCode = dto.bookingCode();
         Integer userId = dto.userId();
 
-        try {
-            cancelBookingService.cancelBooking(bookingCode, userId);
-            return ResponseEntity.ok("Prenotazione " + bookingCode + " è stata annullata con successo.");
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest()
-                    .body("Errore durante l'annullamento della prenotazione: " + e.getMessage());
-        }
+
+        cancelBookingService.cancelBooking(bookingCode, userId);
+        return ResponseEntity.ok("Prenotazione " + bookingCode + " è stata annullata con successo.");
+
     }
 
 
@@ -78,12 +75,10 @@ public class BookingController {
                 .orElseThrow(() -> new IllegalArgumentException("User with id " + dto.userId() + " not found"));
         List<String> visitorNames = dto.visitorsNames();
 
-        try {
-            createBookingService.bookVisit(visit, user, visitorNames);
-            return ResponseEntity.ok("Prenotazione effettuata con successo");
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body("Errore durante la prenotazione: " + e.getMessage());
-        }
+
+        createBookingService.bookVisit(visit, user, visitorNames);
+        return ResponseEntity.ok("Prenotazione effettuata con successo");
+
     }
 
     private final VisitMapper visitMapper;

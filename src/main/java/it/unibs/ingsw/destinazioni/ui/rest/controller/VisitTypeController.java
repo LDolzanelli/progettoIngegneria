@@ -41,29 +41,21 @@ public class VisitTypeController {
 
     @PostMapping("/add/{locationId}")
     public ResponseEntity<String> addVisitType(@RequestBody VisitTypeDTO dto, @PathVariable int locationId) {
-        try {
-            List<User> resolvedVolunteers = getUserInfoUseCase.findAllByNicknames(dto.volunteers());
-            var visitType = mapper.toDomain(dto, resolvedVolunteers);
-            VisitTypeCommandService.addVisitType(visitType, locationId);
 
-            return ResponseEntity.ok().build();
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body("Dati non validi: " + e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Errore interno: " + e.getMessage());
-        }
+        List<User> resolvedVolunteers = getUserInfoUseCase.findAllByNicknames(dto.volunteers());
+        var visitType = mapper.toDomain(dto, resolvedVolunteers);
+        VisitTypeCommandService.addVisitType(visitType, locationId);
+        return ResponseEntity.ok().build();
+
     }
 
 
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<String> deleteVisitType(@PathVariable int id) {
-        try {
-            VisitTypeCommandService.removeVisitType(id);
-            return ResponseEntity.ok().build();
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Errore durante la rimozione: " + e.getMessage());
-        }
+
+        VisitTypeCommandService.removeVisitType(id);
+        return ResponseEntity.ok().build();
+
     }
 
 
@@ -87,43 +79,32 @@ public class VisitTypeController {
 
     @PutMapping("/update/{locationId}")
     public ResponseEntity<Void> updateVisitType(@RequestBody VisitTypeDTO dto, @PathVariable int locationId) {
-        try {
-            List<User> resolvedVolunteers = getUserInfoUseCase.findAllByNicknames(dto.volunteers());
-            var visitType = mapper.toDomain(dto, resolvedVolunteers);
-            VisitTypeCommandService.updateVisitType(visitType);
-            return ResponseEntity.ok().build();
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().build();
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+
+        List<User> resolvedVolunteers = getUserInfoUseCase.findAllByNicknames(dto.volunteers());
+        var visitType = mapper.toDomain(dto, resolvedVolunteers);
+        VisitTypeCommandService.updateVisitType(visitType);
+        return ResponseEntity.ok().build();
+
     }
 
 
     @GetMapping("/volunteer/{volunteerId}")
     public ResponseEntity<Set<VisitTypeDTO>> listByVolunteer(@PathVariable int volunteerId) {
-        try {
-            Set<VisitType> visitTypes = VisitTypeQueryService.listByVolunteerId(volunteerId);
-            Set<VisitTypeDTO> dtos = visitTypes.stream() //
-                    .map(mapper::toDTO).collect(Collectors.toSet());
-            return ResponseEntity.ok(dtos);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+
+        Set<VisitType> visitTypes = VisitTypeQueryService.listByVolunteerId(volunteerId);
+        Set<VisitTypeDTO> dtos = visitTypes.stream().map(mapper::toDTO).collect(Collectors.toSet());
+        return ResponseEntity.ok(dtos);
+
     }
 
 
     @PostMapping("/add-volunteer/{visitTypeId}/{nickname}")
     public ResponseEntity<String> addVolunteerToVisitType(@PathVariable int visitTypeId,
             @PathVariable String nickname) {
-        try {
-            assignVolunteerToVisitTypeService.addVolunteerToVisitType(visitTypeId, nickname);
-            return ResponseEntity.ok().build();
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body("Dati non validi: " + e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Errore interno: " + e.getMessage());
-        }
+
+        assignVolunteerToVisitTypeService.addVolunteerToVisitType(visitTypeId, nickname);
+        return ResponseEntity.ok().build();
+
     }
 
 

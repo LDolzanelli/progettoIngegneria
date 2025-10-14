@@ -8,7 +8,10 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import it.unibs.ingsw.destinazioni.application.exceptions.codes.UserErrorCode;
+import it.unibs.ingsw.destinazioni.application.exceptions.codes.VisitPlanErrorCode;
+import it.unibs.ingsw.destinazioni.application.exceptions.specific.UserException;
+import it.unibs.ingsw.destinazioni.application.exceptions.specific.VisitPlanException;
 import it.unibs.ingsw.destinazioni.application.port.in.user.GetUserInfoUseCase;
 import it.unibs.ingsw.destinazioni.application.port.in.visitplan.CreateVisitPlanUseCase;
 import it.unibs.ingsw.destinazioni.application.port.in.visitplan.VisitPlanQueryUseCase;
@@ -76,7 +79,8 @@ public class VisitPlanService implements CreateVisitPlanUseCase, VisitPlanQueryU
       @*/
     public void createVisitPlan() {
         if (!canCreateVisitPlan()) {
-            throw new IllegalStateException("Non è possibile creare il piano di visita per il mese successivo.");
+            throw new VisitPlanException(VisitPlanErrorCode.CANT_BE_CREATED,
+                    "Non è possibile creare il piano di visita per il mese successivo.");
         }
 
         YearMonth nextMonth = YearMonth.from(LocalDate.now(clock)).plusMonths(1);
@@ -245,7 +249,8 @@ public class VisitPlanService implements CreateVisitPlanUseCase, VisitPlanQueryU
         if (volunteer.isPresent())
             return volunteer.get();
         else
-            throw new IllegalArgumentException("Volunteer with id " + id + " not found in volunteer list!");
+            throw new UserException(UserErrorCode.USER_NOT_FOUND,
+                    "Volunteer with id " + id + " not found in volunteer list!");
     }
 
 
@@ -264,9 +269,10 @@ public class VisitPlanService implements CreateVisitPlanUseCase, VisitPlanQueryU
                         Integer.compare(visitCountFromVolunteer(volunteer1, volunteerIdWithVisitCounts), //
                         visitCountFromVolunteer(volunteer2, volunteerIdWithVisitCounts));
 
+
         return volunteerIds.stream() //
                 .min(volunteerComparator) //
-                .orElseThrow(() -> new IllegalArgumentException("No volunteers available"));
+                .orElseThrow(() -> new VisitPlanException(VisitPlanErrorCode.NO_AVAILABLE_VOLUNTEERS, "No volunteers available"));
 
     }
 
@@ -288,14 +294,17 @@ public class VisitPlanService implements CreateVisitPlanUseCase, VisitPlanQueryU
         volunteerIdWithVisitCounts.stream() //
                 .filter(volunteerVisitCount -> Objects.equals(volunteerVisitCount.getVolunteerId(), volunteerId)) //
                 .findFirst() //
-                .orElseThrow(() -> new IllegalArgumentException("Volunteer not found in visit counts")) //
+                .orElseThrow(() -> new VisitPlanException(VisitPlanErrorCode.AVAILABILITY_NOT_FOUND,
+                        "Volunteer not found in visit counts")) //
                 .increment();
 
         VolunteerAvailableDate usedAvailability = volunteerAvailabilities.stream().filter(Objects::nonNull) //
                 .filter(volunteerAvailableDate -> Objects.equals(volunteerAvailableDate.getVolunteerId(), volunteerId) //
                         && volunteerAvailableDate.getAvailableDate().equals(visit.getDate())) //
                 .findFirst() //
-                .orElseThrow(() -> new IllegalArgumentException("Volunteer availability not found"));
+                .orElseThrow(() -> new VisitPlanException(VisitPlanErrorCode.AVAILABILITY_NOT_FOUND,
+                        "Volunteer not found in visit counts"));
+
 
         volunteerAvailabilities.remove(usedAvailability);
 

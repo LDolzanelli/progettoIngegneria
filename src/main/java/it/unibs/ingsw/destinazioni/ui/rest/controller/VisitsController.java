@@ -30,30 +30,26 @@ public class VisitsController {
     @GetMapping("/list-confirmed/{volunteerNickname}")
     public ResponseEntity<List<VolunteerVisitSummaryDTO>> getConfirmedVisitsForVolunteer(
             @PathVariable String volunteerNickname) {
-        try {
-            List<Visit> visits = visitDaysUseCase.getConfirmedVisitsPerVolunteer(volunteerNickname);
 
-            List<VolunteerVisitSummaryDTO> dtos = visits.stream() //
-                    .map(visit -> new VolunteerVisitSummaryDTO(visit.getId(), visit.getDate().toString(), //
-                            visit.getVisitType().getStartTime().toString(), visit.getVisitType().getTitle(), //
-                            locationQueryService.getLocationForVisitType(visit.getVisitType()).getName(), //
-                            visit.getVisitStatus().getItalianName(), visit.visitorsNumber())) //
-                    .toList();
-            return ResponseEntity.ok(dtos);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+        List<Visit> visits = visitDaysUseCase.getConfirmedVisitsPerVolunteer(volunteerNickname);
+
+        List<VolunteerVisitSummaryDTO> dtos = visits.stream()
+                .map(visit -> new VolunteerVisitSummaryDTO(visit.getId(), visit.getDate().toString(),
+                        visit.getVisitType().getStartTime().toString(), visit.getVisitType().getTitle(),
+                        locationQueryService.getLocationForVisitType(visit.getVisitType()).getName(),
+                        visit.getVisitStatus().getItalianName(), visit.visitorsNumber()))
+                .toList();
+        return ResponseEntity.ok(dtos);
+
     }
 
 
 
     @GetMapping("/details/{visitId}")
     public ResponseEntity<VisitInformationDTO> getVisitDetails(@PathVariable int visitId) {
-        try {
-            Visit visit = visitDaysUseCase.getVisitById(visitId);
-            return ResponseEntity.ok(visitMapper.toVisitInformationDTO(visit));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+
+        Visit visit = visitDaysUseCase.getVisitById(visitId);
+        return ResponseEntity.ok(visitMapper.toVisitInformationDTO(visit));
+
     }
 }
