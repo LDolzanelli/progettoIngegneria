@@ -1,5 +1,29 @@
 package it.unibs.ingsw.destinazioni.application.services;
 
+import java.time.Clock;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import it.unibs.ingsw.destinazioni.application.exceptions.usecases.UserException;
+import it.unibs.ingsw.destinazioni.application.exceptions.usecases.VisitDayException;
 import it.unibs.ingsw.destinazioni.application.port.in.user.GetUserInfoUseCase;
 import it.unibs.ingsw.destinazioni.application.port.out.BlockedDatesRepositoryPort;
 import it.unibs.ingsw.destinazioni.application.port.out.VisitRepositoryPort;
@@ -11,19 +35,6 @@ import it.unibs.ingsw.destinazioni.domain.model.VisitType;
 import it.unibs.ingsw.destinazioni.domain.model.enums.DaysOfWeek;
 import it.unibs.ingsw.destinazioni.domain.model.enums.Role;
 import it.unibs.ingsw.destinazioni.domain.model.enums.VisitStatus;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
-import java.time.Clock;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
 
 class VisitDayServiceTest {
 
@@ -54,14 +65,14 @@ class VisitDayServiceTest {
 
         when(blockedDatesRepositoryMock.loadAll()).thenReturn(blockedDates);
 
-        assertThrows(IllegalArgumentException.class, () -> service.createDefaultVisitDays(8));
+        assertThrows(VisitDayException.class, () -> service.createDefaultVisitDays(8));
     }
 
     @Test
     void createDefaultVisitDays_TodayDateBefore15_ShouldThrowException() {
         setUpClockForService("2025-08-10T00:00:00Z");
 
-        assertThrows(IllegalArgumentException.class, () -> service.createDefaultVisitDays(10));
+        assertThrows(VisitDayException.class, () -> service.createDefaultVisitDays(10));
     }
 
     @Test
@@ -90,7 +101,8 @@ class VisitDayServiceTest {
         User user = new User("test", "test", Role.VOLUNTEER);
         when(userInfoServiceMock.findByNickname("wrongName")).thenReturn(Optional.empty());
 
-        assertThrows(IllegalArgumentException.class, //
+        assertThrows(
+                UserException.class, //
                 () -> service.getConfirmedVisitsPerVolunteer(user.getNickname()));
     }
 
@@ -100,7 +112,8 @@ class VisitDayServiceTest {
         User user = new User("test", "test", Role.CONFIGURATOR);
         when(userInfoServiceMock.findByNickname("test")).thenReturn(Optional.of(user));
 
-        assertThrows(IllegalArgumentException.class, //
+        assertThrows(
+                UserException.class, //
                 () -> service.getConfirmedVisitsPerVolunteer(user.getNickname()));
     }
 
@@ -130,7 +143,7 @@ class VisitDayServiceTest {
                 blockedDatesRepositoryMock, userInfoServiceMock, fixedClock);
     }
 
-    private void setUpCreateDeafultVisitDays(int dayOfBlockedDate,int startDateDay, int endDateDay) {
+    private void setUpCreateDeafultVisitDays(int dayOfBlockedDate, int startDateDay, int endDateDay) {
         setUpClockForService("2025-08-16T00:00:00Z");
         int targetMonth = 10;
 

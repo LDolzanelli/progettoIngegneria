@@ -1,25 +1,37 @@
 package it.unibs.ingsw.destinazioni.application.services;
 
+import java.time.Clock;
+import java.time.Instant;
+import java.time.LocalDate;
+import static java.time.Month.NOVEMBER;
+import static java.time.Month.OCTOBER;
+import java.time.ZoneId;
+import java.util.List;
+import java.util.Set;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyInt;
+import org.mockito.Mockito;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import it.unibs.ingsw.destinazioni.application.exceptions.usecases.VolunteerAvailabilityException;
 import it.unibs.ingsw.destinazioni.application.port.in.visit.VisitDaysUseCase;
 import it.unibs.ingsw.destinazioni.application.port.out.VisitPlanStatePort;
 import it.unibs.ingsw.destinazioni.application.port.out.VolunteerAvailabilityStatePort;
 import it.unibs.ingsw.destinazioni.application.port.out.VolunteerAvailableDateRepositoryPort;
 import it.unibs.ingsw.destinazioni.domain.model.VolunteerAvailableDate;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-
-import java.time.Clock;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.util.List;
-import java.util.Set;
-
-import static java.time.Month.NOVEMBER;
-import static java.time.Month.OCTOBER;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
 
 class VolunteersAvailabilityServiceTest {
     private VolunteerAvailabilityStatePort statePort;
@@ -40,7 +52,8 @@ class VolunteersAvailabilityServiceTest {
     void setUpFixedClockForService(String instantToParse) {
         Clock fixedClock = Clock.fixed(Instant.parse(instantToParse), ZoneId.systemDefault());
 
-        service = new VolunteersAvailabilityService(statePort, visitPlanStatePort, visitDaysUseCase, repository, fixedClock);
+        service = new VolunteersAvailabilityService(statePort, visitPlanStatePort, visitDaysUseCase, repository,
+                fixedClock);
     }
 
     @Test
@@ -124,7 +137,7 @@ class VolunteersAvailabilityServiceTest {
         when(visitPlanStatePort.isVisitPlanCreated(10, 2025)).thenReturn(true);
         when(statePort.isVolunteerAvailabilityOpen(11, 2025)).thenReturn(false);
 
-        assertThrows(IllegalStateException.class, () -> service.enableAvailability());
+        assertThrows(VolunteerAvailabilityException.class, () -> service.enableAvailability());
         verify(statePort, never()).setVolunteerAvailabilityOpen(anyInt(), anyInt(), anyBoolean());
     }
 
@@ -146,7 +159,7 @@ class VolunteersAvailabilityServiceTest {
         setUpFixedClockForService("2025-09-14T00:00:00Z");
         when(statePort.isVolunteerAvailabilityOpen(10, 2025)).thenReturn(false);
 
-        assertThrows(IllegalStateException.class, () -> service.disableAvailability());
+        assertThrows(VolunteerAvailabilityException.class, () -> service.disableAvailability());
         verify(statePort, never()).setVolunteerAvailabilityOpen(anyInt(), anyInt(), anyBoolean());
     }
 
@@ -193,7 +206,8 @@ class VolunteersAvailabilityServiceTest {
         setUpFixedClockForService("2025-09-10T00:00:00Z");
         when(statePort.isVolunteerAvailabilityOpen(10, 2025)).thenReturn(false);
 
-        assertThrows(IllegalStateException.class,
+        assertThrows(
+                VolunteerAvailabilityException.class,
                 () -> service.updateAvailability(1, Set.of(LocalDate.of(2025, 10, 5))));
     }
 

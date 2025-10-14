@@ -1,5 +1,20 @@
 package it.unibs.ingsw.destinazioni.application.services;
 
+import java.util.List;
+import java.util.Set;
+
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
+
+import it.unibs.ingsw.destinazioni.application.exceptions.usecases.UserException;
 import it.unibs.ingsw.destinazioni.application.port.in.visittype.VisitTypeCommandUseCase;
 import it.unibs.ingsw.destinazioni.application.port.in.visittype.VisitTypeQueryUseCase;
 import it.unibs.ingsw.destinazioni.application.port.in.visittype.VisitTypeValidationUseCase;
@@ -7,14 +22,6 @@ import it.unibs.ingsw.destinazioni.application.port.out.UserRepositoryPort;
 import it.unibs.ingsw.destinazioni.domain.model.User;
 import it.unibs.ingsw.destinazioni.domain.model.VisitType;
 import it.unibs.ingsw.destinazioni.domain.model.enums.Role;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
-import java.util.List;
-import java.util.Set;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
 
 class VolunteerServiceTest {
 
@@ -32,13 +39,14 @@ class VolunteerServiceTest {
         visitTypeValidationUseCase = mock(VisitTypeValidationUseCase.class);
         visitTypeCRUD = mock(VisitTypeCommandUseCase.class);
 
-        service = new VolunteerService(userRepository, queryVisitTypeUseCase, visitTypeValidationUseCase, visitTypeCRUD);
+        service = new VolunteerService(userRepository, queryVisitTypeUseCase, visitTypeValidationUseCase,
+                visitTypeCRUD);
     }
 
     @Test
     void canBeRemoved_UserNotVolunteer_ShouldThrowException() {
         User user = new User("configurator", "password", Role.CONFIGURATOR);
-        assertThrows(IllegalArgumentException.class, () -> service.canBeRemoved(user));
+        assertThrows(UserException.class, () -> service.canBeRemoved(user));
     }
 
     @Test
@@ -56,7 +64,6 @@ class VolunteerServiceTest {
         when(queryVisitTypeUseCase.listAll()).thenReturn(Set.of(visitType));
         when(visitType.getVolunteers()).thenReturn(List.of(user));
         when(visitTypeValidationUseCase.canBeRemoved(anyInt())).thenReturn(false);
-
 
         assertFalse(service.canBeRemoved(user));
     }
@@ -80,7 +87,7 @@ class VolunteerServiceTest {
         when(visitType.getVolunteers()).thenReturn(List.of(user));
         when(visitTypeValidationUseCase.canBeRemoved(anyInt())).thenReturn(false);
 
-        assertThrows(IllegalArgumentException.class, () -> service.removeVolunteer(user));
+        assertThrows(UserException.class, () -> service.removeVolunteer(user));
     }
 
     @Test
