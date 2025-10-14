@@ -4,10 +4,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import it.unibs.ingsw.destinazioni.application.exceptions.codes.UserErrorCode;
-import it.unibs.ingsw.destinazioni.application.exceptions.specific.UserException;
+import it.unibs.ingsw.destinazioni.application.exceptions.usecases.UserException;
 
 /**
- * Strategia per la gestione delle eccezioni relative al caso d'uso degli utenti.
+ * Strategia per la gestione delle eccezioni relative al caso d'uso degli
+ * utenti.
  */
 @Component
 public class UserExceptionHandlingStrategy implements ExceptionHandlingStrategy {
@@ -26,18 +27,15 @@ public class UserExceptionHandlingStrategy implements ExceptionHandlingStrategy 
         return ResponseEntity.status(status).body(userMessage);
     }
 
-
     @Override
     public boolean canHandle(Exception exception) {
         return exception instanceof UserException;
     }
 
-
     @Override
     public String getUseCaseType() {
         return USE_CASE_TYPE;
     }
-
 
     /**
      * Traduce il codice di errore in un messaggio comprensibile all'utente.
@@ -50,7 +48,6 @@ public class UserExceptionHandlingStrategy implements ExceptionHandlingStrategy 
             case UNAUTHORIZED_REQUEST -> "Richiesta non autorizzata";
         };
     }
-
 
     /**
      * Determina lo status HTTP appropriato in base al tipo di errore.

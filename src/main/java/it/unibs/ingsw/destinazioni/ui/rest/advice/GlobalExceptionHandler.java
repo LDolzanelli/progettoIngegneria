@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import io.swagger.v3.oas.annotations.Hidden;
-import it.unibs.ingsw.destinazioni.application.exceptions.generic.BaseUseCaseException;
+import it.unibs.ingsw.destinazioni.application.exceptions.base.BaseUseCaseException;
 import it.unibs.ingsw.destinazioni.ui.rest.advice.strategy.ExceptionHandlingStrategy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -38,7 +38,6 @@ public class GlobalExceptionHandler {
         return ResponseEntity.internalServerError().body("Si è verificato un errore imprevisto. Riprova più tardi.");
     }
 
-
     /**
      * Gestisce eccezioni generiche non specifiche dei servizi.
      */
@@ -47,7 +46,6 @@ public class GlobalExceptionHandler {
         log.error("Argomento non valido: {}", ex.getMessage(), ex);
         return ResponseEntity.badRequest().body("Dati forniti non validi: " + ex.getMessage());
     }
-
 
     /**
      * Gestisce tutte le altre eccezioni non gestite specificamente.
@@ -58,7 +56,6 @@ public class GlobalExceptionHandler {
         return ResponseEntity.internalServerError().body("Si è verificato un errore imprevisto. Riprova più tardi.");
     }
 
-
     /**
      * Trova la strategia appropriata per gestire l'eccezione.
      */
@@ -66,4 +63,3 @@ public class GlobalExceptionHandler {
         return strategies.stream().filter(strategy -> strategy.canHandle(exception)).findFirst().orElse(null);
     }
 }
-

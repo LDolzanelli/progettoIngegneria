@@ -3,7 +3,7 @@ package it.unibs.ingsw.destinazioni.ui.rest.advice.strategy;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-import it.unibs.ingsw.destinazioni.application.exceptions.specific.VisitDayException;
+import it.unibs.ingsw.destinazioni.application.exceptions.usecases.VisitDayException;
 
 @Component
 public class VisitDayExceptionHandlingStrategy implements ExceptionHandlingStrategy {
@@ -21,18 +21,15 @@ public class VisitDayExceptionHandlingStrategy implements ExceptionHandlingStrat
         return ResponseEntity.status(status).body(userMessage);
     }
 
-
     @Override
     public boolean canHandle(Exception exception) {
         return exception instanceof VisitDayException;
     }
 
-
     @Override
     public String getUseCaseType() {
         return USE_CASE_TYPE;
     }
-
 
     private String translateErrorCode(
             it.unibs.ingsw.destinazioni.application.exceptions.codes.VisitDayErrorCode errorCode) {
@@ -42,7 +39,6 @@ public class VisitDayExceptionHandlingStrategy implements ExceptionHandlingStrat
         };
     }
 
-
     private HttpStatus determineHttpStatus(
             it.unibs.ingsw.destinazioni.application.exceptions.codes.VisitDayErrorCode errorCode) {
         return switch (errorCode) {
@@ -50,7 +46,5 @@ public class VisitDayExceptionHandlingStrategy implements ExceptionHandlingStrat
             case CANT_BE_CREATED_AT_THIS_DATE -> HttpStatus.BAD_REQUEST;
         };
     }
-
-
 
 }

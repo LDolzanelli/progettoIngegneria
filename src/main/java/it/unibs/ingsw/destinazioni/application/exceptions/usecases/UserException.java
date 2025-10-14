@@ -1,7 +1,7 @@
-package it.unibs.ingsw.destinazioni.application.exceptions.specific;
+package it.unibs.ingsw.destinazioni.application.exceptions.usecases;
 
+import it.unibs.ingsw.destinazioni.application.exceptions.base.BaseUseCaseException;
 import it.unibs.ingsw.destinazioni.application.exceptions.codes.UserErrorCode;
-import it.unibs.ingsw.destinazioni.application.exceptions.generic.BaseUseCaseException;
 
 public class UserException extends BaseUseCaseException {
     private static final String USE_CASE_TYPE = "user";
@@ -12,18 +12,15 @@ public class UserException extends BaseUseCaseException {
         this.errorCode = errorCode;
     }
 
-
     public UserException(UserErrorCode errorCode, String errorMessage, Throwable cause) {
         super(errorMessage, cause);
         this.errorCode = errorCode;
     }
 
-
     @Override
     public String getUseCaseType() {
         return USE_CASE_TYPE;
     }
-
 
     @Override
     public UserErrorCode getErrorCode() {

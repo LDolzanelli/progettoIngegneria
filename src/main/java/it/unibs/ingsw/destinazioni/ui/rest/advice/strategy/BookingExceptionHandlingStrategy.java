@@ -3,10 +3,11 @@ package it.unibs.ingsw.destinazioni.ui.rest.advice.strategy;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import it.unibs.ingsw.destinazioni.application.exceptions.codes.BookingErrorCode;
-import it.unibs.ingsw.destinazioni.application.exceptions.specific.BookingException;
+import it.unibs.ingsw.destinazioni.application.exceptions.usecases.BookingException;
 
 /**
- * Strategia per la gestione delle eccezioni relative al caso d'uso delle prenotazioni.
+ * Strategia per la gestione delle eccezioni relative al caso d'uso delle
+ * prenotazioni.
  */
 @Component
 public class BookingExceptionHandlingStrategy implements ExceptionHandlingStrategy {
@@ -23,18 +24,15 @@ public class BookingExceptionHandlingStrategy implements ExceptionHandlingStrate
         return ResponseEntity.badRequest().body(userMessage);
     }
 
-
     @Override
     public boolean canHandle(Exception exception) {
         return exception instanceof BookingException;
     }
 
-
     @Override
     public String getUseCaseType() {
         return USE_CASE_TYPE;
     }
-
 
     /**
      * Traduce il codice di errore in un messaggio comprensibile all'utente.

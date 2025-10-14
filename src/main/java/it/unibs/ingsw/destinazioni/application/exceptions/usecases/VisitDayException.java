@@ -1,7 +1,7 @@
-package it.unibs.ingsw.destinazioni.application.exceptions.specific;
+package it.unibs.ingsw.destinazioni.application.exceptions.usecases;
 
+import it.unibs.ingsw.destinazioni.application.exceptions.base.BaseUseCaseException;
 import it.unibs.ingsw.destinazioni.application.exceptions.codes.VisitDayErrorCode;
-import it.unibs.ingsw.destinazioni.application.exceptions.generic.BaseUseCaseException;
 
 public class VisitDayException extends BaseUseCaseException {
 
@@ -13,18 +13,15 @@ public class VisitDayException extends BaseUseCaseException {
         this.errorCode = errorCode;
     }
 
-
     public VisitDayException(VisitDayErrorCode errorCode, String errorMessage, Throwable cause) {
         super(errorMessage, cause);
         this.errorCode = errorCode;
     }
 
-
     @Override
     public String getUseCaseType() {
         return USE_CASE_TYPE;
     }
-
 
     @Override
     public VisitDayErrorCode getErrorCode() {

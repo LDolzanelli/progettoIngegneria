@@ -5,7 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
-import it.unibs.ingsw.destinazioni.application.exceptions.specific.LocationException;
+import it.unibs.ingsw.destinazioni.application.exceptions.usecases.LocationException;
 import it.unibs.ingsw.destinazioni.application.exceptions.codes.LocationErrorCode;
 
 @Component
@@ -25,18 +25,15 @@ public class LocationExceptionHandlingStrategy implements ExceptionHandlingStrat
         return ResponseEntity.status(status).body(userMessage);
     }
 
-
     @Override
     public boolean canHandle(Exception exception) {
         return exception instanceof LocationException;
     }
 
-
     @Override
     public String getUseCaseType() {
         return USE_CASE_TYPE;
     }
-
 
     private String translateErrorCode(LocationErrorCode errorCode) {
         return switch (errorCode) {
@@ -46,7 +43,6 @@ public class LocationExceptionHandlingStrategy implements ExceptionHandlingStrat
             case NULL_LOCATION -> "Errore interno, riprova più tardi";
         };
     }
-
 
     private HttpStatus determineHttpStatus(LocationErrorCode errorCode) {
         return switch (errorCode) {

@@ -1,6 +1,6 @@
-package it.unibs.ingsw.destinazioni.application.exceptions.specific;
+package it.unibs.ingsw.destinazioni.application.exceptions.usecases;
 
-import it.unibs.ingsw.destinazioni.application.exceptions.generic.BaseUseCaseException;
+import it.unibs.ingsw.destinazioni.application.exceptions.base.BaseUseCaseException;
 import it.unibs.ingsw.destinazioni.application.exceptions.codes.LocationErrorCode;
 
 public class LocationException extends BaseUseCaseException {
@@ -12,18 +12,15 @@ public class LocationException extends BaseUseCaseException {
         this.errorCode = errorCode;
     }
 
-
     public LocationException(LocationErrorCode errorCode, String errorMessage, Throwable cause) {
         super(errorMessage, cause);
         this.errorCode = errorCode;
     }
 
-
     @Override
     public String getUseCaseType() {
         return USE_CASE_TYPE;
     }
-
 
     @Override
     public LocationErrorCode getErrorCode() {

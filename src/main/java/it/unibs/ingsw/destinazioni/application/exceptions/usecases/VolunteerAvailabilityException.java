@@ -1,6 +1,6 @@
-package it.unibs.ingsw.destinazioni.application.exceptions.specific;
+package it.unibs.ingsw.destinazioni.application.exceptions.usecases;
 
-import it.unibs.ingsw.destinazioni.application.exceptions.generic.BaseUseCaseException;
+import it.unibs.ingsw.destinazioni.application.exceptions.base.BaseUseCaseException;
 import it.unibs.ingsw.destinazioni.application.exceptions.codes.VolunteerAvailabilityErrorCode;
 
 public class VolunteerAvailabilityException extends BaseUseCaseException {
@@ -13,19 +13,16 @@ public class VolunteerAvailabilityException extends BaseUseCaseException {
         this.errorCode = errorCode;
     }
 
-
     public VolunteerAvailabilityException(VolunteerAvailabilityErrorCode errorCode, String errorMessage,
             Throwable cause) {
         super(errorMessage, cause);
         this.errorCode = errorCode;
     }
 
-
     @Override
     public String getUseCaseType() {
         return USE_CASE_TYPE;
     }
-
 
     @Override
     public VolunteerAvailabilityErrorCode getErrorCode() {

@@ -3,7 +3,7 @@ package it.unibs.ingsw.destinazioni.ui.rest.advice.strategy;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-import it.unibs.ingsw.destinazioni.application.exceptions.specific.VolunteerAvailabilityException;
+import it.unibs.ingsw.destinazioni.application.exceptions.usecases.VolunteerAvailabilityException;
 
 @Component
 public class VolunteerAvailabilityExceptionHandlerStrategy implements ExceptionHandlingStrategy {
@@ -22,18 +22,15 @@ public class VolunteerAvailabilityExceptionHandlerStrategy implements ExceptionH
         return ResponseEntity.status(status).body(userMessage);
     }
 
-
     @Override
     public boolean canHandle(Exception exception) {
         return exception instanceof VolunteerAvailabilityException;
     }
 
-
     @Override
     public String getUseCaseType() {
         return USE_CASE_TYPE;
     }
-
 
     private String translateErrorCode(
             it.unibs.ingsw.destinazioni.application.exceptions.codes.VolunteerAvailabilityErrorCode errorCode) {
@@ -44,7 +41,6 @@ public class VolunteerAvailabilityExceptionHandlerStrategy implements ExceptionH
         };
     }
 
-
     private HttpStatus determineHttpStatus(
             it.unibs.ingsw.destinazioni.application.exceptions.codes.VolunteerAvailabilityErrorCode errorCode) {
         return switch (errorCode) {
@@ -54,8 +50,4 @@ public class VolunteerAvailabilityExceptionHandlerStrategy implements ExceptionH
         };
     }
 
-
-
 }
-
-

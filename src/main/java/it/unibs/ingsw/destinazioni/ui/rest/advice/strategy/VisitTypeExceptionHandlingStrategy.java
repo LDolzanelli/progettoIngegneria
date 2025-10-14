@@ -3,7 +3,7 @@ package it.unibs.ingsw.destinazioni.ui.rest.advice.strategy;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-import it.unibs.ingsw.destinazioni.application.exceptions.specific.VisitTypeException;
+import it.unibs.ingsw.destinazioni.application.exceptions.usecases.VisitTypeException;
 
 @Component
 public class VisitTypeExceptionHandlingStrategy implements ExceptionHandlingStrategy {
@@ -23,7 +23,6 @@ public class VisitTypeExceptionHandlingStrategy implements ExceptionHandlingStra
 
     }
 
-
     private String translateErrorCode(
             it.unibs.ingsw.destinazioni.application.exceptions.codes.VisitTypeErrorCode errorCode) {
         return switch (errorCode) {
@@ -36,7 +35,6 @@ public class VisitTypeExceptionHandlingStrategy implements ExceptionHandlingStra
             case VOLUNTEER_ALREADY_ASSIGNED -> "Volontario già assegnato a questo tipo di visita";
         };
     }
-
 
     private HttpStatus determineHttpStatus(
             it.unibs.ingsw.destinazioni.application.exceptions.codes.VisitTypeErrorCode errorCode) {
@@ -51,17 +49,14 @@ public class VisitTypeExceptionHandlingStrategy implements ExceptionHandlingStra
         };
     }
 
-
     @Override
     public boolean canHandle(Exception exception) {
         return exception instanceof VisitTypeException;
     }
 
-
     @Override
     public String getUseCaseType() {
         return USE_CASE_TYPE;
     }
-
 
 }

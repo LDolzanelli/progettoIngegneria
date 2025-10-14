@@ -10,8 +10,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import it.unibs.ingsw.destinazioni.application.exceptions.codes.UserErrorCode;
 import it.unibs.ingsw.destinazioni.application.exceptions.codes.VisitPlanErrorCode;
-import it.unibs.ingsw.destinazioni.application.exceptions.specific.UserException;
-import it.unibs.ingsw.destinazioni.application.exceptions.specific.VisitPlanException;
+import it.unibs.ingsw.destinazioni.application.exceptions.usecases.UserException;
+import it.unibs.ingsw.destinazioni.application.exceptions.usecases.VisitPlanException;
 import it.unibs.ingsw.destinazioni.application.port.in.user.GetUserInfoUseCase;
 import it.unibs.ingsw.destinazioni.application.port.in.visitplan.CreateVisitPlanUseCase;
 import it.unibs.ingsw.destinazioni.application.port.in.visitplan.VisitPlanQueryUseCase;
@@ -46,16 +46,21 @@ public class VisitPlanService implements CreateVisitPlanUseCase, VisitPlanQueryU
     private final BlockedDatesRepositoryPort blockedDatesRepository;
 
     /*
-      controlla se il piano di visita può essere creato.
-      Il piano per il mese i+1 (i = mese attuale) può essere creato se:
-      - il piano per il mese i non è stato ancora creato
-      - la raccolta di disponibilità per il mese i+1 è stata chiusa
+     * controlla se il piano di visita può essere creato.
+     * Il piano per il mese i+1 (i = mese attuale) può essere creato se:
+     * - il piano per il mese i non è stato ancora creato
+     * - la raccolta di disponibilità per il mese i+1 è stata chiusa
      */
     @Override
-    /*@ also
-      @ ensures \result == (!statePort.isVisitPlanCreated(getMonth(), getYear()) &&
-      @                    !availabilityStatePort.isVolunteerAvailabilityOpen(getMonth(), getYear()));
-      @*/
+    /*
+     * @ also
+     * 
+     * @ ensures \result == (!statePort.isVisitPlanCreated(getMonth(), getYear()) &&
+     * 
+     * @ !availabilityStatePort.isVolunteerAvailabilityOpen(getMonth(), getYear()));
+     * 
+     * @
+     */
     public boolean canCreateVisitPlan() {
         LocalDate today = LocalDate.now(clock);
         YearMonth nextMonth = YearMonth.from(today).plusMonths(1);
@@ -68,15 +73,25 @@ public class VisitPlanService implements CreateVisitPlanUseCase, VisitPlanQueryU
 
     @Transactional // per poter rimuovere le blockedDates
     @Override
-    /*@ also
-      @ requires statePort != null && availabilityStatePort != null && 
-      @          userService != null && visitTypeRepository != null && 
-      @          volunteerAvailabilityRepository != null && visitRepository != null &&
-      @          blockedDatesRepository != null;
-      @ ensures statePort.isVisitPlanCreated(getMonth(), getYear());
-      @ ensures (\forall Visit v; getVisitPlan(getMonth(), getYear()).contains(v);
-      @          v.getVolunteer() != null || v.getVisitStatus() == VisitStatus.CANCELLED);
-      @*/
+    /*
+     * @ also
+     * 
+     * @ requires statePort != null && availabilityStatePort != null &&
+     * 
+     * @ userService != null && visitTypeRepository != null &&
+     * 
+     * @ volunteerAvailabilityRepository != null && visitRepository != null &&
+     * 
+     * @ blockedDatesRepository != null;
+     * 
+     * @ ensures statePort.isVisitPlanCreated(getMonth(), getYear());
+     * 
+     * @ ensures (\forall Visit v; getVisitPlan(getMonth(), getYear()).contains(v);
+     * 
+     * @ v.getVolunteer() != null || v.getVisitStatus() == VisitStatus.CANCELLED);
+     * 
+     * @
+     */
     public void createVisitPlan() {
         if (!canCreateVisitPlan()) {
             throw new VisitPlanException(VisitPlanErrorCode.CANT_BE_CREATED,
@@ -85,21 +100,25 @@ public class VisitPlanService implements CreateVisitPlanUseCase, VisitPlanQueryU
 
         YearMonth nextMonth = YearMonth.from(LocalDate.now(clock)).plusMonths(1);
 
-        List<VolunteerAvailableDate> volunteerAvailabilitiesNextMonth = volunteerAvailabilityRepository.findByYearMonth(nextMonth);
+        List<VolunteerAvailableDate> volunteerAvailabilitiesNextMonth = volunteerAvailabilityRepository
+                .findByYearMonth(nextMonth);
 
         List<Visit> nextMonthSortedVisits = getNextMonthVisitsSorted(nextMonth.getMonthValue(), nextMonth.getYear());
 
         List<VolunteerIdWithVisitCount> volunteerIdWithVisitCounts = initializeVolunteerWithVisitCount();
 
         for (Visit visit : nextMonthSortedVisits) {
-            List<Integer> availableVolunteerIds = getAvailableVolunteersForVisitDate(visit, volunteerAvailabilitiesNextMonth);
+            List<Integer> availableVolunteerIds = getAvailableVolunteersForVisitDate(visit,
+                    volunteerAvailabilitiesNextMonth);
 
             if (availableVolunteerIds.isEmpty()) {
                 setVisitStatusToCancelled(visit);
             } else if (availableVolunteerIds.size() == 1) {
-                assignAvailableVolunteerToVisitIfPossible(visit, availableVolunteerIds, volunteerAvailabilitiesNextMonth, volunteerIdWithVisitCounts);
+                assignAvailableVolunteerToVisitIfPossible(visit, availableVolunteerIds,
+                        volunteerAvailabilitiesNextMonth, volunteerIdWithVisitCounts);
             } else {
-                assignBestVolunteerAvailableToVisit(visit, availableVolunteerIds, volunteerIdWithVisitCounts, volunteerAvailabilitiesNextMonth);
+                assignBestVolunteerAvailableToVisit(visit, availableVolunteerIds, volunteerIdWithVisitCounts,
+                        volunteerAvailabilitiesNextMonth);
             }
         }
         removeBlockedDatesFromSelectedMonth(nextMonth);
@@ -107,15 +126,20 @@ public class VisitPlanService implements CreateVisitPlanUseCase, VisitPlanQueryU
         statePort.setVisitPlanCreated(nextMonth.getMonthValue(), nextMonth.getYear(), true);
     }
 
-    private void assignBestVolunteerAvailableToVisit(Visit visit, List<Integer> availableVolunteerIds, List<VolunteerIdWithVisitCount> volunteerIdWithVisitCounts, List<VolunteerAvailableDate> volunteerAvailabilitiesNextMonth) {
+    private void assignBestVolunteerAvailableToVisit(Visit visit, List<Integer> availableVolunteerIds,
+            List<VolunteerIdWithVisitCount> volunteerIdWithVisitCounts,
+            List<VolunteerAvailableDate> volunteerAvailabilitiesNextMonth) {
         int bestVolunteerId = selectBestVolunteerId(availableVolunteerIds, volunteerIdWithVisitCounts);
         assignVolunteerToVisit(bestVolunteerId, visit, volunteerAvailabilitiesNextMonth, volunteerIdWithVisitCounts);
     }
 
-    private void assignAvailableVolunteerToVisitIfPossible(Visit visit, List<Integer> availableVolunteerIds, List<VolunteerAvailableDate> volunteerAvailabilitiesNextMonth, List<VolunteerIdWithVisitCount> volunteerIdWithVisitCounts) {
+    private void assignAvailableVolunteerToVisitIfPossible(Visit visit, List<Integer> availableVolunteerIds,
+            List<VolunteerAvailableDate> volunteerAvailabilitiesNextMonth,
+            List<VolunteerIdWithVisitCount> volunteerIdWithVisitCounts) {
         int availableVolunteer = availableVolunteerIds.getFirst();
         if (canDoVisitType(availableVolunteer, visit.getVisitType().getId()))
-            assignVolunteerToVisit(availableVolunteer, visit, volunteerAvailabilitiesNextMonth, volunteerIdWithVisitCounts);
+            assignVolunteerToVisit(availableVolunteer, visit, volunteerAvailabilitiesNextMonth,
+                    volunteerIdWithVisitCounts);
         else {
             setVisitStatusToCancelled(visit);
         }
@@ -132,7 +156,8 @@ public class VisitPlanService implements CreateVisitPlanUseCase, VisitPlanQueryU
                 .forEach(blockedDatesRepository::delete);
     }
 
-    private List<Integer> getAvailableVolunteersForVisitDate(Visit visit, List<VolunteerAvailableDate> volunteerAvailabilitiesNextMonth) {
+    private List<Integer> getAvailableVolunteersForVisitDate(Visit visit,
+            List<VolunteerAvailableDate> volunteerAvailabilitiesNextMonth) {
         return volunteerAvailabilitiesNextMonth.stream() //
                 .filter(volunteerAvailableDate -> volunteerAvailableDate.getAvailableDate().equals(visit.getDate())) //
                 .map(VolunteerAvailableDate::getVolunteerId) //
@@ -140,12 +165,19 @@ public class VisitPlanService implements CreateVisitPlanUseCase, VisitPlanQueryU
     }
 
     @Override
-    /*@ also
-      @ ensures \result != null;
-      @ ensures (\forall Visit v; \result.contains(v);
-      @          v.getDate().getMonthValue() == month && v.getDate().getYear() == year);
-      @ ensures \result.size() >= 0;
-      @*/
+    /*
+     * @ also
+     * 
+     * @ ensures \result != null;
+     * 
+     * @ ensures (\forall Visit v; \result.contains(v);
+     * 
+     * @ v.getDate().getMonthValue() == month && v.getDate().getYear() == year);
+     * 
+     * @ ensures \result.size() >= 0;
+     * 
+     * @
+     */
     public List<Visit> getVisitPlan(int month, int year) {
         ArrayList<Visit> visitPlan = new ArrayList<>();
 
@@ -157,34 +189,50 @@ public class VisitPlanService implements CreateVisitPlanUseCase, VisitPlanQueryU
     }
 
     @Override
-    /*@ also
-      @ ensures \result != null;
-      @ ensures (\forall Visit v; \result.contains(v);
-      @          v.getVolunteer() != null && v.getDate().isAfter(LocalDate.now(clock)) &&
-      @          v.getVisitStatus() != VisitStatus.COMPLETED);
-      @ ensures \result.size() >= 0;
-      @*/
+    /*
+     * @ also
+     * 
+     * @ ensures \result != null;
+     * 
+     * @ ensures (\forall Visit v; \result.contains(v);
+     * 
+     * @ v.getVolunteer() != null && v.getDate().isAfter(LocalDate.now(clock)) &&
+     * 
+     * @ v.getVisitStatus() != VisitStatus.COMPLETED);
+     * 
+     * @ ensures \result.size() >= 0;
+     * 
+     * @
+     */
     public List<Visit> getAllVisitsAfterToday() {
         ArrayList<Visit> visitPlan = new ArrayList<>();
         LocalDate today = LocalDate.now(clock);
 
         Set<Visit> allVisits = visitRepository.findAll();
 
-        allVisits.stream().filter(visit -> visit.getVolunteer() != null) //ignora le visite inizializzate, ma non ancora parte del piano
+        allVisits.stream().filter(visit -> visit.getVolunteer() != null) // ignora le visite inizializzate, ma non
+                                                                         // ancora parte del piano
                 .filter(visit -> visit.getDate().isAfter(today))
-                .filter(visit -> visit.getVisitStatus() != VisitStatus.COMPLETED) //ignora archivio storico
+                .filter(visit -> visit.getVisitStatus() != VisitStatus.COMPLETED) // ignora archivio storico
                 .forEach(visitPlan::add);
 
         return visitPlan;
     }
 
     @Override
-    /*@ also
-      @ ensures \result != null;
-      @ ensures (\forall Visit v; \result.contains(v);
-      @          v.getVisitStatus() == VisitStatus.COMPLETED);
-      @ ensures \result.size() >= 0;
-      @*/
+    /*
+     * @ also
+     * 
+     * @ ensures \result != null;
+     * 
+     * @ ensures (\forall Visit v; \result.contains(v);
+     * 
+     * @ v.getVisitStatus() == VisitStatus.COMPLETED);
+     * 
+     * @ ensures \result.size() >= 0;
+     * 
+     * @
+     */
     public List<Visit> getAllCompletedVisits() {
         ArrayList<Visit> visitPlan = new ArrayList<>();
 
@@ -195,20 +243,31 @@ public class VisitPlanService implements CreateVisitPlanUseCase, VisitPlanQueryU
     }
 
     @Override
-    /*@ also
-      @ ensures \result >= 1 && \result <= 12;
-      @ ensures \result == YearMonth.from(LocalDate.now(clock)).plusMonths(1).getMonthValue();
-      @*/
+    /*
+     * @ also
+     * 
+     * @ ensures \result >= 1 && \result <= 12;
+     * 
+     * @ ensures \result ==
+     * YearMonth.from(LocalDate.now(clock)).plusMonths(1).getMonthValue();
+     * 
+     * @
+     */
     public int getMonth() {
         LocalDate today = LocalDate.now(clock);
         return YearMonth.from(today).plusMonths(1).getMonthValue();
     }
 
     @Override
-    /*@ also
-      @ ensures \result > 0;
-      @ ensures \result == LocalDate.now(clock).getYear();
-      @*/
+    /*
+     * @ also
+     * 
+     * @ ensures \result > 0;
+     * 
+     * @ ensures \result == LocalDate.now(clock).getYear();
+     * 
+     * @
+     */
     public int getYear() {
         LocalDate today = LocalDate.now(clock);
         return today.getYear();
@@ -223,7 +282,6 @@ public class VisitPlanService implements CreateVisitPlanUseCase, VisitPlanQueryU
         public VolunteerIdWithVisitCount(int volunteerId) {
             this.volunteerId = volunteerId;
         }
-
 
         public void increment() {
             visitCount++;
@@ -240,7 +298,6 @@ public class VisitPlanService implements CreateVisitPlanUseCase, VisitPlanQueryU
         return -1;
     }
 
-
     private User volunteerById(int id, List<User> volunteers) {
         Optional<User> volunteer = volunteers.stream() //
                 .filter(user -> user.getId() == id) //
@@ -253,29 +310,26 @@ public class VisitPlanService implements CreateVisitPlanUseCase, VisitPlanQueryU
                     "Volunteer with id " + id + " not found in volunteer list!");
     }
 
-
     private boolean canDoVisitType(int volunteerId, int visitTypeId) {
-        Set<Integer> visitTypesIdsAssociatedToVolunteer =
-                visitTypeRepository.findByVolunteerId(volunteerId).stream() //
-                        .map(VisitType::getId) //
-                        .collect(Collectors.toSet());
+        Set<Integer> visitTypesIdsAssociatedToVolunteer = visitTypeRepository.findByVolunteerId(volunteerId).stream() //
+                .map(VisitType::getId) //
+                .collect(Collectors.toSet());
         return visitTypesIdsAssociatedToVolunteer.contains(visitTypeId);
     }
 
-
-    private int selectBestVolunteerId(List<Integer> volunteerIds, List<VolunteerIdWithVisitCount> volunteerIdWithVisitCounts) {
+    private int selectBestVolunteerId(List<Integer> volunteerIds,
+            List<VolunteerIdWithVisitCount> volunteerIdWithVisitCounts) {
         Comparator<Integer> volunteerComparator = //
                 (volunteer1, volunteer2) -> //
-                        Integer.compare(visitCountFromVolunteer(volunteer1, volunteerIdWithVisitCounts), //
+                Integer.compare(visitCountFromVolunteer(volunteer1, volunteerIdWithVisitCounts), //
                         visitCountFromVolunteer(volunteer2, volunteerIdWithVisitCounts));
-
 
         return volunteerIds.stream() //
                 .min(volunteerComparator) //
-                .orElseThrow(() -> new VisitPlanException(VisitPlanErrorCode.NO_AVAILABLE_VOLUNTEERS, "No volunteers available"));
+                .orElseThrow(() -> new VisitPlanException(VisitPlanErrorCode.NO_AVAILABLE_VOLUNTEERS,
+                        "No volunteers available"));
 
     }
-
 
     /*
      * Assegna un volontario a una visita
@@ -286,7 +340,8 @@ public class VisitPlanService implements CreateVisitPlanUseCase, VisitPlanQueryU
      * 5) salva la visita
      */
     private void assignVolunteerToVisit(int volunteerId, Visit visit,
-            List<VolunteerAvailableDate> volunteerAvailabilities, List<VolunteerIdWithVisitCount> volunteerIdWithVisitCounts) {
+            List<VolunteerAvailableDate> volunteerAvailabilities,
+            List<VolunteerIdWithVisitCount> volunteerIdWithVisitCounts) {
         User volunteer = userInfoUseCase.findById(volunteerId).orElse(null);
         visit.setVolunteer(volunteer);
         visit.setVisitStatus(VisitStatus.PROPOSED);
@@ -305,7 +360,6 @@ public class VisitPlanService implements CreateVisitPlanUseCase, VisitPlanQueryU
                 .orElseThrow(() -> new VisitPlanException(VisitPlanErrorCode.AVAILABILITY_NOT_FOUND,
                         "Volunteer not found in visit counts"));
 
-
         volunteerAvailabilities.remove(usedAvailability);
 
         visitRepository.save(visit);
@@ -323,7 +377,6 @@ public class VisitPlanService implements CreateVisitPlanUseCase, VisitPlanQueryU
 
         return monthVisits;
     }
-
 
     private List<VolunteerIdWithVisitCount> initializeVolunteerWithVisitCount() {
         List<Integer> volunteerIds = userInfoUseCase.getUsersIdsByRole(Role.VOLUNTEER);

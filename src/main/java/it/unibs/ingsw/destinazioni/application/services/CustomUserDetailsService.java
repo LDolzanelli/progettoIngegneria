@@ -6,8 +6,9 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
+
 import it.unibs.ingsw.destinazioni.application.exceptions.codes.UserErrorCode;
-import it.unibs.ingsw.destinazioni.application.exceptions.specific.UserException;
+import it.unibs.ingsw.destinazioni.application.exceptions.usecases.UserException;
 import it.unibs.ingsw.destinazioni.application.port.out.UserRepositoryPort;
 import it.unibs.ingsw.destinazioni.domain.model.User;
 
@@ -19,7 +20,6 @@ public class CustomUserDetailsService implements UserDetailsService {
     public CustomUserDetailsService(UserRepositoryPort userRepository) {
         this.userRepository = userRepository;
     }
-
 
     @Override
     public UserDetails loadUserByUsername(String nickname) {

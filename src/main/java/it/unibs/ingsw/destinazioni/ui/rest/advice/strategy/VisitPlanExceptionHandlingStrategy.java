@@ -3,7 +3,7 @@ package it.unibs.ingsw.destinazioni.ui.rest.advice.strategy;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-import it.unibs.ingsw.destinazioni.application.exceptions.specific.VisitPlanException;
+import it.unibs.ingsw.destinazioni.application.exceptions.usecases.VisitPlanException;
 
 @Component
 public class VisitPlanExceptionHandlingStrategy implements ExceptionHandlingStrategy {
@@ -22,18 +22,15 @@ public class VisitPlanExceptionHandlingStrategy implements ExceptionHandlingStra
         return ResponseEntity.status(status).body(userMessage);
     }
 
-
     @Override
     public boolean canHandle(Exception exception) {
         return exception instanceof VisitPlanException;
     }
 
-
     @Override
     public String getUseCaseType() {
         return USE_CASE_TYPE;
     }
-
 
     private String translateErrorCode(
             it.unibs.ingsw.destinazioni.application.exceptions.codes.VisitPlanErrorCode errorCode) {
@@ -43,7 +40,6 @@ public class VisitPlanExceptionHandlingStrategy implements ExceptionHandlingStra
         };
     }
 
-
     private HttpStatus determineHttpStatus(
             it.unibs.ingsw.destinazioni.application.exceptions.codes.VisitPlanErrorCode errorCode) {
         return switch (errorCode) {
@@ -52,8 +48,4 @@ public class VisitPlanExceptionHandlingStrategy implements ExceptionHandlingStra
         };
     }
 
-
-
 }
-
-

@@ -6,7 +6,7 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 
 import it.unibs.ingsw.destinazioni.application.exceptions.codes.LocationErrorCode;
-import it.unibs.ingsw.destinazioni.application.exceptions.specific.LocationException;
+import it.unibs.ingsw.destinazioni.application.exceptions.usecases.LocationException;
 import it.unibs.ingsw.destinazioni.application.port.in.location.LocationCommandUseCase;
 import it.unibs.ingsw.destinazioni.application.port.in.location.LocationQueryUseCase;
 import it.unibs.ingsw.destinazioni.application.port.in.location.LocationValidationUseCase;
@@ -26,10 +26,16 @@ public class LocationService implements LocationQueryUseCase, LocationCommandUse
   private final VisitTypeValidationUseCase visitTypeValidation;
 
   @Override
-  /*@ also
-    @ requires repository != null;
-    @ ensures repository.findById(location.getId()) != null ==> repository.findById(location.getId()).isPresent();
-    @*/
+  /*
+   * @ also
+   * 
+   * @ requires repository != null;
+   * 
+   * @ ensures repository.findById(location.getId()) != null ==>
+   * repository.findById(location.getId()).isPresent();
+   * 
+   * @
+   */
   public void addLocation(Location location) {
 
     for (Location loc : repository.findAll()) {
@@ -41,17 +47,22 @@ public class LocationService implements LocationQueryUseCase, LocationCommandUse
     repository.save(location);
   }
 
-
   @Override
-  /*@ also
-    @ ensures !repository.findById(locationId).isPresent() ||
-    @         (repository.findById(locationId).get().getVisitTypes() != null &&
-    @          repository.findById(locationId).get().getVisitTypes().isEmpty());
-    @*/
+  /*
+   * @ also
+   * 
+   * @ ensures !repository.findById(locationId).isPresent() ||
+   * 
+   * @ (repository.findById(locationId).get().getVisitTypes() != null &&
+   * 
+   * @ repository.findById(locationId).get().getVisitTypes().isEmpty());
+   * 
+   * @
+   */
   public void removeLocation(int locationId) {
 
-    Location location =
-        repository.findById(locationId).orElseThrow(() -> new LocationException(LocationErrorCode.LOCATION_NOT_FOUND,
+    Location location = repository.findById(locationId)
+        .orElseThrow(() -> new LocationException(LocationErrorCode.LOCATION_NOT_FOUND,
             "La località con id " + locationId + " non esiste."));
 
     if (!canBeRemoved(locationId)) {
@@ -62,37 +73,53 @@ public class LocationService implements LocationQueryUseCase, LocationCommandUse
     if (location.getVisitTypes().isEmpty()) {
       repository.deleteById(location.getId());
     } else {
-      // Rimuovo i tipi di visita associati alla location per eliminare anche eventuali volontari
+      // Rimuovo i tipi di visita associati alla location per eliminare anche
+      // eventuali volontari
       // associati. La location verrà eliminata dopo la rimozione dei tipi di visita
       location.getVisitTypes().forEach(visitType -> visitTypeCommands.removeVisitType(visitType.getId()));
     }
   }
 
-
   @Override
-  /*@ also
-    @ ensures \result.equals(repository.findAll());
-    @*/
+  /*
+   * @ also
+   * 
+   * @ ensures \result.equals(repository.findAll());
+   * 
+   * @
+   */
   public List<Location> listAll() {
     return repository.findAll();
   }
 
-
   @Override
-  /*@ also
-    @ ensures \result.equals(repository.findById(id));
-    @*/
+  /*
+   * @ also
+   * 
+   * @ ensures \result.equals(repository.findById(id));
+   * 
+   * @
+   */
   public Optional<Location> findById(int id) {
     return repository.findById(id);
   }
 
-
   @Override
-  /*@ also
-    @ ensures repository.findById(location.getId()).isPresent();
-    @ ensures repository.findById(location.getId()).get().getName().equals(location.getName());
-    @ ensures repository.findById(location.getId()).get().getDescription().equals(location.getDescription());
-    @*/
+  /*
+   * @ also
+   * 
+   * @ ensures repository.findById(location.getId()).isPresent();
+   * 
+   * @ ensures
+   * repository.findById(location.getId()).get().getName().equals(location.getName
+   * ());
+   * 
+   * @ ensures
+   * repository.findById(location.getId()).get().getDescription().equals(location.
+   * getDescription());
+   * 
+   * @
+   */
   public void updateLocation(Location location) {
 
     if (location == null || location.getId() == null) {
@@ -108,18 +135,26 @@ public class LocationService implements LocationQueryUseCase, LocationCommandUse
     repository.save(location);
   }
 
-
   @Override
-  /*@ also
-    @ ensures \result == (repository.findById(locationId).get().getVisitTypes() == null ||
-    @                    repository.findById(locationId).get().getVisitTypes().isEmpty() ||
-    @                    (\forall VisitType vt; repository.findById(locationId).get().getVisitTypes().contains(vt);
-    @                     visitTypeValidation.canBeRemoved(vt.getId())));
-    @*/
+  /*
+   * @ also
+   * 
+   * @ ensures \result == (repository.findById(locationId).get().getVisitTypes()
+   * == null ||
+   * 
+   * @ repository.findById(locationId).get().getVisitTypes().isEmpty() ||
+   * 
+   * @ (\forall VisitType vt;
+   * repository.findById(locationId).get().getVisitTypes().contains(vt);
+   * 
+   * @ visitTypeValidation.canBeRemoved(vt.getId())));
+   * 
+   * @
+   */
   public boolean canBeRemoved(int locationId) {
 
-    Location location =
-        repository.findById(locationId).orElseThrow(() -> new LocationException(LocationErrorCode.LOCATION_NOT_FOUND,
+    Location location = repository.findById(locationId)
+        .orElseThrow(() -> new LocationException(LocationErrorCode.LOCATION_NOT_FOUND,
             "La località con id " + locationId + " non esiste."));
 
     if (location.getVisitTypes() == null || location.getVisitTypes().isEmpty()) {
@@ -130,12 +165,19 @@ public class LocationService implements LocationQueryUseCase, LocationCommandUse
 
   }
 
-
   @Override
-  /*@ also
-    @ ensures \result.equals(repository.findByVisitType(visitType).orElseThrow(() -> 
-    @         new IllegalArgumentException("Nessuna location associata al tipo di visita con id: " + visitType.getId())));
-    @*/
+  /*
+   * @ also
+   * 
+   * @ ensures \result.equals(repository.findByVisitType(visitType).orElseThrow(()
+   * ->
+   * 
+   * @ new
+   * IllegalArgumentException("Nessuna location associata al tipo di visita con id: "
+   * + visitType.getId())));
+   * 
+   * @
+   */
   public Location getLocationForVisitType(VisitType visitType) {
     return repository.findByVisitType(visitType)
         .orElseThrow(() -> new LocationException(LocationErrorCode.LOCATION_NOT_FOUND,
