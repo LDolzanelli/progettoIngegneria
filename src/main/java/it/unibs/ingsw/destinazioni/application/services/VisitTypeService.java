@@ -8,7 +8,10 @@ import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.stereotype.Service;
-
+import it.unibs.ingsw.destinazioni.application.exceptions.codes.UserErrorCode;
+import it.unibs.ingsw.destinazioni.application.exceptions.codes.VisitTypeErrorCode;
+import it.unibs.ingsw.destinazioni.application.exceptions.specific.UserException;
+import it.unibs.ingsw.destinazioni.application.exceptions.specific.VisitTypeException;
 import it.unibs.ingsw.destinazioni.application.port.in.visittype.AssignVolunteerToVisitTypeUseCase;
 import it.unibs.ingsw.destinazioni.application.port.in.visittype.VisitTypeCommandUseCase;
 import it.unibs.ingsw.destinazioni.application.port.in.visittype.VisitTypeQueryUseCase;
@@ -20,6 +23,7 @@ import it.unibs.ingsw.destinazioni.application.port.out.VisitTypeRepositoryPort;
 import it.unibs.ingsw.destinazioni.application.port.out.VolunteerAvailabilityStatePort;
 import it.unibs.ingsw.destinazioni.domain.model.Location;
 import it.unibs.ingsw.destinazioni.domain.model.User;
+import it.unibs.ingsw.destinazioni.domain.model.Visit;
 import it.unibs.ingsw.destinazioni.domain.model.VisitType;
 import lombok.RequiredArgsConstructor;
 
@@ -43,6 +47,12 @@ public class VisitTypeService implements VisitTypeCommandUseCase, VisitTypeQuery
     @         repository.findById(visitType.getId()).isPresent();
     @*/
   public void addVisitType(VisitType visitType, int locationId) {
+
+
+    if (repository.findByLocationId(locationId).stream().anyMatch(vt -> vt.getTitle().equals(visitType.getTitle()))) {
+      throw new VisitTypeException(VisitTypeErrorCode.ALREADY_EXISTS,
+          "Esiste già un tipo di visita con questo titolo.");
+    }
     repository.save(visitType, locationId);
   }
 
@@ -56,15 +66,17 @@ public class VisitTypeService implements VisitTypeCommandUseCase, VisitTypeQuery
     @*/
   public void removeVisitType(int visitTypeId) {
 
-    VisitType visitType = repository.findById(visitTypeId)
-        .orElseThrow(() -> new IllegalArgumentException("Visit Type con id " + visitTypeId + " non trovata"));
+    VisitType visitType =
+        repository.findById(visitTypeId).orElseThrow(() -> new VisitTypeException(VisitTypeErrorCode.NOT_FOUND,
+            "Visit Type con id " + visitTypeId + " non trovata"));
 
     if (!canBeRemoved(visitType.getId())) {
       throw new IllegalArgumentException("Il tipo di visita non può essere rimosso.");
     }
 
     Location location = locationRepository.findByVisitType(visitType)
-        .orElseThrow(() -> new IllegalArgumentException("Location associata al tipo di visita non trovata"));
+        .orElseThrow(() -> new VisitTypeException(VisitTypeErrorCode.INVALID_LOCATION_FOR_VISIT_TYPE,
+            "Location associata al tipo di visita non trovata"));
 
     location.removeVisitType(visitType);
     locationRepository.save(location);
@@ -134,16 +146,18 @@ public class VisitTypeService implements VisitTypeCommandUseCase, VisitTypeQuery
     @*/
   public void updateVisitType(VisitType visitType) {
     if (visitType == null || visitType.getId() == null) {
-      throw new IllegalArgumentException("VisitType o ID non valido");
+      throw new VisitTypeException(VisitTypeErrorCode.DOES_NOT_EXIST, "VisitType o ID non valido");
     }
 
     var existing = repository.findById(visitType.getId());
     if (existing.isEmpty()) {
-      throw new IllegalArgumentException("Visit Type con id " + visitType.getId() + " non trovata");
+      throw new VisitTypeException(VisitTypeErrorCode.NOT_FOUND,
+          "Visit Type con id " + visitType.getId() + " non trovata");
     }
 
     Location location = locationRepository.findByVisitType(visitType)
-        .orElseThrow(() -> new IllegalArgumentException("Location associata al tipo di visita non trovata"));
+        .orElseThrow(() -> new VisitTypeException(VisitTypeErrorCode.INVALID_LOCATION_FOR_VISIT_TYPE,
+            "Location associata al tipo di visita non trovata"));
 
     repository.save(visitType, location.getId());
   }
@@ -188,7 +202,8 @@ public class VisitTypeService implements VisitTypeCommandUseCase, VisitTypeQuery
   public boolean canBeRemoved(int visitTypeId) {
     LocalDate today = LocalDate.now(clock);
     VisitType visitType =
-        repository.findById(visitTypeId).orElseThrow(() -> new IllegalArgumentException("Visit Type non trovata"));
+        repository.findById(visitTypeId).orElseThrow(() -> new VisitTypeException(VisitTypeErrorCode.NOT_FOUND,
+            "Visit Type con id " + visitTypeId + " non trovata"));
 
     LocalDate startDate = visitType.getStartDate();
 
@@ -209,8 +224,9 @@ public class VisitTypeService implements VisitTypeCommandUseCase, VisitTypeQuery
     @*/
   public boolean canBeModified(int visitTypeId) {
 
-    VisitType visitType = repository.findById(visitTypeId)
-        .orElseThrow(() -> new IllegalArgumentException("Visit Type con id " + visitTypeId + " non trovata"));
+    VisitType visitType =
+        repository.findById(visitTypeId).orElseThrow(() -> new VisitTypeException(VisitTypeErrorCode.NOT_FOUND,
+            "Visit Type con id " + visitTypeId + " non trovata"));
 
     boolean isVisitPlanCreated = visitPlanStateRepo.isVisitPlanCreated(visitType.getStartDate().getMonthValue(),
         visitType.getStartDate().getYear());
@@ -233,19 +249,21 @@ public class VisitTypeService implements VisitTypeCommandUseCase, VisitTypeQuery
   public void addVolunteerToVisitType(int visitTypeId, String nickname) {
 
     if (!this.canBeModified(visitTypeId)) {
-      throw new IllegalArgumentException("Il tipo di visita non può essere modificato.");
+      throw new VisitTypeException(VisitTypeErrorCode.CANT_BE_MODIFIED, "Il tipo di visita non può essere modificato.");
     }
 
-    VisitType visitType = repository.findById(visitTypeId)
-        .orElseThrow(() -> new IllegalArgumentException("Visit Type con id " + visitTypeId + " non trovata"));
+    VisitType visitType =
+        repository.findById(visitTypeId).orElseThrow(() -> new VisitTypeException(VisitTypeErrorCode.NOT_FOUND,
+            "Visit Type con id " + visitTypeId + " non trovata"));
 
-    User volunteer = userRepository.findByNickname(nickname)
-        .orElseThrow(() -> new IllegalArgumentException("Volontario con nickname " + nickname + " non trovato"));
+    User volunteer = userRepository.findByNickname(nickname).orElseThrow(
+        () -> new UserException(UserErrorCode.USER_NOT_FOUND, "Volontario con nickname " + nickname + " non trovato"));
 
     boolean alreadyPresent = visitType.getVolunteers().stream().anyMatch(v -> v.getNickname().equals(nickname));
 
     if (alreadyPresent) {
-      throw new IllegalArgumentException("Il volontario è già associato a questo tipo di visita.");
+      throw new VisitTypeException(VisitTypeErrorCode.VOLUNTEER_ALREADY_ASSIGNED,
+          "Il volontario è già associato a questo tipo di visita.");
     }
 
     List<User> volunteers = new ArrayList<>(visitType.getVolunteers());

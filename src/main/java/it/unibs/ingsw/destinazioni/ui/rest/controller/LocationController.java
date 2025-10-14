@@ -38,26 +38,20 @@ public class LocationController {
 
     @PostMapping("/add")
     public ResponseEntity<String> addLocation(@RequestBody LocationDTO locationDTO) {
-        try {
-            var location = mapToDomain(locationDTO);
-            manageLocationService.addLocation(location);
-            return ResponseEntity.ok().build();
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().build();
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+
+        var location = mapToDomain(locationDTO);
+        manageLocationService.addLocation(location);
+        return ResponseEntity.ok().build();
+
     }
 
 
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<Void> deleteLocation(@PathVariable int id) {
-        try {
-            manageLocationService.removeLocation(id);
-            return ResponseEntity.ok().build();
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+
+        manageLocationService.removeLocation(id);
+        return ResponseEntity.ok().build();
+
     }
 
 
@@ -94,19 +88,17 @@ public class LocationController {
                 LocalDate endDate = null;
                 LocalTime startTime = null;
 
-                try {
-                    if (vdto.startDate() != null && !vdto.startDate().isBlank()) {
-                        startDate = LocalDate.parse(vdto.startDate());
-                    }
-                    if (vdto.endDate() != null && !vdto.endDate().isBlank()) {
-                        endDate = LocalDate.parse(vdto.endDate());
-                    }
-                    if (vdto.startTime() != null && !vdto.startTime().isBlank()) {
-                        startTime = LocalTime.parse(vdto.startTime());
-                    }
-                } catch (DateTimeParseException e) {
-                    throw new IllegalArgumentException("Formato data/ora non valido in VisitType: " + e.getMessage());
+
+                if (vdto.startDate() != null && !vdto.startDate().isBlank()) {
+                    startDate = LocalDate.parse(vdto.startDate());
                 }
+                if (vdto.endDate() != null && !vdto.endDate().isBlank()) {
+                    endDate = LocalDate.parse(vdto.endDate());
+                }
+                if (vdto.startTime() != null && !vdto.startTime().isBlank()) {
+                    startTime = LocalTime.parse(vdto.startTime());
+                }
+
 
                 return new VisitType(vdto.id(), vdto.title(), vdto.description(), vdto.meetingPoint(), startDate,
                         endDate, startTime, vdto.duration(), vdto.maxParticipants(), vdto.minParticipants(),

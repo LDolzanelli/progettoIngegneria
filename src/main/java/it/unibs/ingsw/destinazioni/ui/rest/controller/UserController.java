@@ -51,60 +51,50 @@ public class UserController {
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponseDTO> login(@RequestBody LoginRequestDTO request) {
-        try {
-            LoginResponseDTO response = loginService.login(request);
-            return ResponseEntity.ok(response);
-        } catch (IllegalArgumentException e) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Credenziali errate");
-        }
+
+        LoginResponseDTO response = loginService.login(request);
+        return ResponseEntity.ok(response);
+
     }
 
 
     @PostMapping("/change-password")
     public ResponseEntity<Void> changePassword(@RequestBody ChangePasswordDTO dto) {
 
-        try {
-            changeCredentialsService.changePassword(dto.username(), dto.oldPassword(), dto.newPassword());
-            return ResponseEntity.ok().build();
-        } catch (IllegalArgumentException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Richiesta non valida: " + e.getMessage());
-        }
+
+        changeCredentialsService.changePassword(dto.username(), dto.oldPassword(), dto.newPassword());
+        return ResponseEntity.ok().build();
+
     }
 
 
     @PostMapping("/change-username")
     public ResponseEntity<Void> changeUsername(@RequestBody ChangeUserNameDTO dto) {
 
-        try {
-            changeCredentialsService.changeUsername(dto.oldUserName(), dto.newUserName());
-            return ResponseEntity.ok().build();
-        } catch (IllegalArgumentException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Richiesta non valida: " + e.getMessage());
-        }
+
+        changeCredentialsService.changeUsername(dto.oldUserName(), dto.newUserName());
+        return ResponseEntity.ok().build();
+
     }
 
 
     @PostMapping("/change-both-credentials")
     public ResponseEntity<String> changeBothCredentials(@RequestBody ChangeCredentialsDTO dto) {
-        try {
-            changeCredentialsService.changeBothCredentials(dto.oldUsername(), dto.newUsername(), dto.oldPassword(),
-                    dto.newPassword());
-            return ResponseEntity.ok().build();
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-        }
+
+        changeCredentialsService.changeBothCredentials(dto.oldUsername(), dto.newUsername(), dto.oldPassword(),
+                dto.newPassword());
+        return ResponseEntity.ok().build();
+
     }
 
 
     @PostMapping("/register")
     public ResponseEntity<String> registerUser(@RequestBody RegisterUserDTO dto) {
-        try {
-            User user = new User(dto.nickname(), dto.password(), Role.fromString(dto.role()));
-            registerUserService.registerNewUser(user);
-            return ResponseEntity.status(HttpStatus.CREATED).build();
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-        }
+
+        User user = new User(dto.nickname(), dto.password(), Role.fromString(dto.role()));
+        registerUserService.registerNewUser(user);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+
     }
 
 
@@ -162,17 +152,12 @@ public class UserController {
 
     @DeleteMapping("/remove-volunteer/{nickname}")
     public ResponseEntity<String> removeVolunteer(@PathVariable String nickname) {
-        try {
-            User volunteer = userInfoService.findByNickname(nickname).get();
 
-            removeVolunteerService.removeVolunteer(volunteer);
-            return ResponseEntity.ok("Volontario rimosso con successo");
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Errore durante la rimozione: " + e.getMessage());
-        }
+        User volunteer = userInfoService.findByNickname(nickname).get();
+
+        removeVolunteerService.removeVolunteer(volunteer);
+        return ResponseEntity.ok("Volontario rimosso con successo");
+
     }
 
 }

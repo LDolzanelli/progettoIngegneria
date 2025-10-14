@@ -1,8 +1,7 @@
 package it.unibs.ingsw.destinazioni.application.port.in.booking;
 
 import java.util.List;
-
-import it.unibs.ingsw.destinazioni.application.exceptions.BookingException;
+import it.unibs.ingsw.destinazioni.application.exceptions.specific.BookingException;
 import it.unibs.ingsw.destinazioni.domain.model.User;
 import it.unibs.ingsw.destinazioni.domain.model.Visit;
 

@@ -4,7 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
-
+import it.unibs.ingsw.destinazioni.application.exceptions.codes.UserErrorCode;
+import it.unibs.ingsw.destinazioni.application.exceptions.specific.UserException;
 import it.unibs.ingsw.destinazioni.application.port.in.visittype.VisitTypeCommandUseCase;
 import it.unibs.ingsw.destinazioni.application.port.in.visittype.VisitTypeQueryUseCase;
 import it.unibs.ingsw.destinazioni.application.port.in.visittype.VisitTypeValidationUseCase;
@@ -34,7 +35,8 @@ public class VolunteerService implements VolunteerValidationUseCase, RemoveVolun
       @*/
     public boolean canBeRemoved(User volunteer) {
         if (volunteer.getRole() != Role.VOLUNTEER) {
-            throw new IllegalArgumentException("L'utente non è un volontario");
+
+            throw new UserException(UserErrorCode.UNAUTHORIZED_REQUEST, "L'utente non è un volontario");
         }
 
         for (var visitType : queryVisitTypeUseCase.listAll()) {
@@ -61,7 +63,7 @@ public class VolunteerService implements VolunteerValidationUseCase, RemoveVolun
       @*/
     public void removeVolunteer(User volunteer) {
         if (!canBeRemoved(volunteer)) {
-            throw new IllegalArgumentException("Il volontario non può essere rimosso");
+            throw new UserException(UserErrorCode.UNAUTHORIZED_REQUEST, "Il volontario non può essere rimosso");
         }
 
         List<VisitType> visitTypes = queryVisitTypeUseCase.listAll().stream().filter(visitType -> visitType

@@ -8,7 +8,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
-
+import it.unibs.ingsw.destinazioni.application.exceptions.codes.VolunteerAvailabilityErrorCode;
+import it.unibs.ingsw.destinazioni.application.exceptions.specific.VolunteerAvailabilityException;
 import it.unibs.ingsw.destinazioni.application.port.in.visit.VisitDaysUseCase;
 import it.unibs.ingsw.destinazioni.application.port.in.volunteer.VolunteerAvailabilityControlUseCase;
 import it.unibs.ingsw.destinazioni.application.port.in.volunteer.VolunteersAvailabilityUseCase;
@@ -101,8 +102,8 @@ public class VolunteersAvailabilityService
   public void enableAvailability() {
     if (!canEnableAvailability()) {
       YearMonth target = YearMonth.now(clock).plusMonths(2);
-      throw new IllegalStateException("Non è possibile abilitare la disponibilità dei volontari per il mese "
-          + target.getMonthValue() + "/" + target.getYear());
+      throw new VolunteerAvailabilityException(VolunteerAvailabilityErrorCode.CANT_BE_ENABLED,
+          +target.getMonthValue() + "/" + target.getYear());
     }
 
     YearMonth target = YearMonth.now(clock).plusMonths(2);
@@ -121,8 +122,9 @@ public class VolunteersAvailabilityService
   public void disableAvailability() {
     if (!canDisableAvailability()) {
       YearMonth target = YearMonth.now(clock).plusMonths(1);
-      throw new IllegalStateException("Non è possibile disabilitare la disponibilità dei volontari per il mese "
-          + target.getMonthValue() + "/" + target.getYear());
+      throw new VolunteerAvailabilityException(VolunteerAvailabilityErrorCode.CANT_BE_DISABLED,
+          "Non è possibile disabilitare la disponibilità dei volontari per il mese " + target.getMonthValue() + "/"
+              + target.getYear());
     }
 
     YearMonth target = YearMonth.now(clock).plusMonths(1);
@@ -183,7 +185,8 @@ public class VolunteersAvailabilityService
     Month target = getTargetMonth();
 
     if (!isAvailabilityEnabled()) {
-      throw new IllegalStateException("La disponibilità dei volontari non è abilitata per il mese " + target);
+      throw new VolunteerAvailabilityException(VolunteerAvailabilityErrorCode.NOT_ENABLED,
+          "La disponibilità dei volontari non è abilitata per il mese " + target.getValue());
     }
 
     repository.findByVolunteerId(volunteerId).stream().filter(d -> d.getAvailableDate().getMonth() == target)

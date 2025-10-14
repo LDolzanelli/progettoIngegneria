@@ -60,27 +60,21 @@ public class BlockedDatesController {
     @PostMapping("/set")
     public ResponseEntity<Void> addBlockedDates(@RequestBody BlockedDatesDTO blockedDatesDTO,
             HttpServletRequest request) {
-        try {
 
-            Set<LocalDate> blockedDates = new HashSet<>();
 
-            for (String date : blockedDatesDTO.dateList())
-                try {
-                    LocalDate parsedDate = LocalDate.parse(date);
-                    blockedDates.add(parsedDate);
-                } catch (DateTimeParseException e) {
-                    throw new IllegalArgumentException("Formato data non valido: " + e.getMessage());
-                }
+        Set<LocalDate> blockedDates = new HashSet<>();
 
-            blockedDatesUseCase.updateBlockedDates(blockedDates);
+        for (String date : blockedDatesDTO.dateList())
+            try {
+                LocalDate parsedDate = LocalDate.parse(date);
+                blockedDates.add(parsedDate);
+            } catch (DateTimeParseException e) {
+                throw new IllegalArgumentException("Formato data non valido: " + e.getMessage());
+            }
 
-            return ResponseEntity.ok().build();
-        } catch (IllegalArgumentException iae) {
-            System.out.println(iae.getMessage());
-            return ResponseEntity.badRequest().build();
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            return ResponseEntity.internalServerError().build();
-        }
+        blockedDatesUseCase.updateBlockedDates(blockedDates);
+
+        return ResponseEntity.ok().build();
+
     }
 }

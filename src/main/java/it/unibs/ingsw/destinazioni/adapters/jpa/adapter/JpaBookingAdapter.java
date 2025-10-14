@@ -29,7 +29,6 @@ public class JpaBookingAdapter implements BookingRepositoryPort {
 
     @Override
     public void save(Booking booking, int visitId) {
-
         List<BookingEntity> entities = toEntity(booking, visitId);
         bookingRepository.saveAll(entities);
     }

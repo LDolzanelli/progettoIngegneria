@@ -5,7 +5,8 @@ import java.util.Optional;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
+import it.unibs.ingsw.destinazioni.application.exceptions.codes.UserErrorCode;
+import it.unibs.ingsw.destinazioni.application.exceptions.specific.UserException;
 import it.unibs.ingsw.destinazioni.application.port.in.login.ChangeCredentialsUseCase;
 import it.unibs.ingsw.destinazioni.application.port.in.login.LoginUseCase;
 import it.unibs.ingsw.destinazioni.application.port.in.user.GetUserInfoUseCase;
@@ -33,7 +34,8 @@ public class UserService implements LoginUseCase, GetUserInfoUseCase, ChangeCred
     @*/
   public void registerNewUser(User user) {
     if (userRepository.findByNickname(user.getNickname()).isPresent()) {
-      throw new IllegalArgumentException("Nickname già in uso");
+      throw new UserException(UserErrorCode.USER_ALREADY_EXISTS,
+          "Esiste già un utente con nickname: " + user.getNickname());
     }
     user.setPassword(passwordEncoder.encode(user.getPassword()));
     // se è un finalUser che si sta registrando, non deve reimpostare le credenziali
@@ -49,11 +51,11 @@ public class UserService implements LoginUseCase, GetUserInfoUseCase, ChangeCred
     @*/
   public void changePassword(String nickname, String oldPassword, String newPassword) {
 
-    User user =
-        userRepository.findByNickname(nickname).orElseThrow(() -> new IllegalArgumentException("Utente non trovato"));
+    User user = userRepository.findByNickname(nickname).orElseThrow(
+        () -> new UserException(UserErrorCode.USER_NOT_FOUND, "Utente con nickname \"" + nickname + "\" non trovato"));
 
     if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
-      throw new IllegalArgumentException("Password corrente errata");
+      throw new UserException(UserErrorCode.INVALID_CREDENTIALS, "Password errata");
     }
 
     user.setPassword(passwordEncoder.encode(newPassword));
@@ -71,11 +73,13 @@ public class UserService implements LoginUseCase, GetUserInfoUseCase, ChangeCred
     @*/
   public void changeUsername(String oldNickname, String newNickname) {
     if (oldNickname.equals(newNickname) && userRepository.findByNickname(newNickname).isPresent()) {
-      throw new IllegalArgumentException("Nickname \"" + newNickname + "\" già esistente. Riprovare.");
+      throw new UserException(UserErrorCode.USER_ALREADY_EXISTS,
+          "Nickname \"" + newNickname + "\" già esistente. Riprovare.");
     }
 
-    User user = userRepository.findByNickname(oldNickname)
-        .orElseThrow(() -> new IllegalArgumentException("Utente non trovato"));
+    User user =
+        userRepository.findByNickname(oldNickname).orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND,
+            "Utente con nickname \"" + oldNickname + "\" non trovato"));
     user.setNickname(newNickname);
     user.setFirstLogin(false);
     userRepository.save(user);
@@ -88,11 +92,14 @@ public class UserService implements LoginUseCase, GetUserInfoUseCase, ChangeCred
     @ ensures userRepository.findByNickname(newNickname).get().isFirstLogin() == false;
     @*/
   public void changeBothCredentials(String oldNickname, String newNickname, String oldPassword, String newPassword) {
-    User user = userRepository.findByNickname(oldNickname)
-        .orElseThrow(() -> new IllegalArgumentException("Utente non trovato"));
+    User user =
+        userRepository.findByNickname(oldNickname).orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND,
+            "Utente con nickname \"" + oldNickname + "\" non trovato"));
 
+    //TODO: eccezione specifica per i volontari
     if (user.getRole() == Role.VOLUNTEER && !oldNickname.equals(newNickname)) {
-      throw new IllegalArgumentException("I volontari non possono modificare il nome utente");
+      throw new UserException(UserErrorCode.UNAUTHORIZED_REQUEST,
+          "I volontari non possono cambiare il proprio nickname");
     }
 
     if (!oldNickname.equals(newNickname)) {
@@ -132,12 +139,13 @@ public class UserService implements LoginUseCase, GetUserInfoUseCase, ChangeCred
     Optional<User> optionalUser = userRepository.findByNickname(loginRequestDTO.nickname());
 
     if (optionalUser.isEmpty()) {
-      throw new IllegalArgumentException("Utente non trovato");
+      throw new UserException(UserErrorCode.USER_NOT_FOUND,
+          "Utente con nickname \"" + loginRequestDTO.nickname() + "\" non trovato");
     }
 
     User user = optionalUser.get();
     if (!passwordEncoder.matches(loginRequestDTO.password(), user.getPassword())) {
-      throw new IllegalArgumentException("Password errata");
+      throw new UserException(UserErrorCode.INVALID_CREDENTIALS, "Password errata");
     }
 
     return new LoginResponseDTO(user.getNickname(), user.getRole().getName(), user.isFirstLogin());
@@ -159,8 +167,10 @@ public class UserService implements LoginUseCase, GetUserInfoUseCase, ChangeCred
     @ ensures (\forall User u; \result.contains(u); nicknames.contains(u.getNickname()));
     @*/
   public List<User> findAllByNicknames(List<String> nicknames) {
-    return nicknames.stream().map(nick -> userRepository.findByNickname(nick)
-        .orElseThrow(() -> new IllegalArgumentException("Utente non trovato: " + nick))).toList();
+    return nicknames.stream()
+        .map(nick -> userRepository.findByNickname(nick).orElseThrow(
+            () -> new UserException(UserErrorCode.USER_NOT_FOUND, "Utente con nickname \"" + nick + "\" non trovato")))
+        .toList();
   }
 
 
@@ -172,6 +182,8 @@ public class UserService implements LoginUseCase, GetUserInfoUseCase, ChangeCred
     @*/
   public int getIdByNickname(String nickname) {
     Optional<User> user = findByNickname(nickname);
-    return user.orElseThrow(() -> new IllegalArgumentException("Utente non trovato")).getId();
+    return user.orElseThrow(
+        () -> new UserException(UserErrorCode.USER_NOT_FOUND, "Utente con nickname \"" + nickname + "\" non trovato"))
+        .getId();
   }
 }
