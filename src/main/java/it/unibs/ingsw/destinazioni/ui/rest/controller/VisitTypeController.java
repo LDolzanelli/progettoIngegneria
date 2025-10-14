@@ -62,7 +62,9 @@ public class VisitTypeController {
     @GetMapping("/list/{locationId}")
     public ResponseEntity<Set<VisitTypeDTO>> listByLocation(@PathVariable int locationId) {
         Set<VisitType> visitTypes = VisitTypeQueryService.listByLocation(locationId);
-        Set<VisitTypeDTO> dtos = visitTypes.stream().map(mapper::toDTO).collect(Collectors.toSet());
+        Set<VisitTypeDTO> dtos = visitTypes.stream() //
+                .map(mapper::toDTO) //
+                .collect(Collectors.toSet());
         return ResponseEntity.ok(dtos);
     }
 

@@ -2,6 +2,7 @@ package it.unibs.ingsw.destinazioni.ui.view.controller;
 
 import it.unibs.ingsw.destinazioni.domain.dto.VisitInformationDTO;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -21,6 +22,9 @@ public class VisitArchiveViewController {
 
     private final RestTemplate restTemplate;
 
+    @Value("${api.base-url}")
+    private String apiBaseUrl;
+
     @GetMapping("/view-archive")
     public String viewVisitArchive(@AuthenticationPrincipal UserDetails principal, Model model) {
 
@@ -28,7 +32,7 @@ public class VisitArchiveViewController {
 
         int userId = 0;
         try {
-            String url = "http://localhost:8080/api/users/get-id/" + principal.getUsername();
+            String url = apiBaseUrl + "/users/get-id/" + principal.getUsername();
             ResponseEntity<Integer> userIdResponse = restTemplate.getForEntity(url, Integer.class);
             userId = userIdResponse.getBody();
         } catch (Exception e) {
@@ -38,7 +42,7 @@ public class VisitArchiveViewController {
 
         VisitInformationDTO[] archiveVisits = new VisitInformationDTO[0];
         try {
-            String url = "http://localhost:8080/api/visit-plan/get-completed-visits";
+            String url = apiBaseUrl + "/visit-plan/get-completed-visits";
             ResponseEntity<VisitInformationDTO[]> response =
                     restTemplate.getForEntity(url, VisitInformationDTO[].class);
             archiveVisits = response.getBody();

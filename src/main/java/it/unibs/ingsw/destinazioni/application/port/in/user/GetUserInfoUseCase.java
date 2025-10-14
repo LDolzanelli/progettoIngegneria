@@ -94,4 +94,6 @@ public interface GetUserInfoUseCase {
     @ pure
     @*/
   List<User> findAllByNicknames(List<String> nicknames);
+
+  List<Integer> getUsersIdsByRole(Role role);
 }

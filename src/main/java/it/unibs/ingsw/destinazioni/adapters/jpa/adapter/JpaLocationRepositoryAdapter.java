@@ -74,8 +74,6 @@ public class JpaLocationRepositoryAdapter implements LocationRepositoryPort {
                 .filter(location -> location.getVisitTypes().stream()
                         .anyMatch(vt -> Objects.equals(vt.getId(), visitType.getId())))
                 .findFirst();
-
-
     }
 
 

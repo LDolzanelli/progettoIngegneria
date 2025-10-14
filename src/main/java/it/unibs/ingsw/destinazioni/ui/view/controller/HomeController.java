@@ -7,6 +7,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
 import java.util.Locale;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
@@ -24,13 +25,15 @@ public class HomeController {
     private final RestTemplate restTemplate;
     private final Clock clock;
 
+    @Value("${api.base-url}")
+    private String apiBaseUrl;
+
     @GetMapping({"/", "/home"})
     public String home(@AuthenticationPrincipal UserDetails principal, Model model) {
         String nickname = principal.getUsername();
 
-        String url = "http://localhost:8080/api/";
-        String urlNickname = url + "users/info/" + nickname;
-        String urlId = url + "/users/get-id/" + nickname;
+        String urlNickname = apiBaseUrl + "/users/info/" + nickname;
+        String urlId = apiBaseUrl + "/users/get-id/" + nickname;
 
         LoginResponseDTO userInfo;
         int userId;
@@ -59,7 +62,7 @@ public class HomeController {
         // Se l'utente è un configuratore, e non esiste ancora un corpo dati, viene reindirizzato ad una
         // pagina che gli permette di inserire location
         if (userInfo.role().equalsIgnoreCase("configurator")) {
-            String urlArea = url + "area-of-interest/isEmpty";
+            String urlArea = apiBaseUrl + "/area-of-interest/isEmpty";
             Boolean exists = restTemplate.getForObject(urlArea, Boolean.class);
             if (Boolean.TRUE.equals(exists)) {
                 return "redirect:/insert-areas-of-interest";
@@ -68,26 +71,26 @@ public class HomeController {
 
         if (userInfo.role().equalsIgnoreCase("configurator")) {
             // check corpo dati
-            String urlArea = url + "area-of-interest/isEmpty";
+            String urlArea = apiBaseUrl + "/area-of-interest/isEmpty";
             Boolean exists = restTemplate.getForObject(urlArea, Boolean.class);
             if (Boolean.TRUE.equals(exists)) {
                 return "redirect:/insert-areas-of-interest";
             }
 
             // controlli pulsanti
-            String canEnableUrl = url + "volunteer-availability/can-enable";
-            String canDisableUrl = url + "volunteer-availability/can-disable";
+            String canEnableUrl = apiBaseUrl + "/volunteer-availability/can-enable";
+            String canDisableUrl = apiBaseUrl + "/volunteer-availability/can-disable";
 
             Boolean canEnable = restTemplate.getForObject(canEnableUrl, Boolean.class);
             Boolean canDisable = restTemplate.getForObject(canDisableUrl, Boolean.class);
-            Boolean canCreateVisitPlan = restTemplate.getForObject(url + "visit-plan/can-create", Boolean.class);
+            Boolean canCreateVisitPlan = restTemplate.getForObject(apiBaseUrl + "/visit-plan/can-create", Boolean.class);
 
 
             Integer monthToUpdate =
-                    restTemplate.getForObject(url + "volunteer-availability/month-to-enable", Integer.class);
+                    restTemplate.getForObject(apiBaseUrl + "/volunteer-availability/month-to-enable", Integer.class);
             Integer monthToDisable =
-                    restTemplate.getForObject(url + "volunteer-availability/month-to-disable", Integer.class);
-            Integer monthToCreate = restTemplate.getForObject(url + "visit-plan/next-month", Integer.class);
+                    restTemplate.getForObject(apiBaseUrl + "/volunteer-availability/month-to-disable", Integer.class);
+            Integer monthToCreate = restTemplate.getForObject(apiBaseUrl + "/visit-plan/next-month", Integer.class);
 
 
             model.addAttribute("canCreateVisitPlan", canCreateVisitPlan);
@@ -100,7 +103,6 @@ public class HomeController {
             model.addAttribute("createVisitPlanLabel",
                     Month.of(monthToCreate).getDisplayName(TextStyle.FULL, Locale.ITALIAN));
         }
-
 
         return "home";
     }

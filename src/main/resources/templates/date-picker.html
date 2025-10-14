@@ -145,9 +145,11 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/locales/bootstrap-datepicker.it.min.js"></script>
 
+    <meta name="api-base-url" th:content="${apiBaseUrl}">
     <script th:inline="javascript">
       const mode = /*[[${mode}]]*/ 'blocked';
       const isReadOnly = /*[[${!availabilityStatus}]]*/ false; // true if availability collection closed
+      const apiBaseUrl = document.querySelector('meta[name="api-base-url"]').content;
 
       function formatDateLocal(date) {
         const y = date.getFullYear();
@@ -162,9 +164,12 @@
       }
 
       $(async function () {
-        const API_BASE = mode === "blocked"
-                ? "http://localhost:8080/api/blocked-dates"
-                : "http://localhost:8080/api/volunteer-availability";
+        const API_BASE = apiBaseUrl +
+                (mode === "blocked"
+                ? "/blocked-dates"
+                : "/volunteer-availability");
+
+        console.log("API base = " + API_BASE);
 
         try {
           const monthToUpdate = await fetch(`${API_BASE}/month-to-update`)

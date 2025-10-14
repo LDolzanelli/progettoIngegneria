@@ -31,7 +31,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class LocationController {
 
-
     private final LocationQueryUseCase locationQueryService;
     private final LocationCommandUseCase manageLocationService;
     private final LocationValidationUseCase locationValidationService;
@@ -102,9 +101,7 @@ public class LocationController {
 
                 return new VisitType(vdto.id(), vdto.title(), vdto.description(), vdto.meetingPoint(), startDate,
                         endDate, startTime, vdto.duration(), vdto.maxParticipants(), vdto.minParticipants(),
-                        vdto.isFree(), Collections.emptyList(), //TODO: implementare giorni
-                        Collections.emptyList()  //TODO: implementare volontari
-                );
+                        vdto.isFree(), Collections.emptyList(), Collections.emptyList());
             }).toList();
         }
 

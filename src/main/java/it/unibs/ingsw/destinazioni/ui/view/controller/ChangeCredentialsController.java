@@ -1,5 +1,6 @@
 package it.unibs.ingsw.destinazioni.ui.view.controller;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -25,6 +26,9 @@ import lombok.extern.slf4j.Slf4j;
 public class ChangeCredentialsController {
 
     private final RestTemplate restTemplate;
+
+    @Value("${api.base-url}")
+    private String apiBaseUrl;
 
     @GetMapping
     public String showForm(@AuthenticationPrincipal UserDetails principal,
@@ -56,7 +60,7 @@ public class ChangeCredentialsController {
         var dto = new ChangeCredentialsDTO(currentUsername, newUsername, oldPassword, newPassword);
 
         try {
-            ResponseEntity<String> response = restTemplate.postForEntity("http://localhost:8080/api/users/change-both-credentials", dto, String.class);
+            ResponseEntity<String> response = restTemplate.postForEntity(apiBaseUrl + "/users/change-both-credentials", dto, String.class);
 
             System.out.println("ERRORE = " + response + " FINE");
             if (response.getStatusCode().is2xxSuccessful()) {
@@ -72,10 +76,7 @@ public class ChangeCredentialsController {
             String errorMessage = "Errore durante l'aggiornamento delle credenziali";
 
             if (e.getStatusCode() == HttpStatus.BAD_REQUEST) {
-                try {
-                    errorMessage = e.getResponseBodyAsString();
-                } catch (Exception ex) {
-                }
+                errorMessage = e.getResponseBodyAsString();
             }
 
             model.addAttribute("username", currentUsername);

@@ -100,16 +100,17 @@ public class UserController {
 
     @GetMapping("/info/{username}")
     public ResponseEntity<LoginResponseDTO> getUserInfo(@PathVariable String username) {
-        return userInfoService.findByNickname(username)
-                .map(user -> new LoginResponseDTO(user.getNickname(), user.getRole().getName(), user.isFirstLogin()))
-                .map(ResponseEntity::ok)
+        return userInfoService.findByNickname(username) //
+                .map(user -> new LoginResponseDTO(user.getNickname(), user.getRole().getName(), user.isFirstLogin())) //
+                .map(ResponseEntity::ok) //
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Utente non trovato"));
     }
 
 
     @GetMapping("/list_volunteers")
     public List<VolunteerDTO> listVolunteers() {
-        return userInfoService.getUsersByRole(Role.VOLUNTEER).stream().map(user -> new VolunteerDTO(user.getNickname()))
+        return userInfoService.getUsersByRole(Role.VOLUNTEER).stream() //
+                .map(user -> new VolunteerDTO(user.getNickname())) //
                 .toList();
     }
 
@@ -123,14 +124,15 @@ public class UserController {
         Set<VisitType> allVisitTypes = visitTypeQueryService.listAll();
 
         // associa i due
-        return volunteers.stream().map(volunteer -> {
-            String nickname = volunteer.getNickname();
-            List<String> visitTitles = allVisitTypes.stream()
-                    .filter(visit -> visit.getVolunteers().stream()
-                            .anyMatch(v -> v.getNickname().equals(volunteer.getNickname())))
-                    .map(VisitType::getTitle).toList();
-            return new VolunteerWithVisitsDTO(nickname, visitTitles,
-                    volunteerValidationService.canBeRemoved(volunteer));
+        return volunteers.stream() //
+                .map(volunteer -> {
+                    String nickname = volunteer.getNickname();
+                    List<String> visitTitles = allVisitTypes.stream() //
+                        .filter(visit -> visit.getVolunteers().stream() //
+                            .anyMatch(v -> v.getNickname().equals(volunteer.getNickname()))) //
+                        .map(VisitType::getTitle).toList();
+                    return new VolunteerWithVisitsDTO(nickname, visitTitles,
+                        volunteerValidationService.canBeRemoved(volunteer));
         }).toList();
     }
 
@@ -145,7 +147,7 @@ public class UserController {
     @GetMapping("/get-role/{username}")
     public ResponseEntity<String> getRole(@PathVariable String username) {
         Optional<User> user = userInfoService.findByNickname(username);
-        String role = user.get().getRole().toString();
+        String role = user.map(value -> value.getRole().toString()).orElse(null);
         return ResponseEntity.ok(role);
     }
 

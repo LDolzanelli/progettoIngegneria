@@ -232,8 +232,7 @@ public class VisitTypeService implements VisitTypeCommandUseCase, VisitTypeQuery
         visitType.getStartDate().getYear());
 
     // NB: se il tipo di visita non può essere rimosso, non può essere modificato
-    // perché non siamo nel
-    // periodo corretto
+    // perché non siamo nel periodo corretto
     boolean canBeRemoved = canBeRemoved(visitTypeId);
     return canBeRemoved && !isVisitPlanCreated;
   }

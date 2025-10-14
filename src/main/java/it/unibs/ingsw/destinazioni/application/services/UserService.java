@@ -2,6 +2,7 @@ package it.unibs.ingsw.destinazioni.application.services;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -160,6 +161,16 @@ public class UserService implements LoginUseCase, GetUserInfoUseCase, ChangeCred
     return userRepository.findAllByRole(role);
   }
 
+  @Override
+  /*@ also
+    @ ensures (\forall User u; \result.contains(u); u.getRole() == role);
+    @*/
+  public List<Integer> getUsersIdsByRole(Role role) {
+    return userRepository.findAllByRole(role).stream() //
+            .map(User::getId) //
+            .collect(Collectors.toList());
+  }
+
 
   @Override
   /*@ also
@@ -167,10 +178,11 @@ public class UserService implements LoginUseCase, GetUserInfoUseCase, ChangeCred
     @ ensures (\forall User u; \result.contains(u); nicknames.contains(u.getNickname()));
     @*/
   public List<User> findAllByNicknames(List<String> nicknames) {
-    return nicknames.stream()
-        .map(nick -> userRepository.findByNickname(nick).orElseThrow(
-            () -> new UserException(UserErrorCode.USER_NOT_FOUND, "Utente con nickname \"" + nick + "\" non trovato")))
-        .toList();
+
+    return nicknames.stream() //
+            .map(nick -> userRepository.findByNickname(nick) //
+            .orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND, "Utente con nickname \"" + nick + "\" non trovato"))) //
+            .toList();
   }
 
 

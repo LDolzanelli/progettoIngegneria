@@ -1,6 +1,7 @@
 package it.unibs.ingsw.destinazioni.ui.view.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
@@ -16,20 +17,23 @@ public class LocationViewController {
 
     private final RestTemplate restTemplate;
 
+    @Value("${api.base-url}")
+    private String apiBaseUrl;
+
     @GetMapping("/view-locations")
     public String viewLocations(@AuthenticationPrincipal UserDetails principal, Model model) {
         model.addAttribute("username", principal.getUsername());
 
         //recupera la lista locations dal DB
         try {
-            var response = restTemplate.getForObject("http://localhost:8080/api/location/list", Object.class);
+            var response = restTemplate.getForObject(apiBaseUrl + "/location/list", Object.class);
             model.addAttribute("locations", response);
         } catch (HttpClientErrorException e) {
             model.addAttribute("error", "Errore nel recupero delle locations");
         }
 
         boolean canAddVisitTypes = Boolean.TRUE.equals(
-                restTemplate.getForObject("http://localhost:8080/api/visit-type/modification-state-active", Boolean.class));
+                restTemplate.getForObject(apiBaseUrl + "/visit-type/modification-state-active", Boolean.class));
         model.addAttribute("canAddVisits", canAddVisitTypes);
 
 
@@ -42,7 +46,7 @@ public class LocationViewController {
 
         //la lista delle città disponibili è recuperara dall'area di interesse
         try {
-            var response = restTemplate.getForObject("http://localhost:8080/api/area-of-interest/townList", Object.class);
+            var response = restTemplate.getForObject(apiBaseUrl + "/area-of-interest/townList", Object.class);
             model.addAttribute("towns", response);
         } catch (HttpClientErrorException e) {
             model.addAttribute("error", "Errore nel recupero delle towns");
@@ -66,7 +70,7 @@ public class LocationViewController {
 		String province;
 		try {
 			var townProvinceMap = restTemplate.getForObject(
-                    "http://localhost:8080/api/area-of-interest/townProvinceMap", java.util.Map.class);
+                    apiBaseUrl + "/area-of-interest/townProvinceMap", java.util.Map.class);
 			province = (String) townProvinceMap.get(town);
 		} catch (NullPointerException e) {
 			throw new RuntimeException(e);
@@ -85,7 +89,7 @@ public class LocationViewController {
         locationDto.put("visitTypes", java.util.Collections.emptyList());
 
         try {
-            restTemplate.postForEntity("http://localhost:8080/api/location/add", locationDto, Void.class);
+            restTemplate.postForEntity(apiBaseUrl + "/location/add", locationDto, Void.class);
             model.addAttribute("success", "Location aggiunta con successo");
         } catch (HttpClientErrorException e) {
             model.addAttribute("error", "Errore nell'aggiunta della location: " + e.getResponseBodyAsString());

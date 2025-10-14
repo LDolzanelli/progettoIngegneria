@@ -62,8 +62,7 @@ public class LocationService implements LocationQueryUseCase, LocationCommandUse
     if (location.getVisitTypes().isEmpty()) {
       repository.deleteById(location.getId());
     } else {
-      // Rimuovo i tipi di visita associati alla location per eliminare anche
-      // eventuali volontari
+      // Rimuovo i tipi di visita associati alla location per eliminare anche eventuali volontari
       // associati. La location verrà eliminata dopo la rimozione dei tipi di visita
       location.getVisitTypes().forEach(visitType -> visitTypeCommands.removeVisitType(visitType.getId()));
     }

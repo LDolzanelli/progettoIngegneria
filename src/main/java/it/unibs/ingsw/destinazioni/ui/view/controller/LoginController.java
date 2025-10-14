@@ -1,10 +1,11 @@
 package it.unibs.ingsw.destinazioni.ui.view.controller;
 
-import it.unibs.ingsw.destinazioni.ui.view.dto.LoginFormDTO;
+import it.unibs.ingsw.destinazioni.domain.dto.LoginFormDTO;
 import it.unibs.ingsw.destinazioni.domain.dto.LoginRequestDTO;
 import it.unibs.ingsw.destinazioni.domain.dto.LoginResponseDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -18,6 +19,9 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class LoginController {
 
     private final RestTemplate restTemplate;
+
+    @Value("${api.base-url}")
+    private String apiBaseUrl;
 
     @GetMapping("/login")
     public String showLoginForm(Model model) {
@@ -34,7 +38,7 @@ public class LoginController {
 
         try {
             LoginResponseDTO response = restTemplate.postForObject(
-                    "http://localhost:8080/api/users/login",
+                    apiBaseUrl + "/users/login",
                     request,
                     LoginResponseDTO.class
             );

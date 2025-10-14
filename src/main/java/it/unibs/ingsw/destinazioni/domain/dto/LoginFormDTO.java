@@ -1,4 +1,4 @@
-package it.unibs.ingsw.destinazioni.ui.view.dto;
+package it.unibs.ingsw.destinazioni.domain.dto;
 
 import lombok.Getter;
 import lombok.Setter;
