@@ -73,12 +73,9 @@ public class BookingController {
         Visit visit = visitService.getVisitById(dto.visitId());
         User user = userService.findById(dto.userId()) //
                 .orElseThrow(() -> new IllegalArgumentException("User with id " + dto.userId() + " not found"));
-        List<String> visitorNames = dto.visitorsNames();
 
-
-        createBookingService.bookVisit(visit, user, visitorNames);
+        createBookingService.bookVisit(visit, user, dto.visitorsNames());
         return ResponseEntity.ok("Prenotazione effettuata con successo");
-
     }
 
     private final VisitMapper visitMapper;
