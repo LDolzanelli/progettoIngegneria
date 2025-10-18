@@ -1,4 +1,4 @@
-package it.unibs.ingsw.destinazioni.ui.rest.controller;
+package it.unibs.ingsw.destinazioni.application.rest.controller;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;

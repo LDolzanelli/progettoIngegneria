@@ -1,4 +1,4 @@
-package it.unibs.ingsw.destinazioni.ui.rest.controller;
+package it.unibs.ingsw.destinazioni.application.rest.controller;
 
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -25,7 +25,7 @@ import it.unibs.ingsw.destinazioni.domain.dto.VisitInformationDTO;
 import it.unibs.ingsw.destinazioni.domain.model.Booking;
 import it.unibs.ingsw.destinazioni.domain.model.User;
 import it.unibs.ingsw.destinazioni.domain.model.Visit;
-import it.unibs.ingsw.destinazioni.ui.rest.mapper.VisitMapper;
+import it.unibs.ingsw.destinazioni.application.rest.mapper.VisitMapper;
 import lombok.RequiredArgsConstructor;
 
 @RestController

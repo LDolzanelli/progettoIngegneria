@@ -1,4 +1,4 @@
-package it.unibs.ingsw.destinazioni.ui.rest.controller;
+package it.unibs.ingsw.destinazioni.application.rest.controller;
 
 import it.unibs.ingsw.destinazioni.config.AdjustableClock;
 import org.springframework.context.annotation.Profile;

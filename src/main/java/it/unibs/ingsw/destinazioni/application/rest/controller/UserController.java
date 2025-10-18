@@ -1,4 +1,4 @@
-package it.unibs.ingsw.destinazioni.ui.rest.controller;
+package it.unibs.ingsw.destinazioni.application.rest.controller;
 
 import java.util.List;
 import java.util.Optional;

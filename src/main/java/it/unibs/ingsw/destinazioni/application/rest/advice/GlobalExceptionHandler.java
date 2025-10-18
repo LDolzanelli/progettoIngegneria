@@ -1,4 +1,4 @@
-package it.unibs.ingsw.destinazioni.ui.rest.advice;
+package it.unibs.ingsw.destinazioni.application.rest.advice;
 
 import io.swagger.v3.oas.annotations.Hidden;
 import org.springframework.http.ResponseEntity;

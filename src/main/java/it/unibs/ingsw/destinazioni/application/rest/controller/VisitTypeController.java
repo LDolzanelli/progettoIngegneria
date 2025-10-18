@@ -1,4 +1,4 @@
-package it.unibs.ingsw.destinazioni.ui.rest.controller;
+package it.unibs.ingsw.destinazioni.application.rest.controller;
 
 import java.util.List;
 import java.util.Optional;
@@ -24,7 +24,7 @@ import it.unibs.ingsw.destinazioni.application.port.in.visittype.VisitTypeValida
 import it.unibs.ingsw.destinazioni.domain.dto.VisitTypeDTO;
 import it.unibs.ingsw.destinazioni.domain.model.User;
 import it.unibs.ingsw.destinazioni.domain.model.VisitType;
-import it.unibs.ingsw.destinazioni.ui.rest.mapper.VisitTypeMapper;
+import it.unibs.ingsw.destinazioni.application.rest.mapper.VisitTypeMapper;
 import lombok.RequiredArgsConstructor;
 
 @RestController
