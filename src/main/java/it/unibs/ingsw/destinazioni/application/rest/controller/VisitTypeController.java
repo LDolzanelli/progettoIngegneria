@@ -5,7 +5,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,7 +23,7 @@ import it.unibs.ingsw.destinazioni.application.port.in.visittype.VisitTypeValida
 import it.unibs.ingsw.destinazioni.domain.dto.VisitTypeDTO;
 import it.unibs.ingsw.destinazioni.domain.model.User;
 import it.unibs.ingsw.destinazioni.domain.model.VisitType;
-import it.unibs.ingsw.destinazioni.application.rest.mapper.VisitTypeMapper;
+import it.unibs.ingsw.destinazioni.application.rest.util.mapper.VisitTypeMapper;
 import lombok.RequiredArgsConstructor;
 
 @RestController

@@ -1,4 +1,4 @@
-package it.unibs.ingsw.destinazioni.application.rest.mapper;
+package it.unibs.ingsw.destinazioni.application.rest.util.mapper;
 
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;

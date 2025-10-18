@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import io.swagger.v3.oas.annotations.Hidden;
 import it.unibs.ingsw.destinazioni.application.exceptions.base.BaseUseCaseException;
-import it.unibs.ingsw.destinazioni.application.rest.strategy.ExceptionHandlingStrategy;
+import it.unibs.ingsw.destinazioni.application.rest.advice.strategy.ExceptionHandlingStrategy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 

@@ -12,7 +12,7 @@ import it.unibs.ingsw.destinazioni.application.port.in.visitplan.CreateVisitPlan
 import it.unibs.ingsw.destinazioni.application.port.in.visitplan.VisitPlanQueryUseCase;
 import it.unibs.ingsw.destinazioni.domain.dto.VisitInformationDTO;
 import it.unibs.ingsw.destinazioni.domain.model.Visit;
-import it.unibs.ingsw.destinazioni.application.rest.mapper.VisitMapper;
+import it.unibs.ingsw.destinazioni.application.rest.util.mapper.VisitMapper;
 import lombok.RequiredArgsConstructor;
 
 @RestController

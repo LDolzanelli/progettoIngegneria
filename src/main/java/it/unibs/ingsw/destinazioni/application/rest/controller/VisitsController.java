@@ -2,7 +2,6 @@ package it.unibs.ingsw.destinazioni.application.rest.controller;
 
 import java.util.List;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -14,7 +13,7 @@ import it.unibs.ingsw.destinazioni.application.port.in.visit.VisitDaysUseCase;
 import it.unibs.ingsw.destinazioni.domain.dto.VisitInformationDTO;
 import it.unibs.ingsw.destinazioni.domain.dto.VolunteerVisitSummaryDTO;
 import it.unibs.ingsw.destinazioni.domain.model.Visit;
-import it.unibs.ingsw.destinazioni.application.rest.mapper.VisitMapper;
+import it.unibs.ingsw.destinazioni.application.rest.util.mapper.VisitMapper;
 import lombok.RequiredArgsConstructor;
 
 @RestController
