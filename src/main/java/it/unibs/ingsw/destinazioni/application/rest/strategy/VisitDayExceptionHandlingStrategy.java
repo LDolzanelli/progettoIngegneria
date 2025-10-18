@@ -1,4 +1,4 @@
-package it.unibs.ingsw.destinazioni.ui.rest.advice.strategy;
+package it.unibs.ingsw.destinazioni.application.rest.strategy;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
