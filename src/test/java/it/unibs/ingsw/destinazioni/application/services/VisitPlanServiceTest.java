@@ -1,21 +1,42 @@
 package it.unibs.ingsw.destinazioni.application.services;
 
-import it.unibs.ingsw.destinazioni.application.port.in.user.GetUserInfoUseCase;
-import it.unibs.ingsw.destinazioni.application.port.out.*;
-import it.unibs.ingsw.destinazioni.domain.model.*;
-import it.unibs.ingsw.destinazioni.domain.model.enums.Role;
-import it.unibs.ingsw.destinazioni.domain.model.enums.VisitStatus;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
-import java.time.*;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.YearMonth;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import it.unibs.ingsw.destinazioni.application.exceptions.usecases.VisitPlanException;
+import it.unibs.ingsw.destinazioni.application.port.in.user.GetUserInfoUseCase;
+import it.unibs.ingsw.destinazioni.application.port.out.BlockedDatesRepositoryPort;
+import it.unibs.ingsw.destinazioni.application.port.out.VisitPlanStatePort;
+import it.unibs.ingsw.destinazioni.application.port.out.VisitRepositoryPort;
+import it.unibs.ingsw.destinazioni.application.port.out.VisitTypeRepositoryPort;
+import it.unibs.ingsw.destinazioni.application.port.out.VolunteerAvailabilityStatePort;
+import it.unibs.ingsw.destinazioni.application.port.out.VolunteerAvailableDateRepositoryPort;
+import it.unibs.ingsw.destinazioni.domain.model.BlockedDates;
+import it.unibs.ingsw.destinazioni.domain.model.User;
+import it.unibs.ingsw.destinazioni.domain.model.Visit;
+import it.unibs.ingsw.destinazioni.domain.model.VisitType;
+import it.unibs.ingsw.destinazioni.domain.model.VolunteerAvailableDate;
+import it.unibs.ingsw.destinazioni.domain.model.enums.Role;
+import it.unibs.ingsw.destinazioni.domain.model.enums.VisitStatus;
 
 class VisitPlanServiceTest {
     private VisitPlanStatePort statePort;
@@ -83,7 +104,7 @@ class VisitPlanServiceTest {
         when(statePort.isVisitPlanCreated(anyInt(), anyInt()))
                 .thenReturn(true);
 
-        assertThrows(IllegalStateException.class, () -> service.createVisitPlan());
+        assertThrows(VisitPlanException.class, () -> service.createVisitPlan());
     }
 
     @Test
@@ -123,7 +144,8 @@ class VisitPlanServiceTest {
         List<VolunteerAvailableDate> volunteerAvailableDates = new ArrayList<>();
         volunteerAvailableDates.add(availableDate);
 
-        when(volunteerAvailabilityRepository.findByYearMonth(YearMonth.of(2025, 10))).thenReturn(volunteerAvailableDates);
+        when(volunteerAvailabilityRepository.findByYearMonth(YearMonth.of(2025, 10)))
+                .thenReturn(volunteerAvailableDates);
 
         service.createVisitPlan();
 
@@ -158,7 +180,8 @@ class VisitPlanServiceTest {
     void createVisitPlan_MultipleVolunteersAvailable_ShouldAssignBestVolunteer() {
         User volunteer1 = new User(1, "", "", Role.VOLUNTEER, false);
         User volunteer2 = new User(2, "", "", Role.VOLUNTEER, false);
-        when(userInfoUseCase.getUsersIdsByRole(Role.VOLUNTEER)).thenReturn(List.of(volunteer1.getId(), volunteer2.getId()));
+        when(userInfoUseCase.getUsersIdsByRole(Role.VOLUNTEER))
+                .thenReturn(List.of(volunteer1.getId(), volunteer2.getId()));
         when(userInfoUseCase.findById(1)).thenReturn(Optional.of(volunteer1));
         when(userInfoUseCase.findById(2)).thenReturn(Optional.of(volunteer2));
 
@@ -172,7 +195,8 @@ class VisitPlanServiceTest {
         volunteerAvailableDates.add(volunteer1AvailableDate);
         volunteerAvailableDates.add(volunteer2AvailableDate);
 
-        when(volunteerAvailabilityRepository.findByYearMonth(YearMonth.of(2025, 10))).thenReturn(volunteerAvailableDates);
+        when(volunteerAvailabilityRepository.findByYearMonth(YearMonth.of(2025, 10)))
+                .thenReturn(volunteerAvailableDates);
 
         VisitType visitTypeMock = mock(VisitType.class);
         Visit visit = new Visit(date, null, visitTypeMock, List.of(), VisitStatus.PROPOSED);

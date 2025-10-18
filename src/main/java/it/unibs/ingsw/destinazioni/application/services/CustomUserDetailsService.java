@@ -5,9 +5,10 @@ import java.util.Collections;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import it.unibs.ingsw.destinazioni.application.exceptions.codes.UserErrorCode;
+import it.unibs.ingsw.destinazioni.application.exceptions.usecases.UserException;
 import it.unibs.ingsw.destinazioni.application.port.out.UserRepositoryPort;
 import it.unibs.ingsw.destinazioni.domain.model.User;
 
@@ -21,14 +22,11 @@ public class CustomUserDetailsService implements UserDetailsService {
     }
 
     @Override
-    public UserDetails loadUserByUsername(String nickname) throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(String nickname) {
         User user = userRepository.findByNickname(nickname)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + nickname));
+                .orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND, "User not found: " + nickname));
 
-        return new org.springframework.security.core.userdetails.User(
-                user.getNickname(),
-                user.getPassword(),
+        return new org.springframework.security.core.userdetails.User(user.getNickname(), user.getPassword(),
                 Collections.singleton(new SimpleGrantedAuthority("ROLE_" + user.getRole())));
     }
 }
- 

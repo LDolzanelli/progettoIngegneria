@@ -1,13 +1,5 @@
 package it.unibs.ingsw.destinazioni.application.services;
 
-import it.unibs.ingsw.destinazioni.application.port.out.*;
-import it.unibs.ingsw.destinazioni.domain.model.Location;
-import it.unibs.ingsw.destinazioni.domain.model.User;
-import it.unibs.ingsw.destinazioni.domain.model.VisitType;
-import it.unibs.ingsw.destinazioni.domain.model.enums.Role;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -16,8 +8,29 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import it.unibs.ingsw.destinazioni.application.exceptions.usecases.VisitTypeException;
+import it.unibs.ingsw.destinazioni.application.port.out.LocationRepositoryPort;
+import it.unibs.ingsw.destinazioni.application.port.out.UserRepositoryPort;
+import it.unibs.ingsw.destinazioni.application.port.out.VisitPlanStatePort;
+import it.unibs.ingsw.destinazioni.application.port.out.VisitTypeRepositoryPort;
+import it.unibs.ingsw.destinazioni.application.port.out.VolunteerAvailabilityStatePort;
+import it.unibs.ingsw.destinazioni.domain.model.Location;
+import it.unibs.ingsw.destinazioni.domain.model.User;
+import it.unibs.ingsw.destinazioni.domain.model.VisitType;
+import it.unibs.ingsw.destinazioni.domain.model.enums.Role;
 
 class VisitTypeServiceTest {
 
@@ -81,21 +94,21 @@ class VisitTypeServiceTest {
         when(visitType.getId()).thenReturn(1);
 
         when(repository.findById(1)).thenReturn(Optional.of(visitType));
-        assertThrows(IllegalArgumentException.class, () -> service.removeVisitType(2));
+        assertThrows(VisitTypeException.class, () -> service.removeVisitType(2));
     }
 
     @Test
     void updateVisitType_NullVisitType_ShouldThrowException() {
         setUpFixedClockForService("2025-09-16T00:00:00Z");
         VisitType visitType = null;
-        assertThrows(IllegalArgumentException.class, () -> service.updateVisitType(visitType));
+        assertThrows(VisitTypeException.class, () -> service.updateVisitType(visitType));
     }
 
     @Test
     void updateVisitType_NullVisitTypeId_ShouldThrowException() {
         setUpFixedClockForService("2025-09-16T00:00:00Z");
         VisitType visitType = mock(VisitType.class);
-        assertThrows(IllegalArgumentException.class, () -> service.updateVisitType(visitType));
+        assertThrows(VisitTypeException.class, () -> service.updateVisitType(visitType));
     }
 
     @Test
@@ -105,7 +118,7 @@ class VisitTypeServiceTest {
         when(visitType.getId()).thenReturn(1);
 
         when(repository.findById(anyInt())).thenReturn(Optional.empty());
-        assertThrows(IllegalArgumentException.class, () -> service.updateVisitType(visitType));
+        assertThrows(VisitTypeException.class, () -> service.updateVisitType(visitType));
     }
 
     @Test
@@ -116,7 +129,7 @@ class VisitTypeServiceTest {
 
         when(repository.findById(anyInt())).thenReturn(Optional.of(visitType));
         when(locationRepository.findByVisitType(visitType)).thenReturn(Optional.empty());
-        assertThrows(IllegalArgumentException.class, () -> service.updateVisitType(visitType));
+        assertThrows(VisitTypeException.class, () -> service.updateVisitType(visitType));
     }
 
     @Test
@@ -133,7 +146,6 @@ class VisitTypeServiceTest {
 
         verify(repository).save(eq(visitType), eq(2));
     }
-
 
     @Test
     void isAddOrRemovalStateActive_Before15_ShouldReturnFalse() {
@@ -176,7 +188,7 @@ class VisitTypeServiceTest {
         setUpFixedClockForService("2025-09-16T00:00:00Z");
         when(repository.findById(anyInt())).thenReturn(Optional.empty());
 
-        assertThrows(IllegalArgumentException.class, () -> service.canBeRemoved(1));
+        assertThrows(VisitTypeException.class, () -> service.canBeRemoved(1));
     }
 
     @Test
@@ -212,7 +224,7 @@ class VisitTypeServiceTest {
         setUpFixedClockForService("2025-09-16T00:00:00Z");
         when(repository.findById(anyInt())).thenReturn(Optional.empty());
 
-        assertThrows(IllegalArgumentException.class, () -> service.canBeModified(1));
+        assertThrows(VisitTypeException.class, () -> service.canBeModified(1));
     }
 
     @Test
@@ -272,7 +284,7 @@ class VisitTypeServiceTest {
 
         when(repository.findById(anyInt())).thenReturn(Optional.of(visitType));
 
-        assertThrows(IllegalArgumentException.class, () -> service.addVolunteerToVisitType(1, ""));
+        assertThrows(VisitTypeException.class, () -> service.addVolunteerToVisitType(1, ""));
     }
 
     @Test
@@ -288,12 +300,12 @@ class VisitTypeServiceTest {
         when(repository.findById(anyInt())).thenReturn(Optional.of(visitType));
 
         String volunteerName = "volunteer";
-        User volunteer = new User(volunteerName,"password", Role.VOLUNTEER);
+        User volunteer = new User(volunteerName, "password", Role.VOLUNTEER);
 
         when(userRepository.findByNickname(volunteerName)).thenReturn(Optional.of(volunteer));
         when(visitType.getVolunteers()).thenReturn(List.of(volunteer));
 
-        assertThrows(IllegalArgumentException.class, () -> service.addVolunteerToVisitType(1, volunteerName));
+        assertThrows(VisitTypeException.class, () -> service.addVolunteerToVisitType(1, volunteerName));
     }
 
     @Test
@@ -309,7 +321,7 @@ class VisitTypeServiceTest {
         when(repository.findById(anyInt())).thenReturn(Optional.of(visitType));
 
         String volunteerName = "volunteer";
-        User volunteer = new User(volunteerName,"password", Role.VOLUNTEER);
+        User volunteer = new User(volunteerName, "password", Role.VOLUNTEER);
 
         when(userRepository.findByNickname(volunteerName)).thenReturn(Optional.of(volunteer));
         when(visitType.getVolunteers()).thenReturn(List.of());

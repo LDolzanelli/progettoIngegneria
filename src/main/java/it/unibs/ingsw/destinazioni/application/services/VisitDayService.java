@@ -7,6 +7,10 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import it.unibs.ingsw.destinazioni.application.exceptions.codes.UserErrorCode;
+import it.unibs.ingsw.destinazioni.application.exceptions.codes.VisitDayErrorCode;
+import it.unibs.ingsw.destinazioni.application.exceptions.usecases.UserException;
+import it.unibs.ingsw.destinazioni.application.exceptions.usecases.VisitDayException;
 import it.unibs.ingsw.destinazioni.application.port.in.user.GetUserInfoUseCase;
 import it.unibs.ingsw.destinazioni.application.port.in.visit.VisitDaysUseCase;
 import it.unibs.ingsw.destinazioni.application.port.out.BlockedDatesRepositoryPort;
@@ -32,14 +36,23 @@ public class VisitDayService implements VisitDaysUseCase {
     private final Clock clock;
 
     @Override
-    /*@ also
-      @ requires visitRepository != null && visitTypeRepository != null && 
-      @          blockedDatesRepository != null && clock != null;
-      @ ensures (\forall VisitType vt; visitTypeRepository.findAll().contains(vt);
-      @          (\exists Visit v; visitRepository.findAll().contains(v) &&
-      @           v.getVisitType().equals(vt) && v.getDate().getMonthValue() == month &&
-      @           v.getVisitStatus() == VisitStatus.PROPOSED));
-      @*/
+    /*
+     * @ also
+     * 
+     * @ requires visitRepository != null && visitTypeRepository != null &&
+     * 
+     * @ blockedDatesRepository != null && clock != null;
+     * 
+     * @ ensures (\forall VisitType vt; visitTypeRepository.findAll().contains(vt);
+     * 
+     * @ (\exists Visit v; visitRepository.findAll().contains(v) &&
+     * 
+     * @ v.getVisitType().equals(vt) && v.getDate().getMonthValue() == month &&
+     * 
+     * @ v.getVisitStatus() == VisitStatus.PROPOSED));
+     * 
+     * @
+     */
     public void createDefaultVisitDays(int month) {
 
         BlockedDates blockedDates = blockedDatesRepository.loadAll();
@@ -48,7 +61,7 @@ public class VisitDayService implements VisitDaysUseCase {
         int year = now.getYear();
 
         if (month != now.plusMonths(2).getMonthValue() || now.getDayOfMonth() < 15) {
-            throw new IllegalArgumentException(
+            throw new VisitDayException(VisitDayErrorCode.CANT_BE_CREATED_AT_THIS_DATE,
                     "non è possibile creare visite per il mese i + 2 se non è dopo il 15 del mese corrente");
         }
 
@@ -57,16 +70,15 @@ public class VisitDayService implements VisitDaysUseCase {
         LocalDate endOfMonth = targetMonth.atEndOfMonth();
 
         List<VisitType> visitTypes = visitTypeRepository.findAll() //
-                        .stream() //
-                        .filter(visitType -> !visitType.getStartDate().isAfter(endOfMonth) //
+                .stream() //
+                .filter(visitType -> !visitType.getStartDate().isAfter(endOfMonth) //
                         && !visitType.getEndDate().isBefore(startOfMonth)) //
-                        .toList();
+                .toList();
 
         for (VisitType visitType : visitTypes) {
             createVisitsForType(visitType, startOfMonth, endOfMonth, blockedDates);
         }
     }
-
 
     private void createVisitsForType(VisitType visitType, LocalDate startOfMonth, LocalDate endOfMonth,
             BlockedDates blockedDates) {
@@ -87,48 +99,68 @@ public class VisitDayService implements VisitDaysUseCase {
         }
     }
 
-
     @Override
-    /*@ also
-      @ ensures (\forall Visit v; v.getDate().getMonthValue() == month;
-      @          visitRepository.findAll().contains(v) && v.getVisitStatus() != null);
-      @*/
+    /*
+     * @ also
+     * 
+     * @ ensures (\forall Visit v; v.getDate().getMonthValue() == month;
+     * 
+     * @ visitRepository.findAll().contains(v) && v.getVisitStatus() != null);
+     * 
+     * @
+     */
     public void updateVisitDays(int month) {
         // TODO: implementare la logica per aggiornare i giorni di visita (con il piano
         // di visita)
     }
 
-
     @Override
-    /*@ also
-      @ ensures \result.size() >= 0;
-      @ ensures (\forall Visit v; \result.contains(v);
-      @          v.getVolunteer().getNickname().equals(volunteerNickname) &&
-      @          v.getVisitStatus() == VisitStatus.CONFIRMED);
-      @ ensures userInfoService.findByNickname(volunteerNickname).isPresent();
-      @ ensures userInfoService.findByNickname(volunteerNickname).get().getRole() == Role.VOLUNTEER;
-      @*/
+    /*
+     * @ also
+     * 
+     * @ ensures \result.size() >= 0;
+     * 
+     * @ ensures (\forall Visit v; \result.contains(v);
+     * 
+     * @ v.getVolunteer().getNickname().equals(volunteerNickname) &&
+     * 
+     * @ v.getVisitStatus() == VisitStatus.CONFIRMED);
+     * 
+     * @ ensures userInfoService.findByNickname(volunteerNickname).isPresent();
+     * 
+     * @ ensures userInfoService.findByNickname(volunteerNickname).get().getRole()
+     * == Role.VOLUNTEER;
+     * 
+     * @
+     */
     public List<Visit> getConfirmedVisitsPerVolunteer(String volunteerNickname) {
         User volunteer = userInfoService.findByNickname(volunteerNickname)
-                .orElseThrow(() -> new IllegalArgumentException("Volontario non trovato: " + volunteerNickname));
+                .orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND, volunteerNickname));
 
         if (volunteer.getRole() != Role.VOLUNTEER)
-            throw new IllegalArgumentException("L'utente non è un volontario: " + volunteerNickname);
+            throw new UserException(UserErrorCode.UNAUTHORIZED_REQUEST,
+                    "L'utente con nickname " + volunteerNickname + " non è un volontario");
 
         return visitRepository.findByVolunteer(volunteerNickname).stream()
                 .filter(visit -> visit.getVisitStatus() == VisitStatus.CONFIRMED).toList();
     }
 
-
     @Override
-    /*@ also
-      @ ensures \result != null;
-      @ ensures \result.getId() == visitId;
-      @ ensures visitRepository.findById(visitId).isPresent();
-      @*/
+    /*
+     * @ also
+     * 
+     * @ ensures \result != null;
+     * 
+     * @ ensures \result.getId() == visitId;
+     * 
+     * @ ensures visitRepository.findById(visitId).isPresent();
+     * 
+     * @
+     */
     public Visit getVisitById(int visitId) {
         return visitRepository.findById(visitId)
-                .orElseThrow(() -> new IllegalArgumentException("Visita non trovata con id: " + visitId));
+                .orElseThrow(() -> new VisitDayException(VisitDayErrorCode.VISIT_NOT_FOUND,
+                        "Visita non trovata con id: " + visitId));
     }
 
 }

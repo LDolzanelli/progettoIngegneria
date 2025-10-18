@@ -4,7 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
-
+import it.unibs.ingsw.destinazioni.application.exceptions.codes.UserErrorCode;
+import it.unibs.ingsw.destinazioni.application.exceptions.usecases.UserException;
 import it.unibs.ingsw.destinazioni.application.port.in.visittype.VisitTypeCommandUseCase;
 import it.unibs.ingsw.destinazioni.application.port.in.visittype.VisitTypeQueryUseCase;
 import it.unibs.ingsw.destinazioni.application.port.in.visittype.VisitTypeValidationUseCase;
@@ -26,15 +27,26 @@ public class VolunteerService implements VolunteerValidationUseCase, RemoveVolun
     private final VisitTypeCommandUseCase visitTypeCRUD;
 
     @Override
-    /*@ also
-      @ requires queryVisitTypeUseCase != null && visitTypeValidationUseCase != null;
-      @ ensures \result == (\forall VisitType vt; queryVisitTypeUseCase.listAll().contains(vt);
-      @                    (!vt.getVolunteers().stream().anyMatch(v -> v.getId().equals(volunteer.getId())) ||
-      @                     visitTypeValidationUseCase.canBeRemoved(vt.getId())));
-      @*/
+    /*
+     * @ also
+     * 
+     * @ requires queryVisitTypeUseCase != null && visitTypeValidationUseCase !=
+     * null;
+     * 
+     * @ ensures \result == (\forall VisitType vt;
+     * queryVisitTypeUseCase.listAll().contains(vt);
+     * 
+     * @ (!vt.getVolunteers().stream().anyMatch(v ->
+     * v.getId().equals(volunteer.getId())) ||
+     * 
+     * @ visitTypeValidationUseCase.canBeRemoved(vt.getId())));
+     * 
+     * @
+     */
     public boolean canBeRemoved(User volunteer) {
         if (volunteer.getRole() != Role.VOLUNTEER) {
-            throw new IllegalArgumentException("L'utente non è un volontario");
+
+            throw new UserException(UserErrorCode.UNAUTHORIZED_REQUEST, "L'utente non è un volontario");
         }
 
         for (var visitType : queryVisitTypeUseCase.listAll()) {
@@ -48,21 +60,36 @@ public class VolunteerService implements VolunteerValidationUseCase, RemoveVolun
         return true;
     }
 
-
     @Override
-    /*@ also
-      @ requires queryVisitTypeUseCase != null && visitTypeCRUD != null && userRepository != null;
-      @ ensures !userRepository.findByNickname(volunteer.getNickname()).isPresent();
-      @ ensures (\forall VisitType vt; queryVisitTypeUseCase.listAll().contains(vt);
-      @          !vt.getVolunteers().stream().anyMatch(v -> 
-      @           v.getNickname().equals(volunteer.getNickname())));
-      @ ensures (\forall VisitType vt; \old(vt.getVolunteers().size()) == 1 &&
-      @          \old(vt.getVolunteers().get(0).getNickname().equals(volunteer.getNickname()));
-      @          !queryVisitTypeUseCase.listAll().contains(vt));
-      @*/
+    /*
+     * @ also
+     * 
+     * @ requires queryVisitTypeUseCase != null && visitTypeCRUD != null &&
+     * userRepository != null;
+     * 
+     * @ ensures
+     * !userRepository.findByNickname(volunteer.getNickname()).isPresent();
+     * 
+     * @ ensures (\forall VisitType vt;
+     * queryVisitTypeUseCase.listAll().contains(vt);
+     * 
+     * @ !vt.getVolunteers().stream().anyMatch(v ->
+     * 
+     * @ v.getNickname().equals(volunteer.getNickname())));
+     * 
+     * @ ensures (\forall VisitType vt; \old(vt.getVolunteers().size()) == 1 &&
+     * 
+     * @
+     * \old(vt.getVolunteers().get(0).getNickname().equals(volunteer.getNickname()))
+     * ;
+     * 
+     * @ !queryVisitTypeUseCase.listAll().contains(vt));
+     * 
+     * @
+     */
     public void removeVolunteer(User volunteer) {
         if (!canBeRemoved(volunteer)) {
-            throw new IllegalArgumentException("Il volontario non può essere rimosso");
+            throw new UserException(UserErrorCode.UNAUTHORIZED_REQUEST, "Il volontario non può essere rimosso");
         }
 
         List<VisitType> visitTypes = queryVisitTypeUseCase.listAll().stream() //

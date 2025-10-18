@@ -1,0 +1,53 @@
+@startuml
+
+set separator none
+
+package "adapters.jpa" #mediumpurple {
+	package "adapter" #beige
+	package "entity" #beige
+	package "repository" #beige
+} 
+
+package "application"  #paleturquoise {
+	package "exception" #lightcoral {
+		package "codes" #bisque
+	}
+	
+	package "port" #tan {
+		package "in" #lightgreen {
+			package "areaofinterest" #lavender 
+			package "blockeddates" #lavender
+			package "booking" #lavender
+			package "configuration" #lavender
+			package "location" #lavender
+			package "login" #lavender
+			package "user" #lavender
+			package "visit" #lavender
+			package "visitplan" #lavender
+			package "visittype" #lavender
+			package "volunteer" #lavender
+		}
+
+		package "out" #skyblue 
+	}
+		package "services" #steelblue  
+		package "util" #lightyellow  
+}
+
+package "config" #papayawhip 
+
+package "domain" #sandybrown {
+	package "dto" #yellow 
+	package "model" #plum {
+		package "enums" #palegreen 
+	}
+}
+
+package "ui" #lemonchiffon {
+	package "rest" #coral {
+		package "advice" #plum
+		package "controller" #plum
+		package "mapper" #plum
+	}
+	package "view.controller" #mediumspringgreen
+}

@@ -38,22 +38,18 @@ public class VolunteerAvailabilityController {
 
     @PostMapping("/enable")
     public ResponseEntity<Void> enableAvailability() {
-        try {
-            volunteerAvailabilityControlUseCase.enableAvailability();
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().build();
-        }
+
+        volunteerAvailabilityControlUseCase.enableAvailability();
+
         return ResponseEntity.ok().build();
     }
 
 
     @PostMapping("/disable")
     public ResponseEntity<Void> disableAvailability() {
-        try {
-            volunteerAvailabilityControlUseCase.disableAvailability();
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().build();
-        }
+
+        volunteerAvailabilityControlUseCase.disableAvailability();
+
         return ResponseEntity.ok().build();
     }
 
@@ -109,11 +105,8 @@ public class VolunteerAvailabilityController {
                     .map(LocalDate::parse) //
                     .collect(Collectors.toSet());
 
-        try {
-            volunteersUseCase.updateAvailability(volunteerId, dates);
-        } catch (IllegalStateException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+
+        volunteersUseCase.updateAvailability(volunteerId, dates);
 
         return ResponseEntity.ok().build();
     }

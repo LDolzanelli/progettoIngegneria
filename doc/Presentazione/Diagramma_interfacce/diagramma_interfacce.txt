@@ -1,0 +1,42 @@
+@startuml
+interface Repository1 as "Repository"
+interface Repository2 as "Repository"
+interface Repository3 as "Repository"
+
+interface jpaRepository as "jpaRepository<Entity1, Entity2 ...>"
+class Entity1 as "Entity"
+class Entity2 as "Entity"
+class jpaRepositoryAdapter
+
+interface RepositoryPort
+
+class Model1 as "Model"
+class Model2 as "Model"
+
+class Service1 as "Service"
+class Service2 as "Service"
+
+interface UseCase1 as "UseCase"
+interface UseCase2 as "UseCase"
+
+
+jpaRepository ..> Entity1
+jpaRepository ..> Entity2
+Repository1 ..|> jpaRepository
+Repository2 ..|> jpaRepository
+
+jpaRepositoryAdapter --> Repository1
+jpaRepositoryAdapter --> Repository3
+jpaRepositoryAdapter .u.|> RepositoryPort
+
+jpaRepositoryAdapter .u.> Model1 : <<create>>
+jpaRepositoryAdapter .u.> Model2 : <<create>>
+
+Service1 -d-> RepositoryPort
+Service2 -d-> RepositoryPort
+Service1 .u.|> UseCase1
+Service2 .u.|> UseCase1
+Service2 .u.|> UseCase2
+Service1 -d-> Model1
+Service2 -d-> Model2
+@enduml

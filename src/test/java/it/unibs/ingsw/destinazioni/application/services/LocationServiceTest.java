@@ -1,19 +1,27 @@
 package it.unibs.ingsw.destinazioni.application.services;
 
+import java.util.List;
+import java.util.Optional;
+
+import org.junit.jupiter.api.Assertions;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import it.unibs.ingsw.destinazioni.application.exceptions.usecases.LocationException;
 import it.unibs.ingsw.destinazioni.application.port.in.visittype.VisitTypeCommandUseCase;
 import it.unibs.ingsw.destinazioni.application.port.in.visittype.VisitTypeValidationUseCase;
 import it.unibs.ingsw.destinazioni.application.port.out.LocationRepositoryPort;
 import it.unibs.ingsw.destinazioni.domain.model.Location;
 import it.unibs.ingsw.destinazioni.domain.model.VisitType;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
-import java.util.List;
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
 
 class LocationServiceTest {
     private LocationRepositoryPort repository;
@@ -35,7 +43,7 @@ class LocationServiceTest {
     void removeLocation_LocationNotFound_ShouldThrowException() {
         when(repository.findById(anyInt())).thenReturn(Optional.empty());
 
-        assertThrows(IllegalArgumentException.class, () -> service.removeLocation(1));
+        assertThrows(LocationException.class, () -> service.removeLocation(1));
     }
 
     @Test
@@ -47,7 +55,7 @@ class LocationServiceTest {
         VisitType visitType = mock(VisitType.class);
         when(location.getVisitTypes()).thenReturn(List.of(visitType));
 
-        assertThrows(IllegalArgumentException.class, () -> service.removeLocation(1));
+        assertThrows(LocationException.class, () -> service.removeLocation(1));
     }
 
     @Test
@@ -78,7 +86,7 @@ class LocationServiceTest {
     void updateLocation_LocationIsNull_ShouldThrowException() {
         Location locationTest = mock(Location.class);
 
-        assertThrows(IllegalArgumentException.class, () -> service.updateLocation(locationTest));
+        assertThrows(LocationException.class, () -> service.updateLocation(locationTest));
     }
 
     @Test
@@ -95,7 +103,7 @@ class LocationServiceTest {
         Location locationTest = mock(Location.class);
         when(repository.findById(anyInt())).thenReturn(Optional.empty());
 
-        assertThrows(IllegalArgumentException.class, () -> service.updateLocation(locationTest));
+        assertThrows(LocationException.class, () -> service.updateLocation(locationTest));
     }
 
     @Test
@@ -136,7 +144,7 @@ class LocationServiceTest {
         VisitType visitType = mock(VisitType.class);
         when(visitType.getId()).thenReturn(1);
 
-        assertThrows(IllegalArgumentException.class, () -> service.getLocationForVisitType(visitType));
+        assertThrows(LocationException.class, () -> service.getLocationForVisitType(visitType));
     }
 
     @Test

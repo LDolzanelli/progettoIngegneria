@@ -33,62 +33,52 @@ public class VisitPlanController {
 
     @PostMapping("/create")
     public ResponseEntity<Void> createVisitPlan() {
-        try {
-            createVisitPlanService.createVisitPlan();
-            return ResponseEntity.ok().build();
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().build();
-        }
+
+        createVisitPlanService.createVisitPlan();
+        return ResponseEntity.ok().build();
+
     }
 
 
     @GetMapping("/get-visit-plan-after-today")
     public ResponseEntity<List<VisitInformationDTO>> getVisitPlan() {
-        try {
-            List<Visit> visits = queryVisitPlanService.getAllVisitsAfterToday();
-            List<VisitInformationDTO> visitsDTO = visits.stream().map(visitMapper::toVisitInformationDTO).toList();
 
-            return ResponseEntity.ok(visitsDTO);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().build();
-        }
+        List<Visit> visits = queryVisitPlanService.getAllVisitsAfterToday();
+        List<VisitInformationDTO> visitsDTO = visits.stream().map(visitMapper::toVisitInformationDTO).toList();
+
+        return ResponseEntity.ok(visitsDTO);
+
     }
 
 
     @GetMapping("/get-completed-visits")
     public ResponseEntity<List<VisitInformationDTO>> getCopletedVisitsForArchive() {
-        try {
-            List<Visit> visits = queryVisitPlanService.getAllCompletedVisits();
-            List<VisitInformationDTO> visitsDTO = visits.stream().map(visitMapper::toVisitInformationDTO).toList();
 
-            return ResponseEntity.ok(visitsDTO);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().build();
-        }
+        List<Visit> visits = queryVisitPlanService.getAllCompletedVisits();
+        List<VisitInformationDTO> visitsDTO = visits.stream().map(visitMapper::toVisitInformationDTO).toList();
+
+        return ResponseEntity.ok(visitsDTO);
+
     }
 
 
     @GetMapping("/next-month")
     public ResponseEntity<Integer> getNextMonth() {
-        try {
-            int month = createVisitPlanService.getMonth();
-            return ResponseEntity.ok(month);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().build();
-        }
+
+        int month = createVisitPlanService.getMonth();
+        return ResponseEntity.ok(month);
+
     }
 
 
     @GetMapping("/next-month-year")
     public ResponseEntity<Integer> getNextMonthYear() {
-        try {
-            int month = createVisitPlanService.getMonth();
-            if (month == 1) //il prossimo mese é gennaio
-                return ResponseEntity.ok(createVisitPlanService.getYear() + 1);
-            else
-                return ResponseEntity.ok(createVisitPlanService.getYear());
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().build();
-        }
+
+        int month = createVisitPlanService.getMonth();
+        if (month == 1) //il prossimo mese é gennaio
+            return ResponseEntity.ok(createVisitPlanService.getYear() + 1);
+        else
+            return ResponseEntity.ok(createVisitPlanService.getYear());
+
     }
 }

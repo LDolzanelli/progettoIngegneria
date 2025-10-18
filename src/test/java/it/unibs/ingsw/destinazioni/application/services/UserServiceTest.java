@@ -1,20 +1,28 @@
 package it.unibs.ingsw.destinazioni.application.services;
 
+import java.util.Optional;
+
+import org.junit.jupiter.api.Assertions;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
+import it.unibs.ingsw.destinazioni.application.exceptions.usecases.UserException;
 import it.unibs.ingsw.destinazioni.application.port.out.UserRepositoryPort;
 import it.unibs.ingsw.destinazioni.domain.dto.LoginRequestDTO;
 import it.unibs.ingsw.destinazioni.domain.dto.LoginResponseDTO;
 import it.unibs.ingsw.destinazioni.domain.model.User;
 import it.unibs.ingsw.destinazioni.domain.model.enums.Role;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
-
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
 
 class UserServiceTest {
     private UserRepositoryPort userRepository;
@@ -35,7 +43,7 @@ class UserServiceTest {
         User user = new User("testUser", "", null);
         when(userRepository.findByNickname("testUser")).thenReturn(Optional.of(user));
 
-        Assertions.assertThrows(IllegalArgumentException.class, () -> userService.registerNewUser(user));
+        Assertions.assertThrows(UserException.class, () -> userService.registerNewUser(user));
     }
 
     @Test
@@ -54,7 +62,7 @@ class UserServiceTest {
         User user1 = new User("testUser1", "", Role.VOLUNTEER);
         User user2 = new User("testUser2", "", Role.CONFIGURATOR);
 
-        //il service dovrebbe forzare i valori a true
+        // il service dovrebbe forzare i valori a true
         user1.setFirstLogin(false);
         user2.setFirstLogin(false);
 
@@ -89,7 +97,8 @@ class UserServiceTest {
         User user = new User("testUser", passwordEncoder.encode(password), Role.CONFIGURATOR);
         when(userRepository.findByNickname("testUser")).thenReturn(Optional.of(user));
 
-        Assertions.assertThrows(IllegalArgumentException.class, //
+        Assertions.assertThrows(
+                UserException.class, //
                 () -> userService.changePassword("testUser", //
                         "wrongPassword", "test"));
     }
@@ -190,8 +199,8 @@ class UserServiceTest {
         String newUsername = "newUsername";
         String newPassword = "newPassword";
         when(userRepository.findByNickname(newUsername)).thenReturn(Optional.of(user));
-        assertThrows(IllegalArgumentException.class, () -> //
-                userService.changeBothCredentials(oldUsername, newUsername, oldPassword, newPassword));
+        assertThrows(UserException.class, () -> //
+        userService.changeBothCredentials(oldUsername, newUsername, oldPassword, newPassword));
     }
 
     @Test
@@ -216,7 +225,7 @@ class UserServiceTest {
     void login_UserNotFound_ShouldThrowException() {
         LoginRequestDTO dto = new LoginRequestDTO("testUser", "testPassword");
         when(userRepository.findByNickname(anyString())).thenReturn(Optional.empty());
-        assertThrows(IllegalArgumentException.class, () -> userService.login(dto));
+        assertThrows(UserException.class, () -> userService.login(dto));
     }
 
     @Test
@@ -225,7 +234,7 @@ class UserServiceTest {
         User user = new User("testUser", "wrongPassword", Role.CONFIGURATOR);
         when(userRepository.findByNickname(anyString())).thenReturn(Optional.of(user));
 
-        assertThrows(IllegalArgumentException.class, () -> userService.login(dto));
+        assertThrows(UserException.class, () -> userService.login(dto));
     }
 
     @Test
