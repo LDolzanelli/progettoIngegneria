@@ -58,11 +58,9 @@ public class BookingController {
         Visit visit = bookingQueryService.getVisitByBookingCode(bookingCode);
         String locationName = locationQueryService.getLocationForVisitType(visit.getVisitType()).getName();
 
-        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-
         var dto = new BookingDetailsDTO(booking.getUser().getId(), visit.getId(), booking.getUser().getNickname(),
                 booking.getVisitorsNames(), visit.getVisitType().getTitle(), locationName,
-                visit.getDate().format(dateFormatter));
+                visit.getDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
 
         return ResponseEntity.ok(dto);
     }
