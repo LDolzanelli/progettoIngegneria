@@ -1,0 +1,114 @@
+package it.unibs.ingsw.destinazioni.ui.view.controller;
+
+import java.time.Clock;
+import java.time.LocalDate;
+import java.time.Month;
+import java.time.format.DateTimeFormatter;
+import java.time.format.TextStyle;
+import java.util.Locale;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.client.RestTemplate;
+
+import it.unibs.ingsw.destinazioni.domain.dto.LoginResponseDTO;
+import lombok.RequiredArgsConstructor;
+
+@Controller
+@RequiredArgsConstructor
+public class HomeViewController {
+
+    private final RestTemplate restTemplate;
+    private final Clock clock;
+
+    @Value("${api.base-url}")
+    private String apiBaseUrl;
+
+    @GetMapping({"/", "/home"})
+    public String home(@AuthenticationPrincipal UserDetails principal, Model model) {
+        String nickname = principal.getUsername();
+
+        String urlNickname = apiBaseUrl + "/users/info/" + nickname;
+        String urlId = apiBaseUrl + "/users/get-id/" + nickname;
+
+        LoginResponseDTO userInfo;
+        int userId;
+
+        try {
+            userInfo = restTemplate.getForObject(urlNickname, LoginResponseDTO.class);
+        } catch (Exception e) {
+            throw new IllegalStateException("Errore nel recupero dell'utente: " + nickname, e);
+        }
+
+        try {
+            userId = restTemplate.getForObject(urlId, Integer.class);
+        } catch (Exception e) {
+            throw new IllegalStateException("Errore nel recupero dell'utente: " + nickname, e);
+        }
+
+        assert userInfo != null;
+        model.addAttribute("username", userInfo.nickname());
+        model.addAttribute("userId", userId);
+        model.addAttribute("role", userInfo.role());
+
+        LocalDate today = LocalDate.now(clock);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MMMM yyyy");
+        model.addAttribute("currentDate", today.format(formatter));
+
+        if (userInfo.role().equalsIgnoreCase("configurator")) {
+            String configuratorPage = getConfiguratorPage(model);
+            if (configuratorPage != null) {
+                return configuratorPage;
+            }
+        }
+
+        return "home";
+    }
+
+    private String getConfiguratorPage(Model model) {
+        String urlAreaIsEmpty = apiBaseUrl + "/area-of-interest/isEmpty";
+
+        if (Boolean.TRUE.equals(restTemplate.getForObject(urlAreaIsEmpty, Boolean.class))) {
+            return "redirect:/insert-areas-of-interest";
+        }
+
+        // check corpo dati
+        String urlArea = apiBaseUrl + "/area-of-interest/isEmpty";
+        Boolean exists = restTemplate.getForObject(urlArea, Boolean.class);
+        if (Boolean.TRUE.equals(exists)) {
+            return "redirect:/insert-areas-of-interest";
+        }
+
+        // controlli pulsanti
+        String canEnableUrl = apiBaseUrl + "/volunteer-availability/can-enable";
+        String canDisableUrl = apiBaseUrl + "/volunteer-availability/can-disable";
+
+        Boolean canEnable = restTemplate.getForObject(canEnableUrl, Boolean.class);
+        Boolean canDisable = restTemplate.getForObject(canDisableUrl, Boolean.class);
+        Boolean canCreateVisitPlan = restTemplate.getForObject(apiBaseUrl + "/visit-plan/can-create", Boolean.class);
+
+
+        Integer monthToUpdate =
+                restTemplate.getForObject(apiBaseUrl + "/volunteer-availability/month-to-enable", Integer.class);
+        Integer monthToDisable =
+                restTemplate.getForObject(apiBaseUrl + "/volunteer-availability/month-to-disable", Integer.class);
+        Integer monthToCreate = restTemplate.getForObject(apiBaseUrl + "/visit-plan/next-month", Integer.class);
+
+
+        model.addAttribute("canCreateVisitPlan", canCreateVisitPlan);
+        model.addAttribute("canEnableAvailability", canEnable);
+        model.addAttribute("canDisableAvailability", canDisable);
+        model.addAttribute("enableMonthLabel",
+                Month.of(monthToUpdate).getDisplayName(TextStyle.FULL, Locale.ITALIAN));
+        model.addAttribute("disableMonthLabel",
+                Month.of(monthToDisable).getDisplayName(TextStyle.FULL, Locale.ITALIAN));
+        model.addAttribute("createVisitPlanLabel",
+                Month.of(monthToCreate).getDisplayName(TextStyle.FULL, Locale.ITALIAN));
+        return null;
+    }
+}
+

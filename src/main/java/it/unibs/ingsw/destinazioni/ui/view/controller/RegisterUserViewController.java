@@ -17,7 +17,7 @@ import org.springframework.web.client.RestTemplate;
 @RequiredArgsConstructor
 @PermitAll
 @RequestMapping("/register-user")
-public class RegisterUserController {
+public class RegisterUserViewController {
 
     private final RestTemplate restTemplate;
 

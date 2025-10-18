@@ -23,7 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Slf4j
 @RequestMapping("/change-credentials")
-public class ChangeCredentialsController {
+public class ChangeCredentialsViewController {
 
     private final RestTemplate restTemplate;
 

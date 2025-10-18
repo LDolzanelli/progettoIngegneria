@@ -16,7 +16,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @Slf4j
 @Controller
 @RequiredArgsConstructor
-public class LoginController {
+public class LoginViewController {
 
     private final RestTemplate restTemplate;
 

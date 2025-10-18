@@ -16,7 +16,7 @@ import java.util.List;
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/insert-areas-of-interest")
-public class InsertAreasController {
+public class InsertAreasViewController {
 
     private final RestTemplate restTemplate;
 
