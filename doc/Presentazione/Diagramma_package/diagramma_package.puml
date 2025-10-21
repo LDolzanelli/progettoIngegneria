@@ -2,52 +2,64 @@
 
 set separator none
 
-package "adapters.jpa" #mediumpurple {
-	package "adapter" #beige
-	package "entity" #beige
-	package "repository" #beige
-} 
+package "adapters.jpa" #cc77ff {
+	package "adapter" #ccbbff
+	package "entity" #ccbbff
+	package "repository" #ccbbff
+}
 
-package "application"  #paleturquoise {
-	package "exception" #lightcoral {
-		package "codes" #bisque
+package "application" #0088ff {
+
+  package "exception" #00bbff {
+		package "codes" #00eeff
+    package "usecases" #00eeff
+    package "base" #00eeff
 	}
-	
-	package "port" #tan {
-		package "in" #lightgreen {
-			package "areaofinterest" #lavender 
-			package "blockeddates" #lavender
-			package "booking" #lavender
-			package "configuration" #lavender
-			package "location" #lavender
-			package "login" #lavender
-			package "user" #lavender
-			package "visit" #lavender
-			package "visitplan" #lavender
-			package "visittype" #lavender
-			package "volunteer" #lavender
+
+	package "port" #00bbff {
+		package "in" #00eeff {
+			package "areaofinterest" #bcffff
+			package "blockeddates" #bcffff
+			package "booking" #bcffff
+			package "configuration" #bcffff
+			package "location" #bcffff
+			package "login" #bcffff
+			package "user" #bcffff
+			package "visit" #bcffff
+			package "visitplan" #bcffff
+			package "visittype" #bcffff
+			package "volunteer" #bcffff
 		}
 
-		package "out" #skyblue 
+		package "out" #00eeff
 	}
-		package "services" #steelblue  
-		package "util" #lightyellow  
+
+    package "services" #00bbff
+
+    package "rest" #00bbff {
+		  package "advice" #00eeff {
+        package "strategy" #bcffff
+      }
+		  package "controller" #00eeff
+
+      package "util" #00eeff {
+        package "mapper" #bcffff
+      }
+	}
+
+  package "util " #00bbff
+
 }
 
-package "config" #papayawhip 
+package "config" #fbfc93
 
-package "domain" #sandybrown {
-	package "dto" #yellow 
-	package "model" #plum {
-		package "enums" #palegreen 
+package "domain" #ffbb4d {
+	package "dto" #ffd179
+	package "model" #ffd179 {
+		package "enums" #ffdfb0
 	}
 }
 
-package "ui" #lemonchiffon {
-	package "rest" #coral {
-		package "advice" #plum
-		package "controller" #plum
-		package "mapper" #plum
-	}
-	package "view.controller" #mediumspringgreen
+package "ui" #66ff66 {
+	package "view.controller" #ccffcc
 }

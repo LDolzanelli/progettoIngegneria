@@ -4,23 +4,22 @@ skinparam actorStyle awesome
 actor Volontario as volunteer
 box "View" #LemonChiffon
 entity "Web Server" as webServer
-participant "date-picker.html" as datepicker
+participant DatePickerViewController as dpController
 end box
 box "Controller" #lightgreen
-participant DatePickerController as dpController
+
 participant VolunteerAvailablilityController as vaController
-'participant VolunteerAvailabilityControlUseCase as vacUseCase
 end box
 box "Model" #sandybrown
 participant VolunteersAvailabilityService as vaService
-'participant VolunteerAvailableDateRepositoryPort as vadRepositoryPort
-'participant JpaVolunteerAvailableDateRepositoryPort as jpadRepositoryPort'
-participant JpaVolunteerAvailableDateRepositoryAdapter as jpadRepositoryAdapter
+
 end box
 
 box "Persistence" #mediumpurple
-'participant VolunteerAvailableDateRepositoryRepository as vadRepository
-participant VolunteerAvailableDateEntity as vadEntity
+participant MonthColletionStateAdapter as mcsAdapter
+participant JpaVolunteerAvailableDateRepositoryAdapter as jpadRepositoryAdapter
+participant MonthColletionStateRepository as mcsRepository
+participant VolunteerAvailableDateRepository as vadRepository
 database Database as db
 end box
 
@@ -31,13 +30,20 @@ webServer --> volunteer : "200 OK date-picker.html"
 volunteer --> webServer : "GET /is-enabled"
 webServer -> vaController : "isAvailablityEnabled()"
 vaController -> vaService : "isAvailabilityEnabled()"
+vaService -> mcsAdapter : "isVolunteerAvailabilityOpen()"
+mcsAdapter -> mcsRepository : "findByMonthAndYear()"
+mcsRepository --> db : "query"
+db --> mcsRepository : "response"
+mcsRepository --> mcsAdapter
+mcsAdapter --> vaService
 vaService --> vaController : "raccolta disponibilitá abilitata"
 vaController --> webServer : "true"
 webServer --> volunteer : "200 OK true"
+
 volunteer --> webServer : "POST /update-own lista-date (JSON)"
 webServer --> vaController : "updateOwnAvailablity()"
 vaController -> vaService : "updateAvailability()"
 vaService -> jpadRepositoryAdapter : "save()"
-jpadRepositoryAdapter --> vadEntity : "~save()"
-vadEntity --> db : "scrittura su DB"
+jpadRepositoryAdapter --> vadRepository : "~save()"
+vadRepository --> db : "scrittura su DB"
 @enduml
