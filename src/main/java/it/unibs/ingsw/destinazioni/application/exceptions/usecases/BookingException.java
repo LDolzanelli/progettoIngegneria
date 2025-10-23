@@ -27,3 +27,5 @@ public class BookingException extends BaseUseCaseException {
         return errorCode;
     }
 }
+
+
