@@ -46,4 +46,5 @@ vaController -> vaService : "updateAvailability()"
 vaService -> jpadRepositoryAdapter : "save()"
 jpadRepositoryAdapter --> vadRepository : "~save()"
 vadRepository --> db : "scrittura su DB"
+webServer --> volunteer : "<response>"
 @enduml
