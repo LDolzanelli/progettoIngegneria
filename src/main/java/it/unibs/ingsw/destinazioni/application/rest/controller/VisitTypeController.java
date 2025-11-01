@@ -31,8 +31,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class VisitTypeController {
 
-    private final VisitTypeQueryUseCase VisitTypeQueryService;
-    private final VisitTypeCommandUseCase VisitTypeCommandService;
+    private final VisitTypeQueryUseCase visitTypeQueryService;
+    private final VisitTypeCommandUseCase visitTypeCommandService;
     private final VisitTypeValidationUseCase visitTypeValidationService;
     private final AssignVolunteerToVisitTypeUseCase assignVolunteerToVisitTypeService;
     private final GetUserInfoUseCase getUserInfoUseCase;
@@ -43,7 +43,7 @@ public class VisitTypeController {
 
         List<User> resolvedVolunteers = getUserInfoUseCase.findAllByNicknames(dto.volunteers());
         var visitType = mapper.toDomain(dto, resolvedVolunteers);
-        VisitTypeCommandService.addVisitType(visitType, locationId);
+        visitTypeCommandService.addVisitType(visitType, locationId);
         return ResponseEntity.ok().build();
 
     }
@@ -52,7 +52,7 @@ public class VisitTypeController {
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<String> deleteVisitType(@PathVariable int id) {
 
-        VisitTypeCommandService.removeVisitType(id);
+        visitTypeCommandService.removeVisitType(id);
         return ResponseEntity.ok().build();
 
     }
@@ -60,7 +60,7 @@ public class VisitTypeController {
 
     @GetMapping("/list/{locationId}")
     public ResponseEntity<Set<VisitTypeDTO>> listByLocation(@PathVariable int locationId) {
-        Set<VisitType> visitTypes = VisitTypeQueryService.listByLocation(locationId);
+        Set<VisitType> visitTypes = visitTypeQueryService.listByLocation(locationId);
         Set<VisitTypeDTO> dtos = visitTypes.stream() //
                 .map(mapper::toDTO) //
                 .collect(Collectors.toSet());
@@ -70,7 +70,7 @@ public class VisitTypeController {
 
     @GetMapping("/{id}")
     public ResponseEntity<VisitTypeDTO> getVisitType(@PathVariable int id) {
-        Optional<VisitType> visitTypeOpt = VisitTypeQueryService.findById(id);
+        Optional<VisitType> visitTypeOpt = visitTypeQueryService.findById(id);
         return visitTypeOpt.map(v -> ResponseEntity.ok(mapper.toDTO(v)))
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
@@ -81,7 +81,7 @@ public class VisitTypeController {
 
         List<User> resolvedVolunteers = getUserInfoUseCase.findAllByNicknames(dto.volunteers());
         var visitType = mapper.toDomain(dto, resolvedVolunteers);
-        VisitTypeCommandService.updateVisitType(visitType);
+        visitTypeCommandService.updateVisitType(visitType);
         return ResponseEntity.ok().build();
 
     }
@@ -90,7 +90,7 @@ public class VisitTypeController {
     @GetMapping("/volunteer/{volunteerId}")
     public ResponseEntity<Set<VisitTypeDTO>> listByVolunteer(@PathVariable int volunteerId) {
 
-        Set<VisitType> visitTypes = VisitTypeQueryService.listByVolunteerId(volunteerId);
+        Set<VisitType> visitTypes = visitTypeQueryService.listByVolunteerId(volunteerId);
         Set<VisitTypeDTO> dtos = visitTypes.stream().map(mapper::toDTO).collect(Collectors.toSet());
         return ResponseEntity.ok(dtos);
 

@@ -52,7 +52,7 @@ public class VisitDayService implements VisitDaysUseCase {
         LocalDate startOfMonth = targetMonth.atDay(1);
         LocalDate endOfMonth = targetMonth.atEndOfMonth();
 
-        List<VisitType> visitTypes = visitTypeRepository.findAll() 
+        List<VisitType> visitTypes = visitTypeRepository.findAll()
                 .stream()
                 .filter(visitType -> !visitType.getStartDate().isAfter(endOfMonth)
                         && !visitType.getEndDate().isBefore(startOfMonth))
@@ -63,14 +63,18 @@ public class VisitDayService implements VisitDaysUseCase {
         }
     }
 
+
     private void createVisitsForType(VisitType visitType, LocalDate startOfMonth, LocalDate endOfMonth,
             BlockedDates blockedDates) {
+
         LocalDate current = startOfMonth;
         while (!current.isAfter(endOfMonth)) {
+
             if (blockedDates.isBlocked(current)) {
                 current = current.plusDays(1);
                 continue;
             }
+
             if (!current.isBefore(visitType.getStartDate()) && !current.isAfter(visitType.getEndDate())) {
                 DaysOfWeek day = DaysOfWeek.valueOf(current.getDayOfWeek().name());
                 if (visitType.getDaysAvailable().contains(day)) {
@@ -78,14 +82,15 @@ public class VisitDayService implements VisitDaysUseCase {
                     visitRepository.save(visit);
                 }
             }
+
             current = current.plusDays(1);
         }
     }
 
+
     @Override
     public List<Visit> getConfirmedVisitsPerVolunteer(String volunteerNickname) {
-        User volunteer = userInfoService.findByNickname(volunteerNickname)
-                .orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND, volunteerNickname));
+        User volunteer = userInfoService.findByNickname(volunteerNickname);
 
         if (volunteer.getRole() != Role.VOLUNTEER)
             throw new UserException(UserErrorCode.UNAUTHORIZED_REQUEST,
@@ -94,6 +99,7 @@ public class VisitDayService implements VisitDaysUseCase {
         return visitRepository.findByVolunteer(volunteerNickname).stream()
                 .filter(visit -> visit.getVisitStatus() == VisitStatus.CONFIRMED).toList();
     }
+
 
     @Override
     public Visit getVisitById(int visitId) {

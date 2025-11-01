@@ -5,7 +5,6 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -56,6 +55,7 @@ class VisitDayServiceTest {
         when(blockedDatesRepositoryMock.loadAll()).thenReturn(blockedDates);
     }
 
+
     @Test
     void createDefaultVisitDays_DateNotTwoMonthsFromNow_ShouldThrowException() {
         setUpClockForService("2025-08-16T00:00:00Z");
@@ -68,12 +68,14 @@ class VisitDayServiceTest {
         assertThrows(VisitDayException.class, () -> service.createDefaultVisitDays(8));
     }
 
+
     @Test
     void createDefaultVisitDays_TodayDateBefore15_ShouldThrowException() {
         setUpClockForService("2025-08-10T00:00:00Z");
 
         assertThrows(VisitDayException.class, () -> service.createDefaultVisitDays(10));
     }
+
 
     @Test
     void createDefaultVisitDays_ShouldReturnVisitDaysAsExpected() {
@@ -85,6 +87,7 @@ class VisitDayServiceTest {
         verify(visitRepositoryMock, atLeastOnce()).save(any(Visit.class));
     }
 
+
     @Test
     void createDefaultVisitDays_ShouldIgnoreBlockedDates() {
         int blockedDateDay = 10;
@@ -95,33 +98,24 @@ class VisitDayServiceTest {
         verify(visitRepositoryMock, never()).save(any(Visit.class));
     }
 
-    @Test
-    void getConfirmedVisitsPerVolunteer_UserNotFound_ShouldThrowException() {
-        setUpClockForService("2025-08-10T00:00:00Z");
-        User user = new User("test", "test", Role.VOLUNTEER);
-        when(userInfoServiceMock.findByNickname("wrongName")).thenReturn(Optional.empty());
-
-        assertThrows(
-                UserException.class, //
-                () -> service.getConfirmedVisitsPerVolunteer(user.getNickname()));
-    }
 
     @Test
     void getConfirmedVisitsPerVolunteer_UserNotVolunteer_ShouldThrowException() {
         setUpClockForService("2025-08-10T00:00:00Z");
         User user = new User("test", "test", Role.CONFIGURATOR);
-        when(userInfoServiceMock.findByNickname("test")).thenReturn(Optional.of(user));
+        when(userInfoServiceMock.findByNickname("test")).thenReturn(user);
 
         assertThrows(
-                UserException.class, //
+                UserException.class,
                 () -> service.getConfirmedVisitsPerVolunteer(user.getNickname()));
     }
+
 
     @Test
     void getConfirmedVisitsPerVolunteer_ShouldReturnExpectedVisitsList() {
         setUpClockForService("2025-08-10T00:00:00Z");
         User user = new User("test", "test", Role.VOLUNTEER);
-        when(userInfoServiceMock.findByNickname("test")).thenReturn(Optional.of(user));
+        when(userInfoServiceMock.findByNickname("test")).thenReturn(user);
 
         Visit visitConfirmed = new Visit(null, user, null, List.of(), VisitStatus.CONFIRMED);
         Visit visitNotConfirmed = new Visit(null, user, null, List.of(), VisitStatus.PROPOSED);
@@ -136,12 +130,14 @@ class VisitDayServiceTest {
         assertFalse(confirmedVisits.contains(visitNotConfirmed));
     }
 
+
     void setUpClockForService(String instantToParse) {
         Clock fixedClock = Clock.fixed(Instant.parse(instantToParse), ZoneId.systemDefault());
 
         service = new VisitDayService(visitRepositoryMock, visitTypeRepositoryMock, //
                 blockedDatesRepositoryMock, userInfoServiceMock, fixedClock);
     }
+
 
     private void setUpCreateDeafultVisitDays(int dayOfBlockedDate, int startDateDay, int endDateDay) {
         setUpClockForService("2025-08-16T00:00:00Z");

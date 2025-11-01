@@ -1,7 +1,6 @@
 package it.unibs.ingsw.destinazioni.application.rest.controller;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.http.HttpStatus;
@@ -13,7 +12,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
 
 import it.unibs.ingsw.destinazioni.application.port.in.login.ChangeCredentialsUseCase;
 import it.unibs.ingsw.destinazioni.application.port.in.login.LoginUseCase;
@@ -100,17 +98,17 @@ public class UserController {
 
     @GetMapping("/info/{username}")
     public ResponseEntity<LoginResponseDTO> getUserInfo(@PathVariable String username) {
-        return userInfoService.findByNickname(username) //
-                .map(user -> new LoginResponseDTO(user.getNickname(), user.getRole().getName(), user.isFirstLogin())) //
-                .map(ResponseEntity::ok) //
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Utente non trovato"));
+        User user = userInfoService.findByNickname(username);
+
+        LoginResponseDTO dto = new LoginResponseDTO(user.getNickname(), user.getRole().getName(), user.isFirstLogin());
+        return ResponseEntity.ok(dto);
     }
 
 
     @GetMapping("/list_volunteers")
     public List<VolunteerDTO> listVolunteers() {
-        return userInfoService.getUsersByRole(Role.VOLUNTEER).stream() //
-                .map(user -> new VolunteerDTO(user.getNickname())) //
+        return userInfoService.getUsersByRole(Role.VOLUNTEER).stream()
+                .map(user -> new VolunteerDTO(user.getNickname()))
                 .toList();
     }
 
@@ -124,16 +122,16 @@ public class UserController {
         Set<VisitType> allVisitTypes = visitTypeQueryService.listAll();
 
         // associa i due
-        return volunteers.stream() //
+        return volunteers.stream()
                 .map(volunteer -> {
                     String nickname = volunteer.getNickname();
-                    List<String> visitTitles = allVisitTypes.stream() //
-                        .filter(visit -> visit.getVolunteers().stream() //
-                            .anyMatch(v -> v.getNickname().equals(volunteer.getNickname()))) //
-                        .map(VisitType::getTitle).toList();
+                    List<String> visitTitles = allVisitTypes.stream()
+                            .filter(visit -> visit.getVolunteers().stream()
+                                    .anyMatch(v -> v.getNickname().equals(volunteer.getNickname())))
+                            .map(VisitType::getTitle).toList();
                     return new VolunteerWithVisitsDTO(nickname, visitTitles,
-                        volunteerValidationService.canBeRemoved(volunteer));
-        }).toList();
+                            volunteerValidationService.canBeRemoved(volunteer));
+                }).toList();
     }
 
 
@@ -146,8 +144,8 @@ public class UserController {
 
     @GetMapping("/get-role/{username}")
     public ResponseEntity<String> getRole(@PathVariable String username) {
-        Optional<User> user = userInfoService.findByNickname(username);
-        String role = user.map(value -> value.getRole().toString()).orElse(null);
+        User user = userInfoService.findByNickname(username);
+        String role = user.getRole().getName();
         return ResponseEntity.ok(role);
     }
 
@@ -155,8 +153,7 @@ public class UserController {
     @DeleteMapping("/remove-volunteer/{nickname}")
     public ResponseEntity<String> removeVolunteer(@PathVariable String nickname) {
 
-        User volunteer = userInfoService.findByNickname(nickname).get();
-
+        User volunteer = userInfoService.findByNickname(nickname);
         removeVolunteerService.removeVolunteer(volunteer);
         return ResponseEntity.ok("Volontario rimosso con successo");
 

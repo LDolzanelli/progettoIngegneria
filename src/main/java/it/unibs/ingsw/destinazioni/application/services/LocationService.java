@@ -37,6 +37,7 @@ public class LocationService implements LocationQueryUseCase, LocationCommandUse
     repository.save(location);
   }
 
+
   @Override
   public void removeLocation(int locationId) {
 
@@ -58,16 +59,19 @@ public class LocationService implements LocationQueryUseCase, LocationCommandUse
     }
   }
 
+
   @Override
 
   public List<Location> listAll() {
     return repository.findAll();
   }
 
+
   @Override
   public Optional<Location> findById(int id) {
     return repository.findById(id);
   }
+
 
   @Override
   public void updateLocation(Location location) {
@@ -76,14 +80,14 @@ public class LocationService implements LocationQueryUseCase, LocationCommandUse
       throw new LocationException(LocationErrorCode.NULL_LOCATION, "Location o ID della location null");
     }
 
-    var existing = repository.findById(location.getId());
-    if (existing.isEmpty()) {
+    if (repository.findById(location.getId()).isEmpty()) {
       throw new LocationException(LocationErrorCode.LOCATION_NOT_FOUND,
           "La località con id " + location.getId() + " non trovata");
     }
 
     repository.save(location);
   }
+
 
   @Override
   public boolean canBeRemoved(int locationId) {
@@ -99,6 +103,7 @@ public class LocationService implements LocationQueryUseCase, LocationCommandUse
     return location.getVisitTypes().stream().allMatch(visitType -> visitTypeValidation.canBeRemoved(visitType.getId()));
 
   }
+
 
   @Override
   public Location getLocationForVisitType(VisitType visitType) {

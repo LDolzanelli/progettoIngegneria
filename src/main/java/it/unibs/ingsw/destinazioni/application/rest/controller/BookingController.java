@@ -17,6 +17,7 @@ import it.unibs.ingsw.destinazioni.application.port.in.booking.CreateBookingUseC
 import it.unibs.ingsw.destinazioni.application.port.in.location.LocationQueryUseCase;
 import it.unibs.ingsw.destinazioni.application.port.in.user.GetUserInfoUseCase;
 import it.unibs.ingsw.destinazioni.application.port.in.visit.VisitDaysUseCase;
+import it.unibs.ingsw.destinazioni.application.rest.util.mapper.VisitMapper;
 import it.unibs.ingsw.destinazioni.domain.dto.BookingDetailsDTO;
 import it.unibs.ingsw.destinazioni.domain.dto.BookingInformationDTO;
 import it.unibs.ingsw.destinazioni.domain.dto.BookingRequestDTO;
@@ -25,7 +26,6 @@ import it.unibs.ingsw.destinazioni.domain.dto.VisitInformationDTO;
 import it.unibs.ingsw.destinazioni.domain.model.Booking;
 import it.unibs.ingsw.destinazioni.domain.model.User;
 import it.unibs.ingsw.destinazioni.domain.model.Visit;
-import it.unibs.ingsw.destinazioni.application.rest.util.mapper.VisitMapper;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -54,6 +54,7 @@ public class BookingController {
 
     @GetMapping("/booking-details/{bookingCode}")
     public ResponseEntity<BookingDetailsDTO> bookingDetails(@PathVariable String bookingCode) {
+
         Booking booking = bookingQueryService.getBookingByCode(bookingCode);
         Visit visit = bookingQueryService.getVisitByBookingCode(bookingCode);
         String locationName = locationQueryService.getLocationForVisitType(visit.getVisitType()).getName();
@@ -69,8 +70,7 @@ public class BookingController {
     @PostMapping("/book")
     public ResponseEntity<String> bookVisit(@RequestBody BookingRequestDTO dto) {
         Visit visit = visitService.getVisitById(dto.visitId());
-        User user = userService.findById(dto.userId()) //
-                .orElseThrow(() -> new IllegalArgumentException("User with id " + dto.userId() + " not found"));
+        User user = userService.findById(dto.userId());
 
         createBookingService.bookVisit(visit, user, dto.visitorsNames());
         return ResponseEntity.ok("Prenotazione effettuata con successo");
@@ -80,17 +80,16 @@ public class BookingController {
 
     @GetMapping("/my-bookings/{userId}")
     public ResponseEntity<List<BookingInformationDTO>> getMyBookingsWithCode(@PathVariable int userId) {
-        User user = userService.findById(userId) //
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+        User user = userService.findById(userId);
 
         List<Booking> bookings = bookingQueryService.getBookingsByUser(user);
 
-        List<BookingInformationDTO> result = bookings.stream() //
-                .map(b -> { //
-                    Visit visit = bookingQueryService.getVisitByBookingCode(b.getBookingCode()); //
-                    VisitInformationDTO dto = visitMapper.toVisitInformationDTO(visit); //
-                    return new BookingInformationDTO(dto, b.getBookingCode()); //
-                }) //
+        List<BookingInformationDTO> result = bookings.stream()
+                .map(b -> {
+                    Visit visit = bookingQueryService.getVisitByBookingCode(b.getBookingCode());
+                    VisitInformationDTO dto = visitMapper.toVisitInformationDTO(visit);
+                    return new BookingInformationDTO(dto, b.getBookingCode());
+                })
                 .toList();
 
         return ResponseEntity.ok(result);

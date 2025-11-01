@@ -26,10 +26,12 @@ public class BlockedDatesService implements BlockedDatesUseCase {
                 this.getMonthToUpdate().getYear());
     }
 
+
     @Override
     public BlockedDates getBlockedDates() {
         return repository.loadAll();
     }
+
 
     @Override
     public BlockedDates getBlockedDates(int month, int year) {
@@ -41,16 +43,16 @@ public class BlockedDatesService implements BlockedDatesUseCase {
         return repository.loadByMonth(month, year);
     }
 
+
     @Override
     public YearMonth getMonthToUpdate() {
+
         LocalDate today = LocalDate.now(clock);
+        YearMonth baseMonth = today.getDayOfMonth() < 16
+                ? YearMonth.from(today)
+                : YearMonth.from(today.plusMonths(1));
 
-        int baseMonth = today.getDayOfMonth() < 16 ? today.getMonthValue() : today.plusMonths(1).getMonthValue();
-
-        // il risultato del modulo può essere 0. si fa +1 alla fine per garantire di
-        // avere il mese desiderato
-        int targetMonth = ((baseMonth + 2) % 12) + 1;
-        return YearMonth.of(baseMonth + 2 > 12 ? today.getYear() + 1 : today.getYear(), targetMonth);
+        return baseMonth.plusMonths(3);
     }
 
 }

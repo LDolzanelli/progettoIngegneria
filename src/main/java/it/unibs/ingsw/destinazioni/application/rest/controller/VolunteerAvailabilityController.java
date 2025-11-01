@@ -101,9 +101,9 @@ public class VolunteerAvailabilityController {
         int volunteerId = userInfoUseCase.getIdByNickname(user.getUsername());
 
         Set<LocalDate> dates = Optional.ofNullable(dto.dateList())  // se null da Optional.empty()
-                .orElse(List.of()).stream() //
-                    .map(LocalDate::parse) //
-                    .collect(Collectors.toSet());
+                .orElse(List.of()).stream()
+                .map(LocalDate::parse)
+                .collect(Collectors.toSet());
 
 
         volunteersUseCase.updateAvailability(volunteerId, dates);

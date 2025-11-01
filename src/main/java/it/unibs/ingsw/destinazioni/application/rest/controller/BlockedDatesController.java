@@ -41,8 +41,8 @@ public class BlockedDatesController {
         YearMonth month = blockedDatesUseCase.getMonthToUpdate();
         BlockedDates blockedDates = blockedDatesUseCase.getBlockedDates(month.getMonthValue(), month.getYear());
 
-        Set<String> dates = blockedDates.getDates().stream() //
-                .filter(d -> d.getMonth() == month.getMonth()) //
+        Set<String> dates = blockedDates.getDates().stream()
+                .filter(d -> d.getMonth() == month.getMonth())
                 .map(LocalDate::toString).collect(Collectors.toSet());
 
         return ResponseEntity.ok(dates);
@@ -52,9 +52,9 @@ public class BlockedDatesController {
     @GetMapping("/get")
     public ResponseEntity<Set<String>> getBlockedDates() {
         BlockedDates blockedDates = blockedDatesUseCase.getBlockedDates();
-        Set<String> dates = blockedDates.getDates().stream() //
-                .sorted() //
-                .map(LocalDate::toString) //
+        Set<String> dates = blockedDates.getDates().stream()
+                .sorted()
+                .map(LocalDate::toString)
                 .collect(Collectors.toCollection(LinkedHashSet::new)); // ordine cronologico
 
         return ResponseEntity.ok(dates);

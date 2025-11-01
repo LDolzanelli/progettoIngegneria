@@ -42,8 +42,7 @@ public class BookingService implements CreateBookingUseCase, BookingQueryUseCase
       bookingCode = BookingCodeGenerator.generateBookingCode();
     } while (bookingRepository.findByBookingCode(bookingCode).isPresent());
 
-    userInfoService.findById(user.getId()).orElseThrow(
-        () -> new UserException(UserErrorCode.USER_NOT_FOUND, "User with id " + user.getId() + " not found"));
+    userInfoService.findById(user.getId()); // Verifica che l'utente esista
 
     visitRepository.findById(visit.getId())
         .orElseThrow(() -> new IllegalArgumentException("Visit with id " + visit.getId() + " not found"));
@@ -68,8 +67,9 @@ public class BookingService implements CreateBookingUseCase, BookingQueryUseCase
     updatedBookings.add(booking);
     visit.setBookings(updatedBookings);
 
-    updateVisit(visit);
+    updateVisitIntoTheDB(visit);
   }
+
 
   @Override
   public List<Booking> getBookingsByVisit(Visit visit) {
@@ -80,12 +80,13 @@ public class BookingService implements CreateBookingUseCase, BookingQueryUseCase
     return bookingRepository.findAllByVisitId(visit.getId());
   }
 
+
   @Override
   public List<Booking> getBookingsByUser(User user) {
-    userInfoService.findById(user.getId()).orElseThrow(
-        () -> new UserException(UserErrorCode.USER_NOT_FOUND, "User with id " + user.getId() + " not found"));
+    userInfoService.findById(user.getId());
     return bookingRepository.findAllByUserId(user.getId());
   }
+
 
   @Override
   public void cancelBooking(String bookingCode, int userId) {
@@ -111,26 +112,30 @@ public class BookingService implements CreateBookingUseCase, BookingQueryUseCase
 
     visit.setBookings(updatedBookings);
 
-    updateVisit(visit);
+    updateVisitIntoTheDB(visit);
   }
+
 
   @Override
   public boolean isThisBookingCancellable(String bookingCode) {
+
     Visit visit = visitRepository.findByBookingCode(bookingCode).orElseThrow(
         () -> new BookingException(BookingErrorCode.BOOKING_NOT_FOUND, "No booking found with code: " + bookingCode));
 
+
     return (visit.getVisitStatus() == VisitStatus.PROPOSED || visit.getVisitStatus() == VisitStatus.FULL);
   }
+
 
   @Override
   public Booking getBookingByCode(String bookingCode) {
     return bookingRepository.findByBookingCode(bookingCode)
         .orElseThrow(() -> new BookingException(BookingErrorCode.BOOKING_NOT_FOUND,
             "Booking with code " + bookingCode + " not found"));
-
   }
 
-  private void updateVisit(Visit visit) {
+
+  private void updateVisitIntoTheDB(Visit visit) {
     LocalDate visitDate = visit.getDate();
     VisitStatus status = visit.getVisitStatus();
     var visitType = visit.getVisitType();
@@ -143,6 +148,7 @@ public class BookingService implements CreateBookingUseCase, BookingQueryUseCase
 
     visitRepository.save(visit);
   }
+
 
   @Override
   public Visit getVisitByBookingCode(String bookingCode) {

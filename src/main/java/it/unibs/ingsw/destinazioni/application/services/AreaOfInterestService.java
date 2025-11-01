@@ -11,15 +11,13 @@ import it.unibs.ingsw.destinazioni.application.port.in.areaofinterest.QueryAreaO
 import it.unibs.ingsw.destinazioni.application.port.out.AreaOfInterestRepositoryPort;
 import it.unibs.ingsw.destinazioni.domain.dto.TownProvinceDTO;
 import it.unibs.ingsw.destinazioni.domain.model.AreaOfInterest;
+import lombok.RequiredArgsConstructor;
 
 @Service
+@RequiredArgsConstructor
 public class AreaOfInterestService implements ManageAreaOfInterestUseCase, QueryAreaOfInterestUseCase {
 
 	private final AreaOfInterestRepositoryPort repository;
-
-	public AreaOfInterestService(AreaOfInterestRepositoryPort repository) {
-		this.repository = repository;
-	}
 
 
 	@Override
@@ -38,7 +36,7 @@ public class AreaOfInterestService implements ManageAreaOfInterestUseCase, Query
 
 	@Override
 	public ArrayList<String> townList() {
-		return repository.load().map(aoi -> aoi.getAreas().stream() 
+		return repository.load().map(aoi -> aoi.getAreas().stream()
 				.map(TownProvinceDTO::town)
 				.collect(Collectors.toCollection(ArrayList::new))).orElseGet(ArrayList::new);
 	}
@@ -51,4 +49,3 @@ public class AreaOfInterestService implements ManageAreaOfInterestUseCase, Query
 		return aoi.getAreas().stream().collect(Collectors.toMap(TownProvinceDTO::town, TownProvinceDTO::province));
 	}
 }
- 

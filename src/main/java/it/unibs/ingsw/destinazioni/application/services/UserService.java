@@ -1,8 +1,6 @@
 package it.unibs.ingsw.destinazioni.application.services;
 
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -19,6 +17,7 @@ import it.unibs.ingsw.destinazioni.domain.dto.LoginResponseDTO;
 import it.unibs.ingsw.destinazioni.domain.model.User;
 import it.unibs.ingsw.destinazioni.domain.model.enums.Role;
 import lombok.RequiredArgsConstructor;
+
 
 @Service
 @RequiredArgsConstructor
@@ -39,6 +38,7 @@ public class UserService implements LoginUseCase, GetUserInfoUseCase, ChangeCred
     userRepository.save(user);
   }
 
+
   @Override
   public void changePassword(String nickname, String oldPassword, String newPassword) {
 
@@ -53,6 +53,7 @@ public class UserService implements LoginUseCase, GetUserInfoUseCase, ChangeCred
     user.setFirstLogin(false);
     userRepository.save(user);
   }
+
 
   @Override
   public void changeUsername(String oldNickname, String newNickname) {
@@ -69,13 +70,13 @@ public class UserService implements LoginUseCase, GetUserInfoUseCase, ChangeCred
     userRepository.save(user);
   }
 
+
   @Override
   public void changeBothCredentials(String oldNickname, String newNickname, String oldPassword, String newPassword) {
     User user = userRepository.findByNickname(oldNickname)
         .orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND,
             "Utente con nickname \"" + oldNickname + "\" non trovato"));
 
-    // TODO: eccezione specifica per i volontari
     if (user.getRole() == Role.VOLUNTEER && !oldNickname.equals(newNickname)) {
       throw new UserException(UserErrorCode.UNAUTHORIZED_REQUEST,
           "I volontari non possono cambiare il proprio nickname");
@@ -89,26 +90,25 @@ public class UserService implements LoginUseCase, GetUserInfoUseCase, ChangeCred
     }
   }
 
-  @Override
-  public Optional<User> findById(int id) {
-    return userRepository.findById(id);
-  }
 
   @Override
-  public Optional<User> findByNickname(String nickname) {
-    return userRepository.findByNickname(nickname);
+  public User findById(int id) {
+    return userRepository.findById(id).orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND,
+        "Utente con id \"" + id + "\" non trovato"));
   }
+
+
+  @Override
+  public User findByNickname(String nickname) {
+    return userRepository.findByNickname(nickname).orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND,
+        "Utente con nickname \"" + nickname + "\" non trovato"));
+  }
+
 
   @Override
   public LoginResponseDTO login(LoginRequestDTO loginRequestDTO) {
-    Optional<User> optionalUser = userRepository.findByNickname(loginRequestDTO.nickname());
+    User user = findByNickname(loginRequestDTO.nickname());
 
-    if (optionalUser.isEmpty()) {
-      throw new UserException(UserErrorCode.USER_NOT_FOUND,
-          "Utente con nickname \"" + loginRequestDTO.nickname() + "\" non trovato");
-    }
-
-    User user = optionalUser.get();
     if (!passwordEncoder.matches(loginRequestDTO.password(), user.getPassword())) {
       throw new UserException(UserErrorCode.INVALID_CREDENTIALS, "Password errata");
     }
@@ -116,33 +116,35 @@ public class UserService implements LoginUseCase, GetUserInfoUseCase, ChangeCred
     return new LoginResponseDTO(user.getNickname(), user.getRole().getName(), user.isFirstLogin());
   }
 
+
   @Override
   public List<User> getUsersByRole(Role role) {
     return userRepository.findAllByRole(role);
   }
 
+
   @Override
   public List<Integer> getUsersIdsByRole(Role role) {
-    return userRepository.findAllByRole(role).stream() //
-        .map(User::getId) //
-        .collect(Collectors.toList());
+    return userRepository.findAllByRole(role).stream()
+        .map(User::getId)
+        .toList();
   }
+
 
   @Override
   public List<User> findAllByNicknames(List<String> nicknames) {
 
-    return nicknames.stream() //
-        .map(nick -> userRepository.findByNickname(nick) //
+    return nicknames.stream()
+        .map(nick -> userRepository.findByNickname(nick)
             .orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND,
-                "Utente con nickname \"" + nick + "\" non trovato"))) //
+                "Utente con nickname \"" + nick + "\" non trovato")))
         .toList();
   }
 
+
   @Override
   public int getIdByNickname(String nickname) {
-    Optional<User> user = findByNickname(nickname);
-    return user.orElseThrow(
-        () -> new UserException(UserErrorCode.USER_NOT_FOUND, "Utente con nickname \"" + nickname + "\" non trovato"))
-        .getId();
+    User user = findByNickname(nickname);
+    return user.getId();
   }
 }

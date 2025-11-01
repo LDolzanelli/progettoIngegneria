@@ -1,7 +1,6 @@
 package it.unibs.ingsw.destinazioni.application.port.in.user;
 
 import java.util.List;
-import java.util.Optional;
 
 import it.unibs.ingsw.destinazioni.application.exceptions.usecases.UserException;
 import it.unibs.ingsw.destinazioni.domain.model.User;
@@ -19,28 +18,32 @@ public interface GetUserInfoUseCase {
    * Trova un utente tramite il suo ID.
    * 
    * @param id l'ID dell'utente
-   * @return Optional contenente l'utente se trovato
+   * @return l'utente trovato
+   * @throws UserException se l'utente non esiste
    */
   /*@ requires id > 0;
     @ ensures \result != null;
-    @ ensures \result.isPresent() ==> \result.get().getId() == id;
+    @ ensures \result.getId() == id;
+    @ signals (UserException e) !userRepository.findById(id).isPresent();
     @ pure
     @*/
-  Optional<User> findById(int id);
+  User findById(int id);
 
 
   /**
    * Trova un utente tramite il suo nickname.
    * 
    * @param nickname il nickname dell'utente
-   * @return Optional contenente l'utente se trovato
+   * @return l'utente trovato
+   * @throws UserException se l'utente non esiste
    */
   /*@ requires nickname != null && !nickname.trim().isEmpty();
     @ ensures \result != null;
-    @ ensures \result.isPresent() ==> \result.get().getNickname().equals(nickname);
+    @ ensures \result.getNickname().equals(nickname);
+    @ signals (UserException e) !userRepository.findByNickname(nickname).isPresent();
     @ pure
     @*/
-  Optional<User> findByNickname(String nickname);
+  User findByNickname(String nickname);
 
 
   /**

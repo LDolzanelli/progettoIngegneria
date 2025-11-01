@@ -22,6 +22,7 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
         this.userService = userService;
     }
 
+
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request,
             HttpServletResponse response,
@@ -29,7 +30,7 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
             throws IOException, ServletException {
 
         String nickname = authentication.getName();
-        User user = userService.findByNickname(nickname).orElseThrow();
+        User user = userService.findByNickname(nickname);
 
         if (Boolean.TRUE.equals(user.isFirstLogin())) {
             response.sendRedirect("/change-credentials?role=" + user.getRole().toString());
