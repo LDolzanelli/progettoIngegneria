@@ -67,7 +67,7 @@ public class BookingService implements CreateBookingUseCase, BookingQueryUseCase
     updatedBookings.add(booking);
     visit.setBookings(updatedBookings);
 
-    updateVisitIntoTheDB(visit);
+    updateVisitInTheDB(visit);
   }
 
 
@@ -112,7 +112,7 @@ public class BookingService implements CreateBookingUseCase, BookingQueryUseCase
 
     visit.setBookings(updatedBookings);
 
-    updateVisitIntoTheDB(visit);
+    updateVisitInTheDB(visit);
   }
 
 
@@ -135,7 +135,7 @@ public class BookingService implements CreateBookingUseCase, BookingQueryUseCase
   }
 
 
-  private void updateVisitIntoTheDB(Visit visit) {
+  private void updateVisitInTheDB(Visit visit) {
     LocalDate visitDate = visit.getDate();
     VisitStatus status = visit.getVisitStatus();
     var visitType = visit.getVisitType();
