@@ -23,8 +23,5 @@ spring:
     database-platform: org.hibernate.dialect.MySQLDialect
     dialect: org.hibernate.dialect.MySQLDialect
 
-  liquibase:
-    enabled: false
-
 api:
   base-url: http://localhost:8080/api
