@@ -3,6 +3,7 @@ package it.unibs.ingsw.destinazioni.application.port.in.user;
 import java.util.List;
 import java.util.Optional;
 
+import it.unibs.ingsw.destinazioni.application.exceptions.usecases.UserException;
 import it.unibs.ingsw.destinazioni.domain.model.User;
 import it.unibs.ingsw.destinazioni.domain.model.enums.Role;
 
@@ -47,14 +48,14 @@ public interface GetUserInfoUseCase {
    * 
    * @param nickname il nickname dell'utente
    * @return l'ID dell'utente
-   * @throws IllegalArgumentException se l'utente non esiste
+   * @throws UserException se l'utente non esiste
    */
   /*@ requires nickname != null && !nickname.trim().isEmpty();
     @ requires findByNickname(nickname).isPresent();
     @ ensures \result > 0;
     @ ensures findById(\result).isPresent();
     @ ensures findById(\result).get().getNickname().equals(nickname);
-    @ signals (IllegalArgumentException e) !findByNickname(nickname).isPresent();
+    @ signals (UserException e) !findByNickname(nickname).isPresent();
     @ pure
     @*/
   int getIdByNickname(String nickname);
@@ -79,7 +80,7 @@ public interface GetUserInfoUseCase {
    * 
    * @param nicknames lista dei nickname da cercare
    * @return lista degli utenti trovati
-   * @throws IllegalArgumentException se uno dei nickname non esiste
+   * @throws UserException se uno dei nickname non esiste
    */
   /*@ requires nicknames != null;
     @ requires (\forall String nick; nicknames.contains(nick); 
@@ -89,7 +90,7 @@ public interface GetUserInfoUseCase {
     @ ensures \result != null;
     @ ensures \result.size() == nicknames.size();
     @ ensures (\forall User u; \result.contains(u); nicknames.contains(u.getNickname()));
-    @ signals (IllegalArgumentException e) 
+    @ signals (UserException e) 
     @         (\exists String nick; nicknames.contains(nick); !findByNickname(nick).isPresent());
     @ pure
     @*/

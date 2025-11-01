@@ -19,12 +19,6 @@ public class BlockedDatesService implements BlockedDatesUseCase {
     private final BlockedDatesRepositoryPort repository;
     private final Clock clock;
 
-
-    /*@ also
-      @ requires repository != null && clock != null;
-      @ ensures (\forall LocalDate date; blockedDates.contains(date);
-      @          repository.loadByMonth(getMonthToUpdate().getValue(), getYearToUpdate()).getDates().contains(date));
-      @*/
     @Override
     public void updateBlockedDates(Set<LocalDate> blockedDates) {
         BlockedDates dates = new BlockedDates(blockedDates);
@@ -32,21 +26,11 @@ public class BlockedDatesService implements BlockedDatesUseCase {
                 this.getMonthToUpdate().getYear());
     }
 
-
-    /*@ also
-      @ ensures \result.equals(repository.loadAll());
-      @*/
     @Override
     public BlockedDates getBlockedDates() {
         return repository.loadAll();
     }
 
-
-    /*@ also
-      @ ensures \result.equals(repository.loadByMonth(month, year));
-      @ ensures (\forall LocalDate date; \result.getDates().contains(date);
-      @          date.getMonthValue() == month && date.getYear() == year);
-      @*/
     @Override
     public BlockedDates getBlockedDates(int month, int year) {
 
@@ -56,7 +40,6 @@ public class BlockedDatesService implements BlockedDatesUseCase {
 
         return repository.loadByMonth(month, year);
     }
-
 
     @Override
     public YearMonth getMonthToUpdate() {

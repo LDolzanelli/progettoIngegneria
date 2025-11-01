@@ -14,7 +14,7 @@ public interface RemoveVolunteerUseCase {
    * viene rimosso anch'esso.
    * 
    * @param volunteer il volontario da rimuovere
-   * @throws IllegalArgumentException se il volontario non può essere rimosso
+   * @throws UserException se il volontario non può essere rimosso
    */
   /*@ requires volunteer != null;
     @ requires volunteer.getRole() == Role.VOLUNTEER;
@@ -25,7 +25,7 @@ public interface RemoveVolunteerUseCase {
     @ ensures (\forall VisitType vt; 
     @          !vt.getVolunteers().stream().anyMatch(v -> 
     @           v.getNickname().equals(volunteer.getNickname())));
-    @ signals (IllegalArgumentException e) !(\exists VolunteerValidationUseCase validation; 
+    @ signals (UserException e) !(\exists VolunteerValidationUseCase validation; 
     @                                        validation.canBeRemoved(volunteer));
     @*/
   void removeVolunteer(User volunteer);

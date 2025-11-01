@@ -1,5 +1,7 @@
 package it.unibs.ingsw.destinazioni.application.port.in.visitplan;
 
+import it.unibs.ingsw.destinazioni.application.exceptions.usecases.VisitPlanException;
+
 /**
  * Interface per la creazione dei piani di visita.
  */
@@ -23,13 +25,13 @@ public interface CreateVisitPlanUseCase {
    * Crea il piano di visita per il prossimo mese.
    * Assegna i volontari alle visite disponibili e aggiorna gli stati delle visite.
    * 
-   * @throws IllegalStateException se non è possibile creare il piano di visita
+   * @throws VisitPlanException se non è possibile creare il piano di visita
    */
   /*@ requires canCreateVisitPlan();
     @ ensures (\exists VisitPlanQueryUseCase query; 
     @          (\forall Visit v; query.getVisitPlan(getMonth(), getYear()).contains(v);
     @           v.getVolunteer() != null || v.getVisitStatus() == VisitStatus.CANCELLED));
-    @ signals (IllegalStateException e) !canCreateVisitPlan();
+    @ signals (VisitPlanException e) !canCreateVisitPlan();
     @*/
   public void createVisitPlan();
 

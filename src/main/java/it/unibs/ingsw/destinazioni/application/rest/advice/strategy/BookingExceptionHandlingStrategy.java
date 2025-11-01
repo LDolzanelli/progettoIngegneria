@@ -7,10 +7,7 @@ import org.springframework.stereotype.Component;
 import it.unibs.ingsw.destinazioni.application.exceptions.codes.BookingErrorCode;
 import it.unibs.ingsw.destinazioni.application.exceptions.usecases.BookingException;
 
-/**
- * Strategia per la gestione delle eccezioni relative al caso d'uso delle
- * prenotazioni.
- */
+
 @Component
 public class BookingExceptionHandlingStrategy implements ExceptionHandlingStrategy {
 

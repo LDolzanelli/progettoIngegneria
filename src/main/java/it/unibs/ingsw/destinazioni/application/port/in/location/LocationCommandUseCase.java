@@ -1,5 +1,6 @@
 package it.unibs.ingsw.destinazioni.application.port.in.location;
 
+import it.unibs.ingsw.destinazioni.application.exceptions.usecases.LocationException;
 import it.unibs.ingsw.destinazioni.domain.model.Location;
 
 /**
@@ -11,7 +12,7 @@ public interface LocationCommandUseCase {
      * Aggiunge una nuova location al sistema.
      * 
      * @param location la location da aggiungere
-     * @throws IllegalArgumentException se la location è null o ha dati non validi
+     * @throws LocationException se la location è null o ha dati non validi
      */
     /*@ requires location != null;
     @ requires location.getName() != null && !location.getName().trim().isEmpty();
@@ -20,7 +21,7 @@ public interface LocationCommandUseCase {
     @          query.listAll().stream().anyMatch(loc -> 
     @          loc.getName().equals(location.getName()) && 
     @          loc.getAddress().equals(location.getAddress())));
-    @ signals (IllegalArgumentException e) location == null || 
+    @ signals (LocationException e) location == null || 
     @                                      location.getName() == null || 
     @                                      location.getName().trim().isEmpty();
     @*/
@@ -31,7 +32,7 @@ public interface LocationCommandUseCase {
      * Aggiorna una location esistente.
      * 
      * @param location la location con i dati aggiornati
-     * @throws IllegalArgumentException se la location è null, l'ID è null o la location non esiste
+     * @throws LocationException se la location è null, l'ID è null o la location non esiste
      */
     /*@ requires location != null && location.getId() != null;
     @ requires location.getName() != null && !location.getName().trim().isEmpty();
@@ -40,7 +41,7 @@ public interface LocationCommandUseCase {
     @ ensures (\exists LocationQueryUseCase query; 
     @          query.findById(location.getId()).get().getName().equals(location.getName()) &&
     @          query.findById(location.getId()).get().getDescription().equals(location.getDescription()));
-    @ signals (IllegalArgumentException e) location == null || 
+    @ signals (LocationException e) location == null || 
     @                                      location.getId() == null ||
     @                                      !(\exists LocationQueryUseCase query; 
     @                                        query.findById(location.getId()).isPresent());
@@ -52,7 +53,7 @@ public interface LocationCommandUseCase {
      * Rimuove una location dal sistema.
      * 
      * @param locationId l'ID della location da rimuovere
-     * @throws IllegalArgumentException se la location non esiste o non può essere rimossa
+     * @throws LocationException se la location non esiste o non può essere rimossa
      */
     /*@ requires locationId > 0;
     @ requires (\exists LocationQueryUseCase query; 
@@ -61,7 +62,7 @@ public interface LocationCommandUseCase {
     @           validation.canBeRemoved(locationId));
     @ ensures (\exists LocationQueryUseCase query; 
     @          !query.findById(locationId).isPresent());
-    @ signals (IllegalArgumentException e) !(\exists LocationQueryUseCase query; 
+    @ signals (LocationException e) !(\exists LocationQueryUseCase query; 
     @                                        query.findById(locationId).isPresent()) || 
     @                                      !(\exists LocationValidationUseCase validation; 
     @                                        validation.canBeRemoved(locationId));

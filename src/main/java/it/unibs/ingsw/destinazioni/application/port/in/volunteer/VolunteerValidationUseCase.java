@@ -18,7 +18,7 @@ public interface VolunteerValidationUseCase {
    * 
    * @param volunteer il volontario da verificare
    * @return true se il volontario può essere rimosso, false altrimenti
-   * @throws IllegalArgumentException se l'utente non è un volontario
+   * @throws UserException se l'utente non è un volontario
    */
   /*@ requires volunteer != null;
     @ requires volunteer.getRole() == Role.VOLUNTEER;
@@ -26,7 +26,7 @@ public interface VolunteerValidationUseCase {
     @                    vt.getVolunteers().contains(volunteer);
     @                    (\exists VisitTypeValidationUseCase validation; validation.canBeRemoved(vt.getId())) || 
     @                    !vt.getVolunteers().contains(volunteer));
-    @ signals (IllegalArgumentException e) volunteer.getRole() != Role.VOLUNTEER;
+    @ signals (UserException e) volunteer.getRole() != Role.VOLUNTEER;
     @ pure
     @*/
   boolean canBeRemoved(User volunteer);

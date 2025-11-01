@@ -37,12 +37,12 @@ public interface VolunteerAvailabilityControlUseCase {
   /**
    * Abilita la disponibilità dei volontari per il mese i+2.
    * 
-   * @throws IllegalStateException se non è possibile abilitare la disponibilità
+   * @throws VolunteerAvailabilityException se non è possibile abilitare la disponibilità
    */
   /*@ requires canEnableAvailability();
     @ ensures isVolunteerAvailabilityOpen(getMonthToEnable());
     @ ensures areDefaultVisitDaysCreated(getMonthToEnable());
-    @ signals (IllegalStateException e) !canEnableAvailability();
+    @ signals (VolunteerAvailabilityException e) !canEnableAvailability();
     @*/
   void enableAvailability();
 
@@ -50,11 +50,11 @@ public interface VolunteerAvailabilityControlUseCase {
   /**
    * Disabilita la disponibilità dei volontari per il mese i+1.
    * 
-   * @throws IllegalStateException se non è possibile disabilitare la disponibilità
+   * @throws VolunteerAvailabilityException se non è possibile disabilitare la disponibilità
    */
   /*@ requires canDisableAvailability();
     @ ensures !isVolunteerAvailabilityOpen(getMonthToDisable());
-    @ signals (IllegalStateException e) !canDisableAvailability();
+    @ signals (VolunteerAvailabilityException e) !canDisableAvailability();
     @*/
   void disableAvailability();
 

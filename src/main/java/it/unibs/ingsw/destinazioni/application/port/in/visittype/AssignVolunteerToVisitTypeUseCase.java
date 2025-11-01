@@ -1,5 +1,7 @@
 package it.unibs.ingsw.destinazioni.application.port.in.visittype;
 
+import it.unibs.ingsw.destinazioni.application.exceptions.usecases.VisitTypeException;
+
 /**
  * Interface per l'assegnazione di volontari ai tipi di visita nel sistema.
  */
@@ -10,7 +12,7 @@ public interface AssignVolunteerToVisitTypeUseCase {
      * 
      * @param visitTypeId l'ID del tipo di visita
      * @param nickname il nickname del volontario
-     * @throws IllegalArgumentException se il tipo di visita non può essere modificato,
+     * @throws VisitTypeException se il tipo di visita non può essere modificato,
      *                                 il volontario non esiste, o è già associato
      */
     /*@ requires visitTypeId > 0 && nickname != null && !nickname.trim().isEmpty();
@@ -21,7 +23,7 @@ public interface AssignVolunteerToVisitTypeUseCase {
     @ ensures (\exists VisitTypeQueryUseCase query; 
     @          query.findById(visitTypeId).get().getVolunteers().stream()
     @          .anyMatch(v -> v.getNickname().equals(nickname)));
-    @ signals (IllegalArgumentException e) !(\exists VisitTypeQueryUseCase query; 
+    @ signals (VisitTypeException e) !(\exists VisitTypeQueryUseCase query; 
     @                                        query.findById(visitTypeId).isPresent()) ||
     @                                      !(\exists VisitTypeValidationUseCase validation; 
     @                                        validation.canBeModified(visitTypeId)) ||

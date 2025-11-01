@@ -20,7 +20,7 @@ public interface VolunteersAvailabilityUseCase {
    * 
    * @param volunteerId ID del volontario
    * @param availableDates insieme delle date di disponibilità
-   * @throws IllegalStateException se la disponibilità non è abilitata per il mese target
+   * @throws VolunteerAvailabilityException se la disponibilità non è abilitata per il mese target
    */
   /*@ requires volunteerId > 0;
     @ requires availableDates != null;
@@ -30,7 +30,7 @@ public interface VolunteersAvailabilityUseCase {
     @ ensures (\forall LocalDate date; availableDates.contains(date);
     @         getAvailability(volunteerId, getTargetMonth()).contains(date));
     @ ensures getAvailability(volunteerId, getTargetMonth()).size() == availableDates.size();
-    @ signals (IllegalStateException e) !isAvailabilityEnabled();
+    @ signals (VolunteerAvailabilityException e) !isAvailabilityEnabled();
     @*/
   void updateAvailability(int volunteerId, Set<LocalDate> availableDates);
 

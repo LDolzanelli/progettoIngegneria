@@ -1,5 +1,6 @@
 package it.unibs.ingsw.destinazioni.application.port.in.login;
 
+import it.unibs.ingsw.destinazioni.application.exceptions.usecases.UserException;
 import it.unibs.ingsw.destinazioni.domain.dto.LoginRequestDTO;
 import it.unibs.ingsw.destinazioni.domain.dto.LoginResponseDTO;
 
@@ -16,7 +17,7 @@ public interface LoginUseCase {
    * 
    * @param loginRequestDTO DTO contenente nickname e password
    * @return DTO con informazioni dell'utente loggato
-   * @throws IllegalArgumentException se l'utente non esiste o la password è errata
+   * @throws UserException se l'utente non esiste o la password è errata
    */
   /*@ requires loginRequestDTO != null;
     @ requires loginRequestDTO.nickname() != null && !loginRequestDTO.nickname().trim().isEmpty();
@@ -26,7 +27,7 @@ public interface LoginUseCase {
     @ ensures \result.nickname().equals(loginRequestDTO.nickname());
     @ ensures findByNickname(loginRequestDTO.nickname()).get().getRole().getName().equals(\result.role());
     @ ensures \result.firstLogin() == findByNickname(loginRequestDTO.nickname()).get().isFirstLogin();
-    @ signals (IllegalArgumentException e) !findByNickname(loginRequestDTO.nickname()).isPresent() ||
+    @ signals (UserException e) !findByNickname(loginRequestDTO.nickname()).isPresent() ||
     @                                      !passwordMatches(loginRequestDTO.password(), findByNickname(loginRequestDTO.nickname()).get().getPassword());
     @ pure
     @*/

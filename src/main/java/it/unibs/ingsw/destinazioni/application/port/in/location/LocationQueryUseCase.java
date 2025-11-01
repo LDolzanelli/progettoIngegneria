@@ -3,6 +3,7 @@ package it.unibs.ingsw.destinazioni.application.port.in.location;
 import java.util.List;
 import java.util.Optional;
 
+import it.unibs.ingsw.destinazioni.application.exceptions.usecases.LocationException;
 import it.unibs.ingsw.destinazioni.domain.model.Location;
 import it.unibs.ingsw.destinazioni.domain.model.VisitType;
 
@@ -48,12 +49,12 @@ public interface LocationQueryUseCase {
    * 
    * @param visitType il tipo di visita
    * @return la location associata
-   * @throws IllegalArgumentException se non c'è una location per il tipo di visita
+   * @throws LocationException se non c'è una location per il tipo di visita
    */
   /*@ requires visitType != null && visitType.getId() != null;
   @ ensures \result != null;
   @ ensures \result.getVisitTypes().contains(visitType);
-  @ signals (IllegalArgumentException e) visitType == null || 
+  @ signals (LocationException e) visitType == null || 
   @                                      visitType.getId() == null ||
   @                                      !(\exists Location loc; listAll().contains(loc);
   @                                        loc.getVisitTypes().contains(visitType));

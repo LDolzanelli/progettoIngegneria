@@ -35,23 +35,6 @@ public class BookingService implements CreateBookingUseCase, BookingQueryUseCase
   private final VisitRepositoryPort visitRepository;
 
   @Override
-  /*
-   * @ also
-   * 
-   * @ requires bookingRepository != null && userInfoService != null &&
-   * visitRepository != null;
-   * 
-   * @ ensures (\exists Booking b; getBookingsByVisit(visit).contains(b);
-   * 
-   * @ b.getUser().getId().equals(user.getId()) &&
-   * 
-   * @ b.getVisitorsNames().size() == visitorsNames.size());
-   * 
-   * @ ensures visit.getAvailableSeats() == \old(visit.getAvailableSeats()) -
-   * visitorsNames.size();
-   * 
-   * @
-   */
   public void bookVisit(Visit visit, User user, List<String> visitorsNames) {
     String bookingCode;
 
@@ -89,19 +72,6 @@ public class BookingService implements CreateBookingUseCase, BookingQueryUseCase
   }
 
   @Override
-  /*
-   * @ also
-   * 
-   * @ ensures \result.size() >= 0;
-   * 
-   * @ ensures (\forall Booking b; \result.contains(b);
-   * 
-   * @ (\exists int visitId; visitId == visit.getId();
-   * 
-   * @ bookingRepository.findAllByVisitId(visitId).contains(b)));
-   * 
-   * @
-   */
   public List<Booking> getBookingsByVisit(Visit visit) {
 
     visitRepository.findById(visit.getId()).orElseThrow(() -> new VisitDayException(VisitDayErrorCode.VISIT_NOT_FOUND,
@@ -111,16 +81,6 @@ public class BookingService implements CreateBookingUseCase, BookingQueryUseCase
   }
 
   @Override
-  /*
-   * @ also
-   * 
-   * @ ensures \result.size() >= 0;
-   * 
-   * @ ensures (\forall Booking b; \result.contains(b);
-   * b.getUser().getId().equals(user.getId()));
-   * 
-   * @
-   */
   public List<Booking> getBookingsByUser(User user) {
     userInfoService.findById(user.getId()).orElseThrow(
         () -> new UserException(UserErrorCode.USER_NOT_FOUND, "User with id " + user.getId() + " not found"));
@@ -128,20 +88,6 @@ public class BookingService implements CreateBookingUseCase, BookingQueryUseCase
   }
 
   @Override
-  /*
-   * @ also
-   * 
-   * @ ensures !(\exists Booking b;
-   * getBookingsByUser(getBookingByCode(bookingCode).getUser()).contains(b);
-   * 
-   * @ b.getBookingCode().equals(bookingCode));
-   * 
-   * @ ensures getVisitByBookingCode(bookingCode).getAvailableSeats() >
-   * 
-   * @ \old(getVisitByBookingCode(bookingCode).getAvailableSeats());
-   * 
-   * @
-   */
   public void cancelBooking(String bookingCode, int userId) {
     Booking booking = bookingRepository.findByBookingCode(bookingCode).orElseThrow(
         () -> new BookingException(BookingErrorCode.BOOKING_NOT_FOUND, "No booking found with code: " + bookingCode));
@@ -169,35 +115,14 @@ public class BookingService implements CreateBookingUseCase, BookingQueryUseCase
   }
 
   @Override
-  /*
-   * @ also
-   * 
-   * @ ensures \result == (getVisitByBookingCode(bookingCode).getVisitStatus() ==
-   * VisitStatus.PROPOSED ||
-   * 
-   * @ getVisitByBookingCode(bookingCode).getVisitStatus() == VisitStatus.FULL);
-   * 
-   * @
-   */
   public boolean isThisBookingCancellable(String bookingCode) {
     Visit visit = visitRepository.findByBookingCode(bookingCode).orElseThrow(
         () -> new BookingException(BookingErrorCode.BOOKING_NOT_FOUND, "No booking found with code: " + bookingCode));
-
-    // LocalDate today = LocalDate.now(clock); // Rimossa variabile inutilizzata
 
     return (visit.getVisitStatus() == VisitStatus.PROPOSED || visit.getVisitStatus() == VisitStatus.FULL);
   }
 
   @Override
-  /*
-   * @ also
-   * 
-   * @ ensures \result.getBookingCode().equals(bookingCode);
-   * 
-   * @ ensures bookingRepository.findByBookingCode(bookingCode).isPresent();
-   * 
-   * @
-   */
   public Booking getBookingByCode(String bookingCode) {
     return bookingRepository.findByBookingCode(bookingCode)
         .orElseThrow(() -> new BookingException(BookingErrorCode.BOOKING_NOT_FOUND,
@@ -220,16 +145,6 @@ public class BookingService implements CreateBookingUseCase, BookingQueryUseCase
   }
 
   @Override
-  /*
-   * @ also
-   * 
-   * @ ensures \result != null;
-   * 
-   * @ ensures getBookingsByVisit(\result).stream().anyMatch(b ->
-   * b.getBookingCode().equals(bookingCode));
-   * 
-   * @
-   */
   public Visit getVisitByBookingCode(String bookingCode) {
 
     return visitRepository.findByBookingCode(bookingCode)

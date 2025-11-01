@@ -29,7 +29,7 @@ public interface ExceptionHandlingStrategy {
     /**
      * Restituisce l'identificativo del caso d'uso gestito da questa strategia.
      * 
-     * @return Il nome del caso d'uso (es. "booking", "user", "visit")
+     * @return Il nome del caso d'uso
      */
     String getUseCaseType();
 }

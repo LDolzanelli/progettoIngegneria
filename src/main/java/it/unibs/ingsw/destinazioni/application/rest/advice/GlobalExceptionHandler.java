@@ -38,9 +38,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.internalServerError().body("Si è verificato un errore imprevisto. Riprova più tardi.");
     }
 
-    /**
-     * Gestisce eccezioni generiche non specifiche dei servizi.
-     */
+
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<String> handleIllegalArgumentException(IllegalArgumentException ex) {
         log.error("Argomento non valido: {}", ex.getMessage(), ex);

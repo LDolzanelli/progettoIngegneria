@@ -3,11 +3,17 @@ package it.unibs.ingsw.destinazioni.application.services;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.time.YearMonth;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import it.unibs.ingsw.destinazioni.application.exceptions.codes.UserErrorCode;
 import it.unibs.ingsw.destinazioni.application.exceptions.codes.VisitPlanErrorCode;
 import it.unibs.ingsw.destinazioni.application.exceptions.usecases.UserException;
@@ -52,15 +58,6 @@ public class VisitPlanService implements CreateVisitPlanUseCase, VisitPlanQueryU
      * - la raccolta di disponibilità per il mese i+1 è stata chiusa
      */
     @Override
-    /*
-     * @ also
-     * 
-     * @ ensures \result == (!statePort.isVisitPlanCreated(getMonth(), getYear()) &&
-     * 
-     * @ !availabilityStatePort.isVolunteerAvailabilityOpen(getMonth(), getYear()));
-     * 
-     * @
-     */
     public boolean canCreateVisitPlan() {
         LocalDate today = LocalDate.now(clock);
         YearMonth nextMonth = YearMonth.from(today).plusMonths(1);
@@ -73,25 +70,6 @@ public class VisitPlanService implements CreateVisitPlanUseCase, VisitPlanQueryU
 
     @Transactional // per poter rimuovere le blockedDates
     @Override
-    /*
-     * @ also
-     * 
-     * @ requires statePort != null && availabilityStatePort != null &&
-     * 
-     * @ userService != null && visitTypeRepository != null &&
-     * 
-     * @ volunteerAvailabilityRepository != null && visitRepository != null &&
-     * 
-     * @ blockedDatesRepository != null;
-     * 
-     * @ ensures statePort.isVisitPlanCreated(getMonth(), getYear());
-     * 
-     * @ ensures (\forall Visit v; getVisitPlan(getMonth(), getYear()).contains(v);
-     * 
-     * @ v.getVolunteer() != null || v.getVisitStatus() == VisitStatus.CANCELLED);
-     * 
-     * @
-     */
     public void createVisitPlan() {
         if (!canCreateVisitPlan()) {
             throw new VisitPlanException(VisitPlanErrorCode.CANT_BE_CREATED,
@@ -165,19 +143,6 @@ public class VisitPlanService implements CreateVisitPlanUseCase, VisitPlanQueryU
     }
 
     @Override
-    /*
-     * @ also
-     * 
-     * @ ensures \result != null;
-     * 
-     * @ ensures (\forall Visit v; \result.contains(v);
-     * 
-     * @ v.getDate().getMonthValue() == month && v.getDate().getYear() == year);
-     * 
-     * @ ensures \result.size() >= 0;
-     * 
-     * @
-     */
     public List<Visit> getVisitPlan(int month, int year) {
         ArrayList<Visit> visitPlan = new ArrayList<>();
 
@@ -189,21 +154,6 @@ public class VisitPlanService implements CreateVisitPlanUseCase, VisitPlanQueryU
     }
 
     @Override
-    /*
-     * @ also
-     * 
-     * @ ensures \result != null;
-     * 
-     * @ ensures (\forall Visit v; \result.contains(v);
-     * 
-     * @ v.getVolunteer() != null && v.getDate().isAfter(LocalDate.now(clock)) &&
-     * 
-     * @ v.getVisitStatus() != VisitStatus.COMPLETED);
-     * 
-     * @ ensures \result.size() >= 0;
-     * 
-     * @
-     */
     public List<Visit> getAllVisitsAfterToday() {
         ArrayList<Visit> visitPlan = new ArrayList<>();
         LocalDate today = LocalDate.now(clock);
@@ -220,19 +170,6 @@ public class VisitPlanService implements CreateVisitPlanUseCase, VisitPlanQueryU
     }
 
     @Override
-    /*
-     * @ also
-     * 
-     * @ ensures \result != null;
-     * 
-     * @ ensures (\forall Visit v; \result.contains(v);
-     * 
-     * @ v.getVisitStatus() == VisitStatus.COMPLETED);
-     * 
-     * @ ensures \result.size() >= 0;
-     * 
-     * @
-     */
     public List<Visit> getAllCompletedVisits() {
         ArrayList<Visit> visitPlan = new ArrayList<>();
 
@@ -243,31 +180,12 @@ public class VisitPlanService implements CreateVisitPlanUseCase, VisitPlanQueryU
     }
 
     @Override
-    /*
-     * @ also
-     * 
-     * @ ensures \result >= 1 && \result <= 12;
-     * 
-     * @ ensures \result ==
-     * YearMonth.from(LocalDate.now(clock)).plusMonths(1).getMonthValue();
-     * 
-     * @
-     */
     public int getMonth() {
         LocalDate today = LocalDate.now(clock);
         return YearMonth.from(today).plusMonths(1).getMonthValue();
     }
 
     @Override
-    /*
-     * @ also
-     * 
-     * @ ensures \result > 0;
-     * 
-     * @ ensures \result == LocalDate.now(clock).getYear();
-     * 
-     * @
-     */
     public int getYear() {
         LocalDate today = LocalDate.now(clock);
         return today.getYear();

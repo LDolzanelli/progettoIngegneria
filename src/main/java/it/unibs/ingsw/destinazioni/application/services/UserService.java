@@ -28,23 +28,6 @@ public class UserService implements LoginUseCase, GetUserInfoUseCase, ChangeCred
   private final PasswordEncoder passwordEncoder;
 
   @Override
-  /*
-   * @ also
-   * 
-   * @ requires userRepository != null && passwordEncoder != null;
-   * 
-   * @ ensures userRepository.findByNickname(user.getNickname()).isPresent();
-   * 
-   * @ ensures
-   * !userRepository.findByNickname(user.getNickname()).get().getPassword().equals
-   * (\old(user.getPassword()));
-   * 
-   * @ ensures
-   * userRepository.findByNickname(user.getNickname()).get().isFirstLogin() ==
-   * !user.getRole().equals(Role.FINAL_USER);
-   * 
-   * @
-   */
   public void registerNewUser(User user) {
     if (userRepository.findByNickname(user.getNickname()).isPresent()) {
       throw new UserException(UserErrorCode.USER_ALREADY_EXISTS,
@@ -57,17 +40,6 @@ public class UserService implements LoginUseCase, GetUserInfoUseCase, ChangeCred
   }
 
   @Override
-  /*
-   * @ also
-   * 
-   * @ ensures userRepository.findByNickname(nickname).get().isFirstLogin() ==
-   * false;
-   * 
-   * @ ensures !passwordEncoder.matches(oldPassword,
-   * userRepository.findByNickname(nickname).get().getPassword());
-   * 
-   * @
-   */
   public void changePassword(String nickname, String oldPassword, String newPassword) {
 
     User user = userRepository.findByNickname(nickname).orElseThrow(
@@ -83,23 +55,6 @@ public class UserService implements LoginUseCase, GetUserInfoUseCase, ChangeCred
   }
 
   @Override
-  /*
-   * @ also
-   * 
-   * @ ensures userRepository.findByNickname(newNickname).isPresent();
-   * 
-   * @ ensures
-   * userRepository.findByNickname(newNickname).get().getNickname().equals(
-   * newNickname);
-   * 
-   * @ ensures userRepository.findByNickname(newNickname).get().isFirstLogin() ==
-   * false;
-   * 
-   * @ ensures !oldNickname.equals(newNickname) ==>
-   * !userRepository.findByNickname(oldNickname).isPresent();
-   * 
-   * @
-   */
   public void changeUsername(String oldNickname, String newNickname) {
     if (oldNickname.equals(newNickname) && userRepository.findByNickname(newNickname).isPresent()) {
       throw new UserException(UserErrorCode.USER_ALREADY_EXISTS,
@@ -115,16 +70,6 @@ public class UserService implements LoginUseCase, GetUserInfoUseCase, ChangeCred
   }
 
   @Override
-  /*
-   * @ also
-   * 
-   * @ ensures userRepository.findByNickname(newNickname).isPresent();
-   * 
-   * @ ensures userRepository.findByNickname(newNickname).get().isFirstLogin() ==
-   * false;
-   * 
-   * @
-   */
   public void changeBothCredentials(String oldNickname, String newNickname, String oldPassword, String newPassword) {
     User user = userRepository.findByNickname(oldNickname)
         .orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND,
@@ -145,42 +90,16 @@ public class UserService implements LoginUseCase, GetUserInfoUseCase, ChangeCred
   }
 
   @Override
-  /*
-   * @ also
-   * 
-   * @ ensures \result.isPresent() ==> \result.get().getId() == id;
-   * 
-   * @
-   */
   public Optional<User> findById(int id) {
     return userRepository.findById(id);
   }
 
   @Override
-  /*
-   * @ also
-   * 
-   * @ ensures \result.isPresent() ==>
-   * \result.get().getNickname().equals(nickname);
-   * 
-   * @
-   */
   public Optional<User> findByNickname(String nickname) {
     return userRepository.findByNickname(nickname);
   }
 
   @Override
-  /*
-   * @ also
-   * 
-   * @ ensures \result.nickname().equals(loginRequestDTO.nickname());
-   * 
-   * @ ensures \result.role().equals(optionalUser.get().getRole().getName());
-   * 
-   * @ ensures \result.firstLogin() == optionalUser.get().isFirstLogin();
-   * 
-   * @
-   */
   public LoginResponseDTO login(LoginRequestDTO loginRequestDTO) {
     Optional<User> optionalUser = userRepository.findByNickname(loginRequestDTO.nickname());
 
@@ -198,25 +117,11 @@ public class UserService implements LoginUseCase, GetUserInfoUseCase, ChangeCred
   }
 
   @Override
-  /*
-   * @ also
-   * 
-   * @ ensures (\forall User u; \result.contains(u); u.getRole() == role);
-   * 
-   * @
-   */
   public List<User> getUsersByRole(Role role) {
     return userRepository.findAllByRole(role);
   }
 
   @Override
-  /*
-   * @ also
-   * 
-   * @ ensures (\forall User u; \result.contains(u); u.getRole() == role);
-   * 
-   * @
-   */
   public List<Integer> getUsersIdsByRole(Role role) {
     return userRepository.findAllByRole(role).stream() //
         .map(User::getId) //
@@ -224,16 +129,6 @@ public class UserService implements LoginUseCase, GetUserInfoUseCase, ChangeCred
   }
 
   @Override
-  /*
-   * @ also
-   * 
-   * @ ensures \result.size() == nicknames.size();
-   * 
-   * @ ensures (\forall User u; \result.contains(u);
-   * nicknames.contains(u.getNickname()));
-   * 
-   * @
-   */
   public List<User> findAllByNicknames(List<String> nicknames) {
 
     return nicknames.stream() //
@@ -244,17 +139,6 @@ public class UserService implements LoginUseCase, GetUserInfoUseCase, ChangeCred
   }
 
   @Override
-  /*
-   * @ also
-   * 
-   * @ ensures \result > 0;
-   * 
-   * @ ensures findById(\result).isPresent();
-   * 
-   * @ ensures findById(\result).get().getNickname().equals(nickname);
-   * 
-   * @
-   */
   public int getIdByNickname(String nickname) {
     Optional<User> user = findByNickname(nickname);
     return user.orElseThrow(

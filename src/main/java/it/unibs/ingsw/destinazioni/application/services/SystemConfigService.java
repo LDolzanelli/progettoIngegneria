@@ -13,10 +13,6 @@ public class SystemConfigService implements ChangeMaxNumberOfTicketsUseCase {
   private final SystemConfigRepositoryPort repository;
 
   @Override
-  /*@ also
-    @ requires repository != null;
-    @ ensures repository.getMaxTicketsPerUser() == maxNumberOfTickets;
-    @*/
   public void setMaxNumberOfTickets(int maxNumberOfTickets) {
     repository.setMaxTicketsPerUser(maxNumberOfTickets);
 
@@ -24,10 +20,6 @@ public class SystemConfigService implements ChangeMaxNumberOfTicketsUseCase {
 
 
   @Override
-  /*@ also
-    @ ensures \result == repository.getMaxTicketsPerUser();
-    @ ensures \result > 0;
-    @*/
   public int getMaxNumberOfTickets() {
     return repository.getMaxTicketsPerUser();
   }
