@@ -11,6 +11,7 @@ import it.unibs.ingsw.destinazioni.application.exceptions.base.BaseUseCaseExcept
 import it.unibs.ingsw.destinazioni.application.rest.advice.strategy.ExceptionHandlingStrategy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 @Hidden
 @ControllerAdvice
@@ -59,5 +60,10 @@ public class GlobalExceptionHandler {
      */
     private ExceptionHandlingStrategy findStrategy(Exception exception) {
         return strategies.stream().filter(strategy -> strategy.canHandle(exception)).findFirst().orElse(null);
+    }
+
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<Void> handleNoResourceFound(NoResourceFoundException ex) {
+        return ResponseEntity.notFound().build();
     }
 }
