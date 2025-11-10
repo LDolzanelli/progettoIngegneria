@@ -16,6 +16,4 @@ spring:
   test:
     database:
       replace: none
-    
-  liquibase:
-    enabled: false
+  
